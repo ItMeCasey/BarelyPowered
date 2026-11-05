@@ -1,5 +1,9 @@
 package com.itmecasey.barelypowered.dev;
 
+import net.minecraft.network.chat.Component;
+import net.minecraft.core.Direction;
+import com.itmecasey.barelypowered.block.BatteryBlockEntity;
+import com.itmecasey.barelypowered.block.BatteryBlock;
 import com.itmecasey.barelypowered.Dev;
 import com.itmecasey.barelypowered.block.GeneratorBlockEntity;
 import java.io.IOException;
@@ -181,6 +185,8 @@ public final class ShotTour {
         }, "water", pos -> {
             server(String.format(Locale.ROOT, "setblock %d %d %d minecraft:water", pos.getX() - 1, pos.getY() + 1, pos.getZ()));
         });
+        batteryScene(x += 8);
+
         then(20, () -> {
             Minecraft minecraft = Minecraft.getInstance();
             minecraft.options.pauseOnLostFocus = pauseOnLostFocus;
@@ -236,6 +242,44 @@ public final class ShotTour {
         shoot(name + "_sink", 8);
         then(2, () -> moveTo(new Vec3(x + 0.5, y + 0.9, -2.1), new Vec3(x + 0.5, y + 0.5, 0.5)));
         shoot(name + "_look", 40);
+    }
+
+    /** A steel combustion generator feeding an iron battery feeding the sink: charge builds, then a face is switched off. */
+    private static void batteryScene(int x) {
+        BlockPos gen = new BlockPos(x, ground, 0);
+        BlockPos bat = gen.east();
+        BlockPos sinkPos = bat.east();
+        then(4, () -> {
+            server(String.format(Locale.ROOT, "setblock %d %d %d barelypowered:combustion_generator_steel[facing=north]", x, ground, 0),
+                    String.format(Locale.ROOT, "setblock %d %d %d barelypowered:battery_iron", x + 1, ground, 0),
+                    String.format(Locale.ROOT, "setblock %d %d %d barelypowered:test_energy_sink", x + 2, ground, 0));
+            onServer(srv -> {
+                if (srv.overworld().getBlockEntity(gen) instanceof GeneratorBlockEntity g) {
+                    g.debugSet(new ItemStack(Items.CHARCOAL, 8), 0);
+                }
+            });
+        });
+        then(4, () -> moveTo(new Vec3(x + 1.5, ground + 1.1, -2.4), new Vec3(x + 1.5, ground + 0.5, 0.5)));
+        shoot("battery_chain_a", 60);
+        then(2, () -> onServer(srv -> {
+            ServerPlayer p = srv.getPlayerList().getPlayers().get(0);
+            if (srv.overworld().getBlockEntity(bat) instanceof BatteryBlockEntity b) {
+                b.cycleFace(Direction.EAST);
+                b.cycleFace(Direction.EAST);
+                b.cycleFace(Direction.EAST);
+                p.sendOverlayMessage(Component.translatable("message.barelypowered.battery", BatteryBlock.faceName(Direction.EAST), b.core().mode(Direction.EAST.ordinal()).label(), b.core().stored(), b.core().capacity()));
+            }
+        }));
+        shoot("battery_chain_faceoff", 70);
+        then(2, () -> moveTo(new Vec3(x + 1.5, ground + 1.1, -2.4), new Vec3(x + 1.5, ground + 0.5, 0.5)));
+        then(2, () -> onServer(srv -> {
+            ServerPlayer p = srv.getPlayerList().getPlayers().get(0);
+            if (srv.overworld().getBlockEntity(bat) instanceof BatteryBlockEntity b && srv.overworld().getBlockEntity(sinkPos) instanceof SinkBlockEntity s) {
+                LOGGER.info("BARELYPOWERED-SHOTS battery chain: battery stored={} sink received={}", b.core().stored(), s.received());
+            }
+        }));
+        then(2, () -> moveTo(new Vec3(x + 1.0, ground + 0.9, -2.1), new Vec3(x + 1.0, ground + 0.5, 0.5)));
+        shoot("battery_chain_look", 40);
     }
 
     private static void moveTo(Vec3 eye, Vec3 target) {

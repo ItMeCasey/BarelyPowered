@@ -1,6 +1,9 @@
 package com.itmecasey.barelypowered.compat;
 
 import com.itmecasey.barelypowered.Kind;
+import com.itmecasey.barelypowered.FaceMode;
+import com.itmecasey.barelypowered.block.BatteryBlock;
+import com.itmecasey.barelypowered.block.BatteryBlockEntity;
 import com.itmecasey.barelypowered.block.GeneratorBlockEntity;
 import com.itmecasey.smwti.api.CommonRegistration;
 import com.itmecasey.smwti.api.ISmwtiPlugin;
@@ -20,6 +23,16 @@ public class BarelyPoweredSmwtiPlugin implements ISmwtiPlugin {
     @Override
     public void register(CommonRegistration registration) {
         registration.serverBlock((tooltip, level, pos, entity, detailed) -> {
+            if (entity instanceof BatteryBlockEntity battery) {
+                tooltip.add(Component.translatable("smwti.barelypowered.battery_rate", battery.core().rate()));
+                for (net.minecraft.core.Direction face : net.minecraft.core.Direction.values()) {
+                    FaceMode mode = battery.core().mode(face.ordinal());
+                    if (mode != FaceMode.BOTH) {
+                        tooltip.add(Component.translatable("smwti.barelypowered.face", BatteryBlock.faceName(face), mode.label()));
+                    }
+                }
+                return;
+            }
             if (!(entity instanceof GeneratorBlockEntity be)) {
                 return;
             }
