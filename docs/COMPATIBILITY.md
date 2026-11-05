@@ -4,7 +4,7 @@ Checked on 2026-11-05 against the compatibility standard in the studio playbook.
 
 ## What BarelyPowered adds to each viewer
 
-- **Item and recipe viewers (BEI, REI, JEI, EMI):** nothing to register. BarelyPowered and BarelyCables add items, blocks and recipes of the vanilla types only (crafting table and one blasting recipe for the steel ingot), so every viewer lists them from the game's own recipe data. There are no custom recipe categories, so no viewer plugin code exists. The item tooltips are plain text.
+- **Item and recipe viewers (BEI, REI, JEI, EMI):** nothing to register. BarelyPowered and BarelyCables add items, blocks and recipes of the vanilla types only (crafting table and one blasting recipe for the steel ingot), so every viewer lists them from the game's own recipe data. There are no custom recipe categories, so no viewer plugin code exists. The item tooltips are plain text. The wind turbine's tower pieces (mast and rotor head) have no item, so they are not listed in any viewer; the viewers show the one turbine item you place.
 - **In-world info:** Show Me What This Is (our own, plugins in `compat/`) and Jade (`jade/` package in each NeoForge layer). Generators show output, fuel or lava and the reason for a low output; batteries show their rate and every face that is not set to both; cables show the network rate, size and switched-off sides. Jade draws the energy bar itself from the energy capability. Cable lines live in BarelyCables and import nothing from BarelyPowered.
 
 ## Which builds exist upstream (CurseForge lookup, 2026-11-05)
