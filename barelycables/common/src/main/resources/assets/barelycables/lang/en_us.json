@@ -1,0 +1,20 @@
+{
+  "block.barelycables.energy_cable_basic": "Basic Energy Cable",
+  "block.barelycables.energy_cable_iron": "Iron Energy Cable",
+  "block.barelycables.energy_cable_steel": "Steel Energy Cable",
+  "itemGroup.barelycables": "BarelyCables",
+  "tooltip.barelycables.cable": "Joins generators, batteries and machines. Right-click an arm with an empty hand to switch that side off or on.",
+  "tooltip.barelycables.rate": "A network of these moves up to %s FE per tick",
+  "message.barelycables.face_off": "%s side: switched off",
+  "message.barelycables.face_on": "%s side: switched on",
+  "smwti.barelycables.rate": "Network rate: %s FE/t",
+  "smwti.barelycables.buffer": "Network buffer: %s / %s FE",
+  "smwti.barelycables.size": "%s cables, %s connections",
+  "smwti.barelycables.face_off": "%s side switched off",
+  "message.barelycables.face.down": "Down",
+  "message.barelycables.face.up": "Up",
+  "message.barelycables.face.north": "North",
+  "message.barelycables.face.south": "South",
+  "message.barelycables.face.west": "West",
+  "message.barelycables.face.east": "East"
+}

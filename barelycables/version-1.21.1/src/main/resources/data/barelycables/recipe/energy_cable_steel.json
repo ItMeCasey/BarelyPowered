@@ -1,0 +1,21 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "redstone",
+  "pattern": [
+    "SSS",
+    "XXX",
+    "SSS"
+  ],
+  "key": {
+    "S": {
+      "tag": "c:ingots/steel"
+    },
+    "X": {
+      "item": "barelycables:energy_cable_iron"
+    }
+  },
+  "result": {
+    "id": "barelycables:energy_cable_steel",
+    "count": 4
+  }
+}

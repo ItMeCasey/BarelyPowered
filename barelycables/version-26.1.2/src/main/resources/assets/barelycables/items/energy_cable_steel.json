@@ -1,0 +1,6 @@
+{
+  "model": {
+    "type": "minecraft:model",
+    "model": "barelycables:block/energy_cable_steel_item"
+  }
+}

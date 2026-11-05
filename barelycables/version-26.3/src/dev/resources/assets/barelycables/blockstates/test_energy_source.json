@@ -1,0 +1,7 @@
+{
+  "variants": {
+    "": {
+      "model": "barelycables:block/test_energy_source"
+    }
+  }
+}

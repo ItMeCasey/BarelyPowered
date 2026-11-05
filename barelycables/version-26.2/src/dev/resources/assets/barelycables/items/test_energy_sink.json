@@ -1,0 +1,6 @@
+{
+  "model": {
+    "type": "minecraft:model",
+    "model": "barelycables:block/test_energy_sink"
+  }
+}

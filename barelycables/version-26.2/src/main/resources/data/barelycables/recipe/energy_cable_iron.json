@@ -1,0 +1,17 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "redstone",
+  "pattern": [
+    "III",
+    "XXX",
+    "III"
+  ],
+  "key": {
+    "I": "minecraft:iron_ingot",
+    "X": "barelycables:energy_cable_basic"
+  },
+  "result": {
+    "id": "barelycables:energy_cable_iron",
+    "count": 4
+  }
+}

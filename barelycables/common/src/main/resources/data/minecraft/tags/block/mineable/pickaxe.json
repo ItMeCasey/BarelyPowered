@@ -1,0 +1,8 @@
+{
+  "replace": false,
+  "values": [
+    "barelycables:energy_cable_basic",
+    "barelycables:energy_cable_iron",
+    "barelycables:energy_cable_steel"
+  ]
+}
