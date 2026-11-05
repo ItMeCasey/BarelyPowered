@@ -19,7 +19,13 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.util.Mth;
 import net.minecraft.world.Difficulty;
+import net.minecraft.core.Direction;
+import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.GameRules;
 import net.minecraft.world.level.GameType;
@@ -186,6 +192,11 @@ public final class ShotTour {
         }, "water", pos -> {
             server(String.format(Locale.ROOT, "setblock %d %d %d minecraft:water", pos.getX() - 1, pos.getY() + 1, pos.getZ()));
         });
+        ResourceLocation pipeId = ResourceLocation.fromNamespaceAndPath("aeroflux", "copper_energy_pipe");
+        if (BuiltInRegistries.ITEM.containsKey(pipeId)) {
+            aeroFluxScene(x += 8, BuiltInRegistries.ITEM.get(pipeId));
+        }
+
         then(20, () -> {
             Minecraft minecraft = Minecraft.getInstance();
             minecraft.options.pauseOnLostFocus = pauseOnLostFocus;
@@ -239,6 +250,48 @@ public final class ShotTour {
             }
         }));
         shoot(name + "_sink", 8);
+    }
+
+    /** A steel combustion generator, three AeroFlux energy pipes in a row, then the sink: does the pipe carry the power? */
+    private static void aeroFluxScene(int x, Item pipe) {
+        BlockPos gen = new BlockPos(x, ground, 0);
+        then(4, () -> {
+            server(String.format(Locale.ROOT, "setblock %d %d %d barelypowered:combustion_generator_steel[facing=north]", x, ground, 0),
+                    String.format(Locale.ROOT, "setblock %d %d %d barelypowered:test_energy_sink", x + 4, ground, 0));
+            onServer(srv -> {
+                if (srv.overworld().getBlockEntity(gen) instanceof GeneratorBlockEntity be) {
+                    be.debugSet(new ItemStack(Items.CHARCOAL, 8), 0);
+                }
+            });
+        });
+        for (int i = 1; i <= 3; i++) {
+            BlockPos at = new BlockPos(x + i, ground, 0);
+            then(2, () -> {
+                moveTo(new Vec3(at.getX() + 0.5, ground + 1.62, -2.5), new Vec3(at.getX() + 0.5, ground + 0.3, 0.5));
+                ItemStack stack = new ItemStack(pipe);
+                player().getInventory().setItem(0, stack.copy());
+                player().getInventory().selected = 0;
+                Minecraft.getInstance().gameMode.handleCreativeModeItemAdd(stack, 36);
+            });
+            then(3, () -> {
+                BlockPos below = at.below();
+                Minecraft.getInstance().gameMode.useItemOn(player(), InteractionHand.MAIN_HAND,
+                        new BlockHitResult(Vec3.atCenterOf(below).add(0, 0.5, 0), Direction.UP, below, false));
+            });
+        }
+        then(2, () -> server("clear @p"));
+        then(2, () -> moveTo(new Vec3(x + 2.0, ground + 1.4, -3.2), new Vec3(x + 2.0, ground + 0.4, 0.5)));
+        shoot("aeroflux_pipe_a", 100);
+        shoot("aeroflux_pipe_b", 40);
+        then(2, () -> onServer(srv -> {
+            ServerPlayer p = srv.getPlayerList().getPlayers().get(0);
+            BlockEntity sink = srv.overworld().getBlockEntity(gen.offset(4, 0, 0));
+            long got = sink instanceof SinkBlockEntity sb ? sb.received() : -1;
+            LOGGER.info("BARELYPOWERED-SHOTS aeroflux sink received={}", got);
+            p.displayClientMessage(net.minecraft.network.chat.Component.literal(
+                    "Generator, 3 AeroFlux energy pipes, sink: " + got + " FE received"), true);
+        }));
+        shoot("aeroflux_pipe_sink", 8);
     }
 
     private static void moveTo(Vec3 eye, Vec3 target) {
