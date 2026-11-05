@@ -36,6 +36,7 @@ minecraft {
     runs {
         configureEach {
             workingDirectory project.file('run')
+            property 'barelypowered.dev', 'true'
             property 'eventbus.api.strictRuntimeChecks', 'true'
             mods {
                 "${mod_id}" {

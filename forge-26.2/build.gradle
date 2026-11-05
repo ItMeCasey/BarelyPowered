@@ -30,6 +30,7 @@ minecraft {
     runs {
         configureEach {
             workingDir = layout.projectDirectory.dir('run')
+            systemProperty 'barelypowered.dev', 'true'
             systemProperty 'eventbus.api.strictRuntimeChecks', 'true'
         }
         register('client')

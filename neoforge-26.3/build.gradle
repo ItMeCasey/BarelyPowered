@@ -32,6 +32,7 @@ neoForge {
     runs {
         configureEach {
             gameDirectory = layout.projectDirectory.dir('run')
+            systemProperty 'barelypowered.dev', 'true'
         }
         client {
             client()

@@ -6,5 +6,7 @@
   "ingredient": {
     "item": "minecraft:iron_ingot"
   },
-  "result": "barelypowered:steel_ingot"
+  "result": {
+    "id": "barelypowered:steel_ingot"
+  }
 }

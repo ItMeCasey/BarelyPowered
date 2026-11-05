@@ -177,7 +177,7 @@ def recipes(root, new):
         "cookingtime": 400,
         "experience": 0.7,
         "ingredient": ingredient("minecraft:iron_ingot", new),
-        "result": {"id": f"{MODID}:steel_ingot"} if new else f"{MODID}:steel_ingot",
+        "result": {"id": f"{MODID}:steel_ingot"},
     }
     write(data / "steel_ingot_from_blasting.json", steel)
 

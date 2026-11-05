@@ -25,6 +25,7 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.levelgen.Heightmap;
 import net.minecraft.world.level.material.FlowingFluid;
 import net.minecraft.world.level.material.FluidState;
 import org.jetbrains.annotations.Nullable;
@@ -139,13 +140,8 @@ public class GeneratorBlockEntity extends BlockEntity {
     /** Right-click with an empty hand: the hand crank turns, anything else reports its status. */
     public void interact(Player player) {
         if (kind == Kind.HAND_CRANK) {
-            if (crankCooldown <= 0 && buffer.space() > 0) {
-                buffer.fill(Settings.getInt("hand_crank.fe_per_use"));
-                crankCooldown = Settings.getInt("hand_crank.cooldown_ticks");
-                crankGlow = 12;
-                note = "cranking";
+            if (crank()) {
                 player.causeFoodExhaustion(0.05F);
-                syncNow();
             }
         } else if (kind == Kind.COMBUSTION && player.isShiftKeyDown() && !fuel.isEmpty()) {
             ItemStack out = takeFuel();
@@ -155,6 +151,25 @@ public class GeneratorBlockEntity extends BlockEntity {
             syncNow();
         }
         player.displayClientMessage(statusLine(), true);
+    }
+
+    /** Turns the hand crank once; false if it is still cooling down or full. */
+    public boolean crank() {
+        if (kind != Kind.HAND_CRANK || crankCooldown > 0 || buffer.space() <= 0) {
+            return false;
+        }
+        buffer.fill(Settings.getInt("hand_crank.fe_per_use"));
+        crankCooldown = Settings.getInt("hand_crank.cooldown_ticks");
+        crankGlow = 12;
+        note = "cranking";
+        syncNow();
+        return true;
+    }
+
+    /** For the self test: puts fuel in or sets the lava level directly. */
+    public void debugSet(ItemStack fuelStack, int lava) {
+        this.fuel = fuelStack;
+        this.lavaMb = lava;
     }
 
     public ItemStack takeFuel() {
@@ -284,15 +299,21 @@ public class GeneratorBlockEntity extends BlockEntity {
         return rate > 0 && buffer.space() > 0 || rate > 0 && made > 0;
     }
 
+    /** Nothing solid or wet above: read from the height map so the answer is exact even right after a block change. */
+    private static boolean skyOpen(Level level, BlockPos pos) {
+        return level.dimensionType().hasSkyLight()
+                && pos.getY() + 1 >= level.getHeight(Heightmap.Types.MOTION_BLOCKING, pos.getX(), pos.getZ());
+    }
+
     private void scan(Level level, BlockPos pos) {
         switch (kind) {
             case SOLAR -> {
-                boolean sky = level.dimensionType().hasSkyLight() && level.canSeeSky(pos.above());
+                boolean sky = skyOpen(level, pos);
                 rate = PowerMath.solarOutput(tier, level.getDayTime(), sky, level.isRainingAt(pos.above()), level.isThundering());
                 note = !sky ? "no_sky" : rate <= 0 ? "night" : level.isRainingAt(pos.above()) ? "weather" : "ok";
             }
             case WIND -> {
-                boolean sky = level.dimensionType().hasSkyLight() && level.canSeeSky(pos.above());
+                boolean sky = skyOpen(level, pos);
                 if (age % 200 == 1 || age == 1) {
                     scanWind(level, pos);
                 }
@@ -346,7 +367,8 @@ public class GeneratorBlockEntity extends BlockEntity {
         BlockPos.MutableBlockPos p = new BlockPos.MutableBlockPos();
         for (int dx = -2; dx <= 2; dx++) {
             for (int dz = -2; dz <= 2; dz++) {
-                if (dx == 0 && dz == 0) {
+                // The centre column and the four side neighbors are where cables and machines sit, so they do not count.
+                if (Math.abs(dx) + Math.abs(dz) <= 1) {
                     continue;
                 }
                 for (int dy = 0; dy <= 1; dy++) {
