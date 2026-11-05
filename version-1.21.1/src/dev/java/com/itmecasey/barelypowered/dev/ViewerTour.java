@@ -121,8 +121,17 @@ final class ViewerTour {
 
     private static void move(Minecraft mc, String arg) throws ReflectiveOperationException {
         String[] xy = arg.split(",");
+        // Values up to 1.5 are fractions of the window, so a check does not depend on how big the window turned out.
+        double x = Double.parseDouble(xy[0]);
+        double y = Double.parseDouble(xy[1]);
+        if (x <= 1.5) {
+            x *= mc.getWindow().getScreenWidth();
+        }
+        if (y <= 1.5) {
+            y *= mc.getWindow().getScreenHeight();
+        }
         method(mc.mouseHandler.getClass(), "onMove").invoke(mc.mouseHandler, mc.getWindow().getWindow(),
-                Double.parseDouble(xy[0]), Double.parseDouble(xy[1]));
+                x, y);
     }
 
     private static void button(Minecraft mc, String arg, boolean down) throws ReflectiveOperationException {

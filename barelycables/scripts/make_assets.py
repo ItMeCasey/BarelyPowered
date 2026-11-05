@@ -129,6 +129,7 @@ def models(root):
     lang = {f"block.{MODID}.energy_cable_{t}": names[t] for t in TIERS}
     lang.update({
         f"itemGroup.{MODID}": "BarelyCables",
+        "tag.item.c.ingots.steel": "Steel Ingots",
         f"tooltip.{MODID}.cable": "Joins generators, batteries and machines. Right-click an arm with an empty hand to switch that side off or on.",
         f"tooltip.{MODID}.rate": "A network of these moves up to %s FE per tick",
         f"message.{MODID}.face_off": "%s side: switched off",

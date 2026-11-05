@@ -1,5 +1,11 @@
 # Changelog
 
+## 2026.11.2 (not released yet)
+
+- Optional Jade plugins on NeoForge for generators, batteries and cables (the cable lines come from BarelyCables).
+- Translation for the `c:ingots/steel` tag, so EMI lists it without a warning.
+- Checked in BEI, JEI, REI and EMI wherever they have a build; see `docs/COMPATIBILITY.md`.
+
 ## 2026.11.1
 
 First version.

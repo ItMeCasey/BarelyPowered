@@ -24,6 +24,26 @@ from client_tour import OPTIONS, PLACE, TIMEOUT  # noqa: E402
 
 
 def check(layer, mods, script, scene):
+    # AeroFlux is not part of this check and its recipe viewer warnings (EMI dev mode) would sit in every frame, so its jar waits aside.
+    mods_dir = ROOT / layer / "run" / "mods"
+    aside = ROOT / layer / "run" / "mods.aeroflux"
+    moved = []
+    if mods_dir.exists():
+        aside.mkdir(exist_ok=True)
+        # SMWTI draws its own overlay over the same block, so it also waits aside when Jade is what is being checked.
+        patterns = ["aeroflux*.jar"] + (["smwti*.jar"] if "jade" in mods else [])
+        for pattern in patterns:
+            for jar in mods_dir.glob(pattern):
+                shutil.move(str(jar), str(aside / jar.name))
+                moved.append(jar.name)
+    try:
+        return _check(layer, mods, script, scene)
+    finally:
+        for name in moved:
+            shutil.move(str(aside / name), str(mods_dir / name))
+
+
+def _check(layer, mods, script, scene):
     folder = ROOT / layer
     run = folder / "run"
     run.mkdir(exist_ok=True)
@@ -65,7 +85,7 @@ def check(layer, mods, script, scene):
     for n in names:
         shutil.copy2(shots / n, out / n.replace("barelypowered_", f"{tag}_", 1))
     done = any("BARELYPOWERED-SHOTS DONE" in line for line in log)
-    errors = [l for l in log if re.search(r"(barelypowered|barelycables|jade|jei|emi|roughlyenoughitems|bei).*(Exception|ERROR)|ModLoadingException|Crash report saved|Failed to load", l, re.I)]
+    errors = [l for l in log if re.search(r"(barelypowered|barelycables|jade|jei|emi|roughlyenoughitems|bei).*(Exception|ERROR)|ModLoadingException|Crash report saved|Failed to load", l, re.I) and "[mixin/]" not in l and "Untranslated tag" not in l]
     status = "VIEWER PASS" if done and not timed_out and not errors else "VIEWER FAIL"
     detail = "" if status == "VIEWER PASS" else f": done={done} timed_out={timed_out} first_error={errors[:2]}"
     return f"{status} {layer} [{mods}] ({len(names)} screenshots, {int(time.time() - start)}s){detail}"

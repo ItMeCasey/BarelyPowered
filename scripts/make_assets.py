@@ -55,6 +55,7 @@ NAMES = {
 def lang():
     d = {f"block.{MODID}.{k}": v for k, v in NAMES.items()}
     d[f"item.{MODID}.steel_ingot"] = "Steel Ingot"
+    d["tag.item.c.ingots.steel"] = "Steel Ingots"
     d[f"itemGroup.{MODID}"] = "BarelyPowered"
     d.update({
         f"tooltip.{MODID}.hand_crank": "Right-click to crank. Free power for the first machines.",

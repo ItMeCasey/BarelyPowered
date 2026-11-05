@@ -16,7 +16,7 @@ Power for Forge and NeoForge in Forge Energy (FE): seven generators, batteries i
 | Battery (basic, iron, steel) | Stores 100,000 to 1,600,000 FE; each face can be input, output, both or off; keeps its charge when broken |
 | Energy cable (basic, iron, steel), from BarelyCables | Joins generators, batteries and machines; 400 to 6,400 FE per tick; each side can be switched off |
 
-Right-click a generator with an empty hand to see its output, stored energy, fuel and why the output is what it is. Right-click a battery face to cycle it through input and output, input only, output only and off. Right-click a cable arm to switch that side off. An optional plugin for Show Me What This Is shows the same information when you look at a block. Every rate, tier multiplier and weather, height and flow rule is in `config/barelypowered.properties`.
+Right-click a generator with an empty hand to see its output, stored energy, fuel and why the output is what it is. Right-click a battery face to cycle it through input and output, input only, output only and off. Right-click a cable arm to switch that side off. Optional plugins for Show Me What This Is and Jade (NeoForge) show the same information when you look at a block, and the item viewers BEI, JEI, REI and EMI list the items and recipes. See [docs/COMPATIBILITY.md](docs/COMPATIBILITY.md) for what was checked on each version and loader. Every rate, tier multiplier and weather, height and flow rule is in `config/barelypowered.properties`.
 
 ## Versions
 
@@ -43,7 +43,7 @@ The wiki is at https://itmecasey.com/wiki/barelypowered/ (generators, recipes, c
 
 ## What was verified
 
-Honest status, per layer, is on the wiki's *Versions and known gaps* page and in `PROJECT_STATUS.md`. In short: every layer compiles and passes a headless server self test that places each generator beside an energy sink and checks the energy delivered; the scripted client tour (`scripts/client_tour.py`) shows each generator running. Balance has not been play-tested over a full game, and only AeroFlux energy pipes were tried among cable mods.
+Honest status, per layer, is on the wiki's *Versions and known gaps* page and in `PROJECT_STATUS.md`. In short: every layer compiles and passes a headless server self test that places each generator beside an energy sink and checks the energy delivered; the scripted client tour (`scripts/client_tour.py`) shows each generator running. The item viewers and Jade were checked in a real client where they have a build (table in `docs/COMPATIBILITY.md`). Balance has not been play-tested over a full game, and only AeroFlux energy pipes were tried among cable mods.
 
 ## Building
 

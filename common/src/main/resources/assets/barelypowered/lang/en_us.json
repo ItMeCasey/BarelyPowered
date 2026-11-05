@@ -16,6 +16,7 @@
   "block.barelypowered.battery_iron": "Iron Battery",
   "block.barelypowered.battery_steel": "Steel Battery",
   "item.barelypowered.steel_ingot": "Steel Ingot",
+  "tag.item.c.ingots.steel": "Steel Ingots",
   "itemGroup.barelypowered": "BarelyPowered",
   "tooltip.barelypowered.hand_crank": "Right-click to crank. Free power for the first machines.",
   "tooltip.barelypowered.combustion_generator": "Burns coal, charcoal, logs or planks. Right-click with fuel.",

@@ -14,13 +14,13 @@ JADE = {"1.21.1": "8591319", "26.1.2": "9156414", "26.2": "8755115", "26.3": "90
 VIEWERS = {
     "neoforge": {
         "1.21.1": {"jade": "jade-324717:8591319", "jei": "jei-238222:9393327", "rei": "roughly-enough-items-310111:6199140",
-                   "emi": "emi-580555:8081408", "bei": "bei-1783910:9438917"},
+                   "emi": "emi-580555:8081408", "bei": "bei-1783910:9438917", "architectury": "architectury-api-419699:8492726", "cloth": "cloth-config-348521:5729127"},
         "26.1.2": {"jade": "jade-324717:9156414", "jei": "jei-238222:9384706", "rei": "roughly-enough-items-310111:8271478",
-                   "bei": "bei-1783910:9438907"},
+                   "bei": "bei-1783910:9438907", "architectury": "architectury-api-419699:9111154", "cloth": "cloth-config-348521:7817583"},
         "26.2": {"jade": "jade-324717:8755115", "jei": "jei-238222:9352384", "rei": "roughly-enough-items-310111:8271756",
-                 "bei": "bei-1783910:9451209"},
+                 "bei": "bei-1783910:9451209", "architectury": "architectury-api-419699:9111233", "cloth": "cloth-config-348521:8269700"},
         "26.3": {"jade": "jade-324717:9042207", "jei": "jei-238222:9453343", "rei": "roughly-enough-items-310111:9090699",
-                 "bei": "bei-1783910:9451197"},
+                 "bei": "bei-1783910:9451197", "architectury": "architectury-api-419699:9111315", "cloth": "cloth-config-348521:8952995"},
     },
     "forge": {
         "1.21.1": {"jei": "jei-238222:9393325", "bei": "bei-1783910:9438915"},

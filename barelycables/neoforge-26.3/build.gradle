@@ -129,7 +129,7 @@ if (project.hasProperty('windowSize')) {
     }
 }
 
-def viewerFiles = [jade: 'jade-324717:9042207', jei: 'jei-238222:9453343', rei: 'roughly-enough-items-310111:9090699', bei: 'bei-1783910:9451197']
+def viewerFiles = [jade: 'jade-324717:9042207', jei: 'jei-238222:9453343', rei: 'roughly-enough-items-310111:9090699', bei: 'bei-1783910:9451197', architectury: 'architectury-api-419699:9111315', cloth: 'cloth-config-348521:8952995']
 dependencies {
     compileOnly 'curse.maven:jade-324717:9042207'
 }

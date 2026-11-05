@@ -20,7 +20,7 @@ PLACE = r"C:\Users\casey\.claude\tools\place-window.ps1"
 TIMEOUT = 600
 OPTIONS = (
     "soundCategory_master:0.0\nmusic:0.0\npauseOnLostFocus:false\nonboardAccessibility:false\n"
-    "skipMultiplayerWarning:true\ntutorialStep:none\nfullscreen:false\nguiScale:3\nlang:en_us\n"
+    "skipMultiplayerWarning:true\njoinedFirstServer:true\ntutorialStep:none\nfullscreen:false\nguiScale:3\nlang:en_us\n"
 )
 
 

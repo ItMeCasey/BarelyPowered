@@ -1,7 +1,7 @@
 # Project Status
 <!-- status-format: 1 -->
 Updated: 2026-11-05
-Summary: Seven generators, three tiers of batteries and a separable BarelyCables cable module (nested in the jar) on all eight Forge and NeoForge layers: each compiles, passes unit tests, a headless self test and a client tour; GitHub is pushed by the Project Manager, and the CurseForge project, wiki deploy and first release are waiting on Casey.
+Summary: Seven generators, three tiers of batteries and a separable BarelyCables cable module on all eight Forge and NeoForge layers, released as 2026.11.1; 2026.11.2 adds Jade plugins and viewer checks (BEI, JEI, REI, EMI where builds exist), committed locally and waiting for the Project Manager to push.
 Spend: none
 
 ## Foundation
@@ -53,15 +53,19 @@ Spend: none
 
 ## Compatibility
 - [x] SMWTI plugins for generators, batteries and cables (seen on all eight layers) (w:2)
+- [x] Jade plugins for generators, batteries and cables on NeoForge (frames of all four scenes on 1.21.1, 26.1.2, 26.2 and 26.3; Jade has no Forge build) (w:2)
+- [x] Item viewers show our items and the Hand Crank recipe: BEI on all eight layers, JEI on NeoForge x4 and Forge 1.21.1, REI on NeoForge x4, EMI on NeoForge 1.21.1 (frames in docs/frames/viewers; table in docs/COMPATIBILITY.md) (w:4)
+- [ ] Viewers on builds that do not exist yet: JEI Forge 26.x, REI Forge, EMI 26.x and Forge, Jade Forge (no upstream build on 2026-11-05; check when they ship) (w:1)
+- [ ] Viewer click-through (uses, catalysts) and a fuel list in the viewers (not tried; no custom recipe categories exist) (w:1)
 
 ## Testing and release
 - [x] Unit tests: 20 for BarelyPowered (output math, config, battery core, face modes) and 11 for BarelyCables (network conservation, tier throughput, face switches) on every layer (w:3)
-- [~] Unit tests run in CI on every layer (build.yml written for both projects, never run on GitHub yet) (w:1)
+- [x] Unit tests run in CI (build.yml ran green on b6cc51d: version check, tests, 16 layer builds, combine and nest, no dev files in release jars) (w:1)
 - [x] Headless server load check with the self tests (17 checks per BarelyPowered layer, 9 per BarelyCables layer, ports 8960 to 8967 and 8970 to 8977) (w:3)
 - [x] Client check with screenshots on every layer (scripts/client_tour.py, frames in docs/frames) (w:4)
-- [~] build.yml and release.yml with dry_run input, upload only builds whose mod_version equals the tag (written for the two-project build; the upload script dry run resolves all CurseForge ids locally; workflows never run) (w:2)
-- [ ] CurseForge project created and id recorded (w:1)
-- [ ] First release tagged and uploaded (w:2)
+- [~] build.yml and release.yml with dry_run input, upload only builds whose mod_version equals the tag (written for the two-project build; the upload script dry run resolves all CurseForge ids locally; build.yml has run green; release.yml ran for 2026.11.1 per the Project Manager) (w:2)
+- [x] CurseForge project created and id recorded (commit 6b7ccd1) (w:1)
+- [x] First release 2026.11.1 tagged and uploaded (reported by the Project Manager; not checked from this session) (w:2)
 
 ## Documentation and branding
 - [x] Icon, banners and section headers drawn in the SMWTI style (w:2)
