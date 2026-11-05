@@ -15,6 +15,11 @@ public final class Tiers {
         return kind.id() + "_" + (kind.fueled() ? FUELED[tier - 1] : String.valueOf(tier));
     }
 
+    /** How many blocks tall a wind turbine is: the base block, the mast segments and the head with the rotor. */
+    public static int windHeight(int tier) {
+        return tier <= 1 ? 3 : 5;
+    }
+
     /** A short readable tier name for tooltips, e.g. "Iron" or "Tier 2". */
     public static String label(Kind kind, int tier) {
         if (!kind.tiered()) {

@@ -226,6 +226,9 @@ public class GeneratorBlockEntity extends BlockEntity {
         }
         if (state.getValue(GeneratorBlock.LIT) != producing) {
             level.setBlock(pos, state.setValue(GeneratorBlock.LIT, producing), 3);
+            if (kind == Kind.WIND) {
+                WindTowerBlock.syncLit(level, pos, tier, producing);
+            }
         }
         push(level, pos);
         int key = syncKey();
@@ -316,7 +319,7 @@ public class GeneratorBlockEntity extends BlockEntity {
                 note = !sky ? "no_sky" : rate <= 0 ? "night" : level.isRainingAt(pos.above()) ? "weather" : "ok";
             }
             case WIND -> {
-                boolean sky = skyOpen(level, pos);
+                boolean sky = skyOpen(level, pos.above(com.itmecasey.barelypowered.Tiers.windHeight(tier) - 1));
                 if (age % 200 == 1 || age == 1) {
                     scanWind(level, pos);
                 }
@@ -375,7 +378,7 @@ public class GeneratorBlockEntity extends BlockEntity {
                     continue;
                 }
                 for (int dy = 0; dy <= 1; dy++) {
-                    p.set(pos.getX() + dx, pos.getY() + dy, pos.getZ() + dz);
+                    p.set(pos.getX() + dx, pos.getY() + com.itmecasey.barelypowered.Tiers.windHeight(tier) - 1 + dy, pos.getZ() + dz);
                     total++;
                     if (level.hasChunkAt(p) && !level.getBlockState(p).getCollisionShape(level, p).isEmpty()) {
                         solid++;

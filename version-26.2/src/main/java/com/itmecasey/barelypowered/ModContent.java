@@ -30,7 +30,11 @@ public final class ModContent {
     private static final Map<String, Item> ITEMS = new LinkedHashMap<>();
     public static final BlockEntityType<GeneratorBlockEntity> GENERATOR;
     public static final BlockEntityType<BatteryBlockEntity> BATTERY;
+    /** The block entity of a wind turbine's head; it only carries the rotor animation for the renderer. */
+    public static final BlockEntityType<com.itmecasey.barelypowered.block.WindHeadBlockEntity> WIND_HEAD;
     private static final Map<String, BatteryBlock> BATTERIES = new LinkedHashMap<>();
+    /** The mast segments and rotor heads a wind turbine builds above itself (blocks only, no items). */
+    private static final Map<String, com.itmecasey.barelypowered.block.WindTowerBlock> TOWERS = new LinkedHashMap<>();
     public static final Item STEEL_INGOT;
     /** Blocks and block entity types added by optional parts of the build (the dev tools). */
     private static final Map<String, Block> EXTRA_BLOCKS = new LinkedHashMap<>();
@@ -42,6 +46,9 @@ public final class ModContent {
                 String id = Tiers.blockId(kind, tier);
                 BlockBehaviour.Properties props = BlockBehaviour.Properties.of()
                         .setId(ResourceKey.create(Registries.BLOCK, id(id))).mapColor(MapColor.METAL).strength(3.0F, 6.0F).sound(SoundType.METAL).requiresCorrectToolForDrops();
+                if (kind == Kind.SOLAR || kind == Kind.WIND) {
+                    props = props.noOcclusion();
+                }
                 GeneratorBlock block = new GeneratorBlock(kind, tier, props);
                 BLOCKS.put(id, block);
                 ITEMS.put(id, new GeneratorItem(block, itemProps(id).useBlockDescriptionPrefix()));
@@ -58,6 +65,13 @@ public final class ModContent {
             ITEMS.put(id, new BatteryItem(battery, itemProps(id).useBlockDescriptionPrefix().stacksTo(1)));
         }
         BATTERY = new BlockEntityType<>(BatteryBlockEntity::new, new java.util.HashSet<Block>(BATTERIES.values()));
+        for (int tier = 1; tier <= Kind.WIND.tierCount(); tier++) {
+            String name = "wind_tower_" + tier;
+            TOWERS.put(name, new com.itmecasey.barelypowered.block.WindTowerBlock(tier, BlockBehaviour.Properties.of().setId(ResourceKey.create(Registries.BLOCK, id(name)))
+                    .mapColor(MapColor.METAL).strength(3.0F, 6.0F).sound(SoundType.METAL).requiresCorrectToolForDrops().noOcclusion()));
+        }
+        WIND_HEAD = new BlockEntityType<>(com.itmecasey.barelypowered.block.WindHeadBlockEntity::new,
+                new java.util.HashSet<Block>(TOWERS.values()));
         Dev.call("com.itmecasey.barelypowered.dev.DevContent", "register");
     }
 
@@ -88,6 +102,10 @@ public final class ModContent {
         return BLOCKS;
     }
 
+    public static Map<String, com.itmecasey.barelypowered.block.WindTowerBlock> towers() {
+        return TOWERS;
+    }
+
     public static Map<String, BatteryBlock> batteries() {
         return BATTERIES;
     }
@@ -108,6 +126,7 @@ public final class ModContent {
     public static void registerBlocks(BiConsumer<String, Block> out) {
         BLOCKS.forEach(out);
         BATTERIES.forEach(out);
+        TOWERS.forEach(out);
         EXTRA_BLOCKS.forEach(out);
     }
 

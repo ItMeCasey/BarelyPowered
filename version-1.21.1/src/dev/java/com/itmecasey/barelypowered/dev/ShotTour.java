@@ -271,6 +271,15 @@ public final class ShotTour {
         shoot(name + "_a", settle);
         shoot(name + "_b", 5);
         shoot(name + "_c", 5);
+        if (block.startsWith("wind_turbine")) {
+            int h = block.endsWith("_2") ? 5 : 3;
+            then(2, () -> moveTo(new Vec3(x + 0.5, y + h * 0.45, -11.0), new Vec3(x + 0.5, y + h * 0.5, 0.5)));
+            shoot(name + "_tall", 30);
+            shoot(name + "_tall2", 12);
+        } else if (block.startsWith("solar_panel")) {
+            then(2, () -> moveTo(new Vec3(x + 0.5, y + 3.5, -7.0), new Vec3(x + 0.5, y + 1.0, 0.5)));
+            shoot(name + "_wide", 20);
+        }
         then(2, () -> onServer(server -> {
             ServerPlayer p = server.getPlayerList().getPlayers().get(0);
             if (server.overworld().getBlockEntity(pos) instanceof GeneratorBlockEntity be) {

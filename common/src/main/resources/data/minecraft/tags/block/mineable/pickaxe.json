@@ -16,6 +16,8 @@
     "barelypowered:hand_crank",
     "barelypowered:battery_basic",
     "barelypowered:battery_iron",
-    "barelypowered:battery_steel"
+    "barelypowered:battery_steel",
+    "barelypowered:wind_tower_1",
+    "barelypowered:wind_tower_2"
   ]
 }

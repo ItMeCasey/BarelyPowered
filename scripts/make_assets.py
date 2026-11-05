@@ -24,6 +24,15 @@ def write(path, data):
 BATTERIES = ["battery_basic", "battery_iron", "battery_steel"]
 
 
+# The solar panels and wind turbines have hand-built Blockbench models (scripts/make_models.py, art/): their block models and
+# textures are not generated here, and the flat textures art.py draws for them are removed again.
+CUSTOM_MODELS = ["solar_panel_1", "solar_panel_2", "wind_turbine_1", "wind_turbine_2"]
+
+
+# Blocks without an item: the mast segments and rotor heads that a wind turbine builds above itself.
+TOWERS = ["wind_tower_1", "wind_tower_2"]
+
+
 def ids():
     return [name for name, _ in art.sets()]
 
@@ -55,6 +64,9 @@ NAMES = {
 def lang():
     d = {f"block.{MODID}.{k}": v for k, v in NAMES.items()}
     d[f"item.{MODID}.steel_ingot"] = "Steel Ingot"
+    d[f"block.{MODID}.wind_tower_1"] = "Wind Turbine Tower"
+    d[f"block.{MODID}.wind_tower_2"] = "Advanced Wind Turbine Tower"
+    d[f"message.{MODID}.wind_space"] = "Not enough room: this turbine needs %s free blocks above it."
     d["tag.item.c.ingots.steel"] = "Steel Ingots"
     d[f"itemGroup.{MODID}"] = "BarelyPowered"
     d.update({
@@ -62,7 +74,7 @@ def lang():
         f"tooltip.{MODID}.combustion_generator": "Burns coal, charcoal, logs or planks. Right-click with fuel.",
         f"tooltip.{MODID}.lava_generator": "Burns lava. Right-click with a lava bucket.",
         f"tooltip.{MODID}.solar_panel": "Needs open sky. Strongest at noon, weaker in rain.",
-        f"tooltip.{MODID}.wind_turbine": "Needs open sky. Stronger higher up, weaker with blocks or turbines nearby.",
+        f"tooltip.{MODID}.wind_turbine": "Builds a tower: needs 2 free blocks above (4 for the Advanced). Needs open sky; stronger higher up, weaker with blocks or turbines nearby.",
         f"tooltip.{MODID}.water_wheel": "Needs flowing water beside or above it.",
         f"tooltip.{MODID}.geothermal_generator": "Place next to lava or magma. Steady, no fuel.",
         f"tooltip.{MODID}.output": "Output: %s",
@@ -100,6 +112,16 @@ def lang():
 def block_models(root):
     base = root / "assets" / MODID
     for name in ids():
+        if name in CUSTOM_MODELS:
+            variants = {}
+            for lit in ("false", "true"):
+                for facing, y in (("north", 0), ("east", 90), ("south", 180), ("west", 270)):
+                    v = {"model": f"{MODID}:block/{name}" + ("_on" if lit == "true" and not name.startswith("wind_") else "")}
+                    if y:
+                        v["y"] = y
+                    variants[f"facing={facing},lit={lit}"] = v
+            write(base / "blockstates" / f"{name}.json", {"variants": variants})
+            continue
         for suffix, front, top in (("", f"{name}_front", f"{name}_top"), ("_on", f"{name}_front_on", f"{name}_top_on")):
             write(base / "models" / "block" / f"{name}{suffix}.json", {
                 "parent": "minecraft:block/orientable",
@@ -117,6 +139,18 @@ def block_models(root):
                     v["y"] = y
                 variants[f"facing={facing},lit={lit}"] = v
         write(base / "blockstates" / f"{name}.json", {"variants": variants})
+    for tier in (1, 2):
+        # The tower blocks that stand on a wind turbine: a mast segment and, at the top, the head with the rotor.
+        variants = {}
+        for head in ("false", "true"):
+            for lit in ("false", "true"):
+                for facing, y in (("north", 0), ("east", 90), ("south", 180), ("west", 270)):
+                    model = f"wind_tower_{tier}" if head == "false" else f"wind_head_{tier}" + ("_on" if lit == "true" else "")
+                    v = {"model": f"{MODID}:block/{model}"}
+                    if y:
+                        v["y"] = y
+                    variants[f"facing={facing},head={head},lit={lit}"] = v
+        write(base / "blockstates" / f"wind_tower_{tier}.json", {"variants": variants})
     for tier in ("basic", "iron", "steel"):
         name = f"battery_{tier}"
         variants = {}
@@ -178,7 +212,7 @@ def loot(root, v):
 def loot_and_tags(root):
     data = root / "data" / MODID
     write(root / "data" / "minecraft" / "tags" / "block" / "mineable" / "pickaxe.json",
-          {"replace": False, "values": [f"{MODID}:{n}" for n in all_ids()]})
+          {"replace": False, "values": [f"{MODID}:{n}" for n in all_ids() + TOWERS]})
     write(root / "data" / "c" / "tags" / "item" / "ingots" / "steel.json",
           {"replace": False, "values": [f"{MODID}:steel_ingot"]})
 
@@ -256,7 +290,8 @@ def recipes(root, new):
 def item_defs(root):
     base = root / "assets" / MODID
     for name in ids():
-        write(base / "items" / f"{name}.json", {"model": {"type": "minecraft:model", "model": f"{MODID}:block/{name}"}})
+        model = f"{name}_item" if name.startswith("wind_turbine") else name
+        write(base / "items" / f"{name}.json", {"model": {"type": "minecraft:model", "model": f"{MODID}:block/{model}"}})
     for name in BATTERIES:
         write(base / "items" / f"{name}.json", {"model": {"type": "minecraft:model", "model": f"{MODID}:block/{name}_c4"}})
     write(base / "items" / "steel_ingot.json", {"model": {"type": "minecraft:model", "model": f"{MODID}:item/steel_ingot"}})
@@ -265,7 +300,8 @@ def item_defs(root):
 def old_item_models(root):
     base = root / "assets" / MODID / "models" / "item"
     for name in ids():
-        write(base / f"{name}.json", {"parent": f"{MODID}:block/{name}"})
+        model = f"{name}_item" if name.startswith("wind_turbine") else name
+        write(base / f"{name}.json", {"parent": f"{MODID}:block/{model}"})
     for name in BATTERIES:
         write(base / f"{name}.json", {"parent": f"{MODID}:block/{name}_c4"})
 
@@ -273,6 +309,10 @@ def old_item_models(root):
 def main():
     common = ROOT / "common" / "src" / "main" / "resources"
     art.render_all(common / "assets" / MODID / "textures")
+    for name in CUSTOM_MODELS:
+        for part in ("side", "top", "top_on", "front", "front_on"):
+            for ext in (".png", ".png.mcmeta"):
+                (common / "assets" / MODID / "textures" / "block" / f"{name}_{part}{ext}").unlink(missing_ok=True)
     block_models(common)
     loot_and_tags(common)
     for v in OLD:

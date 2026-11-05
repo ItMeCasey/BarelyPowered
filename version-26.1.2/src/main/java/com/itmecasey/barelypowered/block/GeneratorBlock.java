@@ -31,6 +31,10 @@ public class GeneratorBlock extends BaseEntityBlock {
     public static final BooleanProperty LIT = BlockStateProperties.LIT;
     private static final MapCodec<GeneratorBlock> CODEC = simpleCodec(p -> new GeneratorBlock(Kind.HAND_CRANK, 1, p));
 
+    private static final net.minecraft.world.phys.shapes.VoxelShape SOLAR_SHAPE = Block.box(0, 0, 0, 16, 13, 16);
+    private static final net.minecraft.world.phys.shapes.VoxelShape SOLAR_SHAPE_2 = Block.box(0, 0, 0, 16, 16, 16);
+    private static final net.minecraft.world.phys.shapes.VoxelShape WIND_SHAPE = Block.box(3, 0, 3, 13, 16, 13);
+
     private final Kind kind;
     private final int tier;
 
@@ -61,12 +65,39 @@ public class GeneratorBlock extends BaseEntityBlock {
 
     @Override
     public BlockState getStateForPlacement(BlockPlaceContext context) {
+        if (kind == Kind.WIND && !WindTowerBlock.hasRoom(context.getLevel(), context.getClickedPos(), tier)) {
+            if (context.getPlayer() != null && !context.getLevel().isClientSide()) {
+                context.getPlayer().sendOverlayMessage(net.minecraft.network.chat.Component.translatable(
+                        "message.barelypowered.wind_space", com.itmecasey.barelypowered.Tiers.windHeight(tier) - 1));
+            }
+            return null;
+        }
         return defaultBlockState().setValue(FACING, context.getHorizontalDirection().getOpposite());
     }
 
     @Override
     protected RenderShape getRenderShape(BlockState state) {
         return RenderShape.MODEL;
+    }
+
+    /** A wind turbine builds its tower when it appears (placed by hand, by a command or by a structure). */
+    @Override
+    protected void onPlace(BlockState state, Level level, BlockPos pos, BlockState oldState, boolean movedByPiston) {
+        super.onPlace(state, level, pos, oldState, movedByPiston);
+        if (kind == Kind.WIND && !level.isClientSide() && !oldState.is(state.getBlock())) {
+            WindTowerBlock.build(level, pos, state, tier);
+        }
+    }
+
+    /** The solar panels and wind turbines have hand-built models that do not fill the block, so their outline follows the model. */
+    @Override
+    protected net.minecraft.world.phys.shapes.VoxelShape getShape(BlockState state, net.minecraft.world.level.BlockGetter level,
+                                                                   BlockPos pos, net.minecraft.world.phys.shapes.CollisionContext context) {
+        return switch (kind) {
+            case SOLAR -> tier >= 2 ? SOLAR_SHAPE_2 : SOLAR_SHAPE;
+            case WIND -> WIND_SHAPE;
+            default -> net.minecraft.world.phys.shapes.Shapes.block();
+        };
     }
 
     @Nullable

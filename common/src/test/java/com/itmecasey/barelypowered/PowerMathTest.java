@@ -141,4 +141,10 @@ class PowerMathTest {
         assertEquals("solar_panel_2", Tiers.blockId(Kind.SOLAR, 2));
         assertEquals("water_wheel", Tiers.blockId(Kind.WATER_WHEEL, 1));
     }
+
+    @Test
+    void windTowersAreTallerAtTier2() {
+        assertEquals(3, Tiers.windHeight(1));
+        assertEquals(5, Tiers.windHeight(2));
+    }
 }

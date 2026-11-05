@@ -16,18 +16,18 @@
       "y": 270
     },
     "facing=north,lit=true": {
-      "model": "barelypowered:block/wind_turbine_2_on"
+      "model": "barelypowered:block/wind_turbine_2"
     },
     "facing=east,lit=true": {
-      "model": "barelypowered:block/wind_turbine_2_on",
+      "model": "barelypowered:block/wind_turbine_2",
       "y": 90
     },
     "facing=south,lit=true": {
-      "model": "barelypowered:block/wind_turbine_2_on",
+      "model": "barelypowered:block/wind_turbine_2",
       "y": 180
     },
     "facing=west,lit=true": {
-      "model": "barelypowered:block/wind_turbine_2_on",
+      "model": "barelypowered:block/wind_turbine_2",
       "y": 270
     }
   }

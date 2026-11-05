@@ -1,7 +1,7 @@
 # Project Status
 <!-- status-format: 1 -->
 Updated: 2026-11-05
-Summary: Seven generators, three tiers of batteries and a separable BarelyCables cable module on all eight Forge and NeoForge layers, released as 2026.11.1; 2026.11.2 adds Jade plugins and viewer checks (BEI, JEI, REI, EMI where builds exist), committed locally and waiting for the Project Manager to push.
+Summary: Seven generators, three tiers of batteries and a separable BarelyCables cable module on all eight Forge and NeoForge layers, released as 2026.11.1; 2026.11.2 adds Jade plugins, viewer checks (BEI, JEI, REI, EMI where builds exist) and tall wind turbine towers with a turning 3D rotor, committed locally and waiting for the Project Manager to push.
 Spend: none
 
 ## Foundation
@@ -17,6 +17,7 @@ Spend: none
 - [x] Lava generator, three tiers, lava bucket fed (w:3)
 - [x] Solar tier 1 and 2 with day curve, sky access, weather, night trickle on tier 2 (w:3)
 - [x] Wind turbine tier 1 and 2: height, open sky, blocked blades, other turbines, storms (w:4)
+- [~] Wind turbine as a tall multiblock tower with a turning 3D rotor (3 and 5 blocks), solar tier 2 bigger; seen on a client only on NeoForge 1.21.1 and 26.3, compiles on all eight layers (w:4)
 - [x] Water wheel from flowing water (w:3)
 - [x] Geothermal generator on or near lava and magma (w:3)
 - [x] FE output into adjacent acceptors through the loader energy API (checked against a dev energy sink on all eight layers) (w:5)

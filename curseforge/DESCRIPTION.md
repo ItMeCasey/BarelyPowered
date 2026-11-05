@@ -9,8 +9,8 @@ BarelyPowered adds power sources, batteries and energy cables, and no machines. 
 - **Hand crank:** free and tiny. Right-click to turn it. Enough to start the first machine.
 - **Combustion generator:** coal, charcoal, logs or planks. Stone, iron and steel tiers: hotter, faster, and more energy from each item.
 - **Lava generator:** a bucket of lava, a lot of power. Three tiers.
-- **Solar panel:** follows the day, needs open sky, dims in rain. Tier 2 keeps a small output at night and in storms.
-- **Wind turbine:** output rises with build height. Open sky and clear blades matter, other turbines nearby steal wind, storms help. Two tiers.
+- **Solar panel:** follows the day, needs open sky, dims in rain. Tier 2 is a taller, wider three-panel array and keeps a small output at night and in storms.
+- **Wind turbine:** a tall tower with a turning 3D rotor (3 blocks, or 5 for tier 2; it needs that much free space above it). Output rises with build height. Open sky and clear blades matter, other turbines nearby steal wind, storms help. Two tiers.
 - **Water wheel:** needs flowing water beside it or falling onto it. Output follows the flow.
 - **Geothermal generator:** steady power from lava and magma touching it. No fuel.
 - **Batteries:** basic, iron and steel, from 100,000 to 1,600,000 FE. Each face can take in, give out, do both or be off. A broken battery keeps its charge, shows a gauge on the block and drives a comparator.

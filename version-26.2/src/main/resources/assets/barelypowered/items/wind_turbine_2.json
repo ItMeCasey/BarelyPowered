@@ -1,6 +1,6 @@
 {
   "model": {
     "type": "minecraft:model",
-    "model": "barelypowered:block/wind_turbine_2"
+    "model": "barelypowered:block/wind_turbine_2_item"
   }
 }

@@ -48,6 +48,7 @@ public final class NeoForgeBarelyPowered {
         event.register(Registries.BLOCK_ENTITY_TYPE, helper -> {
             helper.register(ModContent.id("generator"), ModContent.GENERATOR);
             helper.register(ModContent.id("battery"), ModContent.BATTERY);
+            helper.register(ModContent.id("wind_head"), ModContent.WIND_HEAD);
             ModContent.extraBlockEntityTypes().forEach((name, type) -> helper.register(ModContent.id(name), type));
         });
         event.register(Registries.CREATIVE_MODE_TAB, helper -> helper.register(ModContent.id("main"), ModContent.creativeTab()));

@@ -2,6 +2,10 @@
 
 ## 2026.11.2 (not released yet)
 
+- New hand-built models for the solar panels and wind turbines, made in Blockbench (sources in `art/`).
+- Wind turbines are now tall towers: placing one builds a mast and a head above it (3 blocks tall for tier 1, 5 for tier 2, so it needs 2 or 4 free blocks above). The three-blade rotor is drawn in 3D and turns smoothly while the turbine makes power, and slows down when it stops. Breaking any part of the tower breaks the turbine and drops it.
+- The tier 2 solar panel is taller and wider: a three-panel array on a high mast.
+- The wind sky check now reads from the top of the tower, and the blocked-blades check from the rotor height.
 - Optional Jade plugins on NeoForge for generators, batteries and cables (the cable lines come from BarelyCables).
 - Translation for the `c:ingots/steel` tag, so EMI lists it without a warning.
 - Checked in BEI, JEI, REI and EMI wherever they have a build; see `docs/COMPATIBILITY.md`.

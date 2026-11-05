@@ -29,6 +29,7 @@ public final class ForgeBarelyPowered {
         BarelyPowered.init(FMLPaths.CONFIGDIR::get);
         RegisterEvent.getBus(context.getModBusGroup()).addListener(ForgeBarelyPowered::register);
         AttachCapabilitiesEvent.BlockEntities.BUS.addListener(ForgeBarelyPowered::attach);
+        ForgeClient.install();
         Dev.call("com.itmecasey.barelypowered.forge.dev.ForgeDev", "install", context);
         GeneratorBlockEntity.pusher = (level, pos, side, amount) -> {
             BlockEntity target = level.getBlockEntity(pos);
@@ -46,6 +47,7 @@ public final class ForgeBarelyPowered {
         event.register(Registries.BLOCK_ENTITY_TYPE, helper -> {
             helper.register(ModContent.id("generator"), ModContent.GENERATOR);
             helper.register(ModContent.id("battery"), ModContent.BATTERY);
+            helper.register(ModContent.id("wind_head"), ModContent.WIND_HEAD);
             ModContent.extraBlockEntityTypes().forEach((name, type) -> helper.register(ModContent.id(name), type));
         });
         event.register(Registries.CREATIVE_MODE_TAB, helper -> helper.register(ModContent.id("main"), ModContent.creativeTab()));

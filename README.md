@@ -9,8 +9,8 @@ Power for Forge and NeoForge in Forge Energy (FE): seven generators, batteries i
 | Hand crank | Right-clicks, free and tiny |
 | Combustion generator (stone, iron, steel) | Coal, charcoal, logs, planks |
 | Lava generator (stone, iron, steel) | Buckets of lava |
-| Solar panel (tier 1, tier 2) | Daylight, sky access, weather; tier 2 keeps a trickle at night and in rain |
-| Wind turbine (tier 1, tier 2) | Build height, open sky, storms; nearby blocks and other turbines reduce it |
+| Solar panel (tier 1, tier 2) | Daylight, sky access, weather; tier 2 is a taller, wider three-panel array and keeps a trickle at night and in rain |
+| Wind turbine (tier 1, tier 2) | A tall tower (3 blocks, or 5 for tier 2) with a turning 3D rotor; build height, open sky, storms; nearby blocks and other turbines reduce it |
 | Water wheel | Flowing water beside or above it |
 | Geothermal generator | Lava and magma next to it, steady, no fuel |
 | Battery (basic, iron, steel) | Stores 100,000 to 1,600,000 FE; each face can be input, output, both or off; keeps its charge when broken |

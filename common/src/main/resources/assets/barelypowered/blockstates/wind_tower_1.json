@@ -1,0 +1,64 @@
+{
+  "variants": {
+    "facing=north,head=false,lit=false": {
+      "model": "barelypowered:block/wind_tower_1"
+    },
+    "facing=east,head=false,lit=false": {
+      "model": "barelypowered:block/wind_tower_1",
+      "y": 90
+    },
+    "facing=south,head=false,lit=false": {
+      "model": "barelypowered:block/wind_tower_1",
+      "y": 180
+    },
+    "facing=west,head=false,lit=false": {
+      "model": "barelypowered:block/wind_tower_1",
+      "y": 270
+    },
+    "facing=north,head=false,lit=true": {
+      "model": "barelypowered:block/wind_tower_1"
+    },
+    "facing=east,head=false,lit=true": {
+      "model": "barelypowered:block/wind_tower_1",
+      "y": 90
+    },
+    "facing=south,head=false,lit=true": {
+      "model": "barelypowered:block/wind_tower_1",
+      "y": 180
+    },
+    "facing=west,head=false,lit=true": {
+      "model": "barelypowered:block/wind_tower_1",
+      "y": 270
+    },
+    "facing=north,head=true,lit=false": {
+      "model": "barelypowered:block/wind_head_1"
+    },
+    "facing=east,head=true,lit=false": {
+      "model": "barelypowered:block/wind_head_1",
+      "y": 90
+    },
+    "facing=south,head=true,lit=false": {
+      "model": "barelypowered:block/wind_head_1",
+      "y": 180
+    },
+    "facing=west,head=true,lit=false": {
+      "model": "barelypowered:block/wind_head_1",
+      "y": 270
+    },
+    "facing=north,head=true,lit=true": {
+      "model": "barelypowered:block/wind_head_1_on"
+    },
+    "facing=east,head=true,lit=true": {
+      "model": "barelypowered:block/wind_head_1_on",
+      "y": 90
+    },
+    "facing=south,head=true,lit=true": {
+      "model": "barelypowered:block/wind_head_1_on",
+      "y": 180
+    },
+    "facing=west,head=true,lit=true": {
+      "model": "barelypowered:block/wind_head_1_on",
+      "y": 270
+    }
+  }
+}
