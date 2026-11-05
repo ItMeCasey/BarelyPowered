@@ -17,7 +17,7 @@ Spend: none
 - [x] Lava generator, three tiers, lava bucket fed (w:3)
 - [x] Solar tier 1 and 2 with day curve, sky access, weather, night trickle on tier 2 (w:3)
 - [x] Wind turbine tier 1 and 2: height, open sky, blocked blades, other turbines, storms (w:4)
-- [~] Wind turbine as a tall multiblock tower with a turning 3D rotor (3 and 5 blocks), solar tier 2 bigger; seen on a client on NeoForge 1.21.1, 26.1.2, 26.2, 26.3 and Forge 1.21.1; Forge 26.1.2, 26.2 and 26.3 compile but were not run (w:4)
+- [x] Wind turbine as a tall multiblock tower with a turning 3D rotor (3 and 5 blocks), solar tier 2 bigger; seen on a client on all eight layers (w:4)
 - [x] Water wheel from flowing water (w:3)
 - [x] Geothermal generator on or near lava and magma (w:3)
 - [x] FE output into adjacent acceptors through the loader energy API (checked against a dev energy sink on all eight layers) (w:5)
