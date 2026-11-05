@@ -1,8 +1,8 @@
 ![BarelyPowered](https://raw.githubusercontent.com/ItMeCasey/BarelyPowered/main/branding/banners/banner.png)
 
-**Generators only. Seven ways to make Forge Energy, and any cable mod can carry it.**
+**Seven ways to make Forge Energy, batteries to store it, and cables to move it. No machines.**
 
-BarelyPowered adds power sources and nothing else: no cables, no machines. Each generator pushes its energy into any block beside it that accepts Forge Energy, and cables from other mods can draw from it, so it slots into the pack you already have. Every source is tied to the world: the sun, the wind, a stream, a pool of lava.
+BarelyPowered adds power sources, batteries and energy cables, and no machines. Each generator pushes its energy into any block beside it that accepts Forge Energy, and cables from any mod can draw from it, so it slots into the pack you already have. Every source is tied to the world: the sun, the wind, a stream, a pool of lava.
 
 ![The generators](https://raw.githubusercontent.com/ItMeCasey/BarelyPowered/main/branding/banners/h_generators.png)
 
@@ -13,6 +13,8 @@ BarelyPowered adds power sources and nothing else: no cables, no machines. Each 
 - **Wind turbine:** output rises with build height. Open sky and clear blades matter, other turbines nearby steal wind, storms help. Two tiers.
 - **Water wheel:** needs flowing water beside it or falling onto it. Output follows the flow.
 - **Geothermal generator:** steady power from lava and magma touching it. No fuel.
+- **Batteries:** basic, iron and steel, from 100,000 to 1,600,000 FE. Each face can take in, give out, do both or be off. A broken battery keeps its charge, shows a gauge on the block and drives a comparator.
+- **Energy cables:** three tiers from 400 to 6,400 FE per tick, with a switch for every side. They come from BarelyCables, a separate module carried inside the jar, and work with any mod that speaks Forge Energy.
 
 Right-click any generator with an empty hand to see its output, the energy stored, the fuel left and why the output is what it is ("Low altitude, build higher", "Weather dims the sun").
 
@@ -26,7 +28,8 @@ Every output rate, tier multiplier and the weather, height and flow rules are in
 
 - Outputs plain Forge Energy through the loader's energy interface on Forge and NeoForge.
 - Works against any block that accepts FE. A generator feeding AeroFlux energy pipes into a test block was checked on NeoForge 1.21.1.
-- Optional plugin for Show Me What This Is: looking at a generator shows its output, fuel and why the output is what it is. Nothing else is required.
+- BarelyCables is its own mod inside the jar. If another mod carries the same cables, only one copy loads.
+- Optional plugin for Show Me What This Is: looking at a generator, battery or cable shows its numbers. Nothing else is required.
 
 The pictures on this page are illustrations drawn for the listing, not game screenshots.
 
@@ -36,7 +39,7 @@ The pictures on this page are illustrations drawn for the listing, not game scre
 
 **Does it need to be on the server?** Yes, on the server and on every client.
 
-**Does it add cables or machines?** No. Use any cable mod and any machines.
+**Does it add cables or machines?** Cables yes (BarelyCables, a separate module in the jar), machines no. Any other cable mod and any machines work too.
 
 **Can I change the numbers?** Yes, all of them, in the config file.
 
