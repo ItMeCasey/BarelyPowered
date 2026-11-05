@@ -109,9 +109,9 @@ def models(root):
             "elements": [{"from": [0, 6, 6], "to": [16, 10, 10], "faces": cube_faces({
                 "north": [0, 6, 16, 10], "south": [0, 6, 16, 10], "east": [6, 6, 10, 10],
                 "west": [6, 6, 10, 10], "up": [0, 6, 16, 10], "down": [0, 6, 16, 10]})}],
-            "display": {"gui": {"rotation": [30, 225, 0], "scale": 1.2}, "ground": {"scale": 1.0},
-                        "fixed": {"scale": 1.2}, "thirdperson_righthand": {"rotation": [75, 45, 0], "scale": 0.9},
-                        "firstperson_righthand": {"rotation": [0, 45, 0], "scale": 0.9}},
+            "display": {"gui": {"rotation": [30, 225, 0], "scale": [1.2, 1.2, 1.2]}, "ground": {"scale": [1.0, 1.0, 1.0]},
+                        "fixed": {"scale": [1.2, 1.2, 1.2]}, "thirdperson_righthand": {"rotation": [75, 45, 0], "scale": [0.9, 0.9, 0.9]},
+                        "firstperson_righthand": {"rotation": [0, 45, 0], "scale": [0.9, 0.9, 0.9]}},
         })
         arm = f"{MODID}:block/{name}_arm"
         write(base / "blockstates" / f"{name}.json", {"multipart": [

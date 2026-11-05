@@ -27,6 +27,7 @@ import org.jetbrains.annotations.Nullable;
 public final class ForgeBarelyCables {
     public ForgeBarelyCables(FMLJavaModLoadingContext context) {
         BarelyCables.init(FMLPaths.CONFIGDIR::get);
+        org.slf4j.LoggerFactory.getLogger("BarelyCables").info("BarelyCables module initialized");
         context.getModEventBus().addListener(ForgeBarelyCables::register);
         MinecraftForge.EVENT_BUS.addGenericListener(BlockEntity.class, ForgeBarelyCables::attach);
         CableBlockEntity.link = (level, pos, face) -> {

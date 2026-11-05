@@ -7,23 +7,32 @@ on:
 
 jobs:
   versions:
-    # Every module must carry the same mod_version; releases are tagged v<mod_version>.
+    # Every BarelyPowered module must carry the same mod_version (releases are tagged v<mod_version>), and every BarelyCables
+    # module the same cables version. The two numbers are independent.
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v5
-      - name: All modules agree on mod_version
+      - name: All BarelyPowered modules agree on mod_version
         run: |
           versions=$(grep -h '^mod_version=' */gradle.properties | sort -u)
+          echo "$versions"
+          test "$(echo "$versions" | wc -l)" -eq 1
+      - name: All BarelyCables modules agree on mod_version
+        run: |
+          versions=$(grep -h '^mod_version=' barelycables/*/gradle.properties | sort -u)
           echo "$versions"
           test "$(echo "$versions" | wc -l)" -eq 1
 
   test:
     # Unit tests for the shared logic that does not need a running game.
     needs: versions
+    strategy:
+      matrix:
+        dir: [neoforge-1.21.1, barelycables/neoforge-1.21.1]
     runs-on: ubuntu-latest
     defaults:
       run:
-        working-directory: neoforge-1.21.1
+        working-directory: ${{ matrix.dir }}
     steps:
       - uses: actions/checkout@v5
       - uses: actions/setup-java@v5
@@ -38,45 +47,30 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        include:
-          - module: neoforge-1.21.1
-            java: 21
-          - module: forge-1.21.1
-            java: 21
-          - module: neoforge-26.1.2
-            java: 25
-          - module: forge-26.1.2
-            java: 25
-          - module: neoforge-26.2
-            java: 25
-          - module: forge-26.2
-            java: 25
-          - module: neoforge-26.3
-            java: 25
-          - module: forge-26.3
-            java: 25
+        project: [barelypowered, barelycables]
+        layer: [neoforge-1.21.1, forge-1.21.1, neoforge-26.1.2, forge-26.1.2, neoforge-26.2, forge-26.2, neoforge-26.3, forge-26.3]
     runs-on: ubuntu-latest
     defaults:
       run:
-        working-directory: ${{ matrix.module }}
+        working-directory: ${{ matrix.project == 'barelycables' && format('barelycables/{0}', matrix.layer) || matrix.layer }}
     steps:
       - uses: actions/checkout@v5
       - uses: actions/setup-java@v5
         with:
           distribution: temurin
-          java-version: ${{ matrix.java }}
+          java-version: ${{ endsWith(matrix.layer, '1.21.1') && 21 || 25 }}
       - run: chmod +x gradlew
       - run: ./gradlew build --no-daemon
       - uses: actions/upload-artifact@v5
         with:
-          name: ${{ matrix.module }}
+          name: ${{ matrix.project }}-${{ matrix.layer }}
           path: |
-            ${{ matrix.module }}/build/libs/*.jar
-            !${{ matrix.module }}/build/libs/*-sources.jar
-            !${{ matrix.module }}/build/libs/*-dev.jar
+            ${{ matrix.project == 'barelycables' && format('barelycables/{0}', matrix.layer) || matrix.layer }}/build/libs/*.jar
+            !${{ matrix.project == 'barelycables' && format('barelycables/{0}', matrix.layer) || matrix.layer }}/build/libs/*-sources.jar
+            !${{ matrix.project == 'barelycables' && format('barelycables/{0}', matrix.layer) || matrix.layer }}/build/libs/*-dev.jar
 
   combine:
-    # One combined jar per Minecraft version, holding every loader's layer.
+    # One combined jar per Minecraft version, holding both loaders; BarelyCables is nested inside it with jar-in-jar.
     needs: build
     runs-on: ubuntu-latest
     steps:
@@ -84,17 +78,25 @@ jobs:
       - uses: actions/download-artifact@v5
         with:
           path: layers
-      - name: Combine the loader jars of each Minecraft version
+      - name: Combine the loader jars of each Minecraft version and nest BarelyCables
         run: |
-          mkdir -p dist
+          mkdir -p dist cables
+          cabver=$(grep -h '^mod_version=' barelycables/neoforge-1.21.1/gradle.properties | cut -d= -f2)
           for mc in 1.21.1 26.1.2 26.2 26.3; do
-            jars=$(ls layers/*-$mc/*.jar)
-            echo "$mc: $jars"
+            python3 scripts/combine_jars.py "cables/barelycables-mc$mc-$cabver.jar" layers/barelycables-*-$mc/*.jar
             version=$(grep -h '^mod_version=' forge-$mc/gradle.properties | cut -d= -f2)
-            python3 scripts/combine_jars.py "dist/barelypowered-mc$mc-$version.jar" $jars
+            python3 scripts/combine_jars.py "dist/barelypowered-mc$mc-$version.jar" layers/barelypowered-*-$mc/*.jar
+            python3 scripts/nest_cables.py "dist/barelypowered-mc$mc-$version.jar" "cables/barelycables-mc$mc-$cabver.jar" --range "[$cabver,)"
           done
-          ls -la dist
+          ls -la dist cables
+      - name: The release jars hold no development tools
+        run: |
+          for jar in dist/*.jar cables/*.jar; do
+            if unzip -l "$jar" | grep -E "/dev/|SelfTest|ShotTour|test_energy"; then echo "dev files in $jar"; exit 1; fi
+          done
       - uses: actions/upload-artifact@v5
         with:
           name: combined-jars
-          path: dist/*.jar
+          path: |
+            dist/*.jar
+            cables/*.jar

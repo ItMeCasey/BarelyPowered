@@ -23,6 +23,7 @@ import net.neoforged.neoforge.registries.RegisterEvent;
 public final class NeoForgeBarelyCables {
     public NeoForgeBarelyCables(IEventBus modBus) {
         BarelyCables.init(FMLPaths.CONFIGDIR::get);
+        org.slf4j.LoggerFactory.getLogger("BarelyCables").info("BarelyCables module initialized");
         modBus.addListener(NeoForgeBarelyCables::register);
         modBus.addListener(NeoForgeBarelyCables::capabilities);
         CableBlockEntity.link = (level, pos, face) -> {

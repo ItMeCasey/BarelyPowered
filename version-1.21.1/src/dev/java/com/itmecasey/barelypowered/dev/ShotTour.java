@@ -197,9 +197,15 @@ public final class ShotTour {
         ResourceLocation pipeId = ResourceLocation.fromNamespaceAndPath("aeroflux", "copper_energy_pipe");
         if (BuiltInRegistries.ITEM.containsKey(pipeId)) {
             aeroFluxScene(x += 10, BuiltInRegistries.ITEM.get(pipeId));
+            if (haveCables()) {
+                aeroFluxCableScene(x += 10, BuiltInRegistries.ITEM.get(pipeId));
+            }
         }
 
         batteryScene(x += 8);
+        if (haveCables()) {
+            cableScene(x += 8);
+        }
 
         then(20, () -> {
             Minecraft minecraft = Minecraft.getInstance();
@@ -301,6 +307,49 @@ public final class ShotTour {
         shoot("aeroflux_pipe_sink", 8);
     }
 
+    private static void aeroFluxCableScene(int x, Item pipe) {
+        BlockPos gen = new BlockPos(x, ground, 0);
+        then(4, () -> {
+            server(String.format(Locale.ROOT, "setblock %d %d %d barelypowered:combustion_generator_steel[facing=north]", x, ground, 0),
+                    String.format(Locale.ROOT, "setblock %d %d %d barelycables:energy_cable_iron", x + 1, ground, 0),
+                    String.format(Locale.ROOT, "setblock %d %d %d barelycables:energy_cable_iron", x + 2, ground, 0),
+                    String.format(Locale.ROOT, "setblock %d %d %d barelypowered:test_energy_sink", x + 5, ground, 0));
+            onServer(srv -> {
+                if (srv.overworld().getBlockEntity(gen) instanceof GeneratorBlockEntity be) {
+                    be.debugSet(new ItemStack(Items.CHARCOAL, 8), 0);
+                }
+            });
+        });
+        for (int i : new int[] {3, 4}) {
+            BlockPos at = new BlockPos(x + i, ground, 0);
+            then(2, () -> {
+                moveTo(new Vec3(at.getX() + 0.5, ground + 1.62, -2.5), new Vec3(at.getX() + 0.5, ground + 0.3, 0.5));
+                ItemStack stack = new ItemStack(pipe);
+                player().getInventory().setItem(0, stack.copy());
+                player().getInventory().selected = 0;
+                Minecraft.getInstance().gameMode.handleCreativeModeItemAdd(stack, 36);
+            });
+            then(3, () -> {
+                BlockPos below = at.below();
+                Minecraft.getInstance().gameMode.useItemOn(player(), InteractionHand.MAIN_HAND,
+                        new BlockHitResult(Vec3.atCenterOf(below).add(0, 0.5, 0), Direction.UP, below, false));
+            });
+        }
+        then(2, () -> server("clear @p"));
+        then(2, () -> moveTo(new Vec3(x + 2.5, ground + 1.4, -3.6), new Vec3(x + 2.5, ground + 0.4, 0.5)));
+        shoot("aeroflux_cables_a", 100);
+        shoot("aeroflux_cables_b", 40);
+        then(2, () -> onServer(srv -> {
+            ServerPlayer p = srv.getPlayerList().getPlayers().get(0);
+            BlockEntity sink = srv.overworld().getBlockEntity(gen.offset(5, 0, 0));
+            long got = sink instanceof SinkBlockEntity sb ? sb.received() : -1;
+            LOGGER.info("BARELYPOWERED-SHOTS aeroflux cables sink received={}", got);
+            p.displayClientMessage(net.minecraft.network.chat.Component.literal(
+                    "Generator, cables, AeroFlux pipes, sink: " + got + " FE received"), true);
+        }));
+        shoot("aeroflux_cables_sink", 8);
+    }
+
     /** A steel combustion generator feeding an iron battery feeding the sink: charge builds, then a face is switched off. */
     private static void batteryScene(int x) {
         BlockPos gen = new BlockPos(x, ground, 0);
@@ -337,6 +386,41 @@ public final class ShotTour {
         }));
         then(2, () -> moveTo(new Vec3(x + 1.0, ground + 0.9, -2.1), new Vec3(x + 1.0, ground + 0.5, 0.5)));
         shoot("battery_chain_look", 40);
+    }
+
+    /** True when the BarelyCables jar is in the game (it is a separate mod). */
+    private static boolean haveCables() {
+        return net.minecraft.core.registries.BuiltInRegistries.BLOCK.keySet().stream().anyMatch(k -> k.getNamespace().equals("barelycables"));
+    }
+
+    /** A steel combustion generator, two cables, an iron battery, a cable and the sink: does the power reach the end? */
+    private static void cableScene(int x) {
+        BlockPos gen = new BlockPos(x, ground, 0);
+        BlockPos sinkPos = gen.offset(5, 0, 0);
+        BlockPos bat = gen.offset(3, 0, 0);
+        then(4, () -> {
+            server(String.format(Locale.ROOT, "setblock %d %d %d barelypowered:combustion_generator_steel[facing=north]", x, ground, 0),
+                    String.format(Locale.ROOT, "setblock %d %d %d barelycables:energy_cable_basic", x + 1, ground, 0),
+                    String.format(Locale.ROOT, "setblock %d %d %d barelycables:energy_cable_iron", x + 2, ground, 0),
+                    String.format(Locale.ROOT, "setblock %d %d %d barelypowered:battery_iron", x + 3, ground, 0),
+                    String.format(Locale.ROOT, "setblock %d %d %d barelycables:energy_cable_steel", x + 4, ground, 0),
+                    String.format(Locale.ROOT, "setblock %d %d %d barelypowered:test_energy_sink", x + 5, ground, 0));
+            onServer(srv -> {
+                if (srv.overworld().getBlockEntity(gen) instanceof GeneratorBlockEntity g) {
+                    g.debugSet(new ItemStack(Items.CHARCOAL, 8), 0);
+                }
+            });
+        });
+        then(4, () -> moveTo(new Vec3(x + 2.5, ground + 1.2, -3.4), new Vec3(x + 2.5, ground + 0.4, 0.5)));
+        shoot("cables_chain_a", 90);
+        shoot("cables_chain_b", 6);
+        then(2, () -> onServer(srv -> {
+            if (srv.overworld().getBlockEntity(bat) instanceof BatteryBlockEntity b && srv.overworld().getBlockEntity(sinkPos) instanceof SinkBlockEntity s) {
+                LOGGER.info("BARELYPOWERED-SHOTS cables chain: battery stored={} sink received={}", b.core().stored(), s.received());
+            }
+        }));
+        then(2, () -> moveTo(new Vec3(x + 1.5, ground + 0.9, -1.8), new Vec3(x + 1.5, ground + 0.5, 0.5)));
+        shoot("cables_cable_look", 50);
     }
 
     private static void moveTo(Vec3 eye, Vec3 target) {
