@@ -34,7 +34,7 @@ def tour(layer):
         shutil.rmtree(shots)
     env = dict(os.environ, BARELYPOWERED_SHOTS="1")
     log = []
-    proc = subprocess.Popen(["cmd", "/c", str(folder / "gradlew.bat"), "runClient", "--no-daemon", "-q"], cwd=folder,
+    proc = subprocess.Popen(["cmd", "/c", str(folder / "gradlew.bat"), "runClient", "--no-daemon", "-q", "-PdevTools"], cwd=folder,
                             env=env, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True, errors="replace")
 
     def pump():

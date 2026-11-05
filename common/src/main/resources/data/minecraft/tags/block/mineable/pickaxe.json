@@ -13,6 +13,9 @@
     "barelypowered:wind_turbine_2",
     "barelypowered:water_wheel",
     "barelypowered:geothermal_generator",
-    "barelypowered:hand_crank"
+    "barelypowered:hand_crank",
+    "barelypowered:battery_basic",
+    "barelypowered:battery_iron",
+    "barelypowered:battery_steel"
   ]
 }

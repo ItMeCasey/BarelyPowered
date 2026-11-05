@@ -1,0 +1,12 @@
+{
+  "parent": "minecraft:block/cube",
+  "textures": {
+    "particle": "barelypowered:block/battery_basic_top",
+    "down": "barelypowered:block/battery_basic_top",
+    "up": "barelypowered:block/battery_basic_top",
+    "north": "barelypowered:block/battery_basic_c3",
+    "south": "barelypowered:block/battery_basic_c3",
+    "east": "barelypowered:block/battery_basic_c3",
+    "west": "barelypowered:block/battery_basic_c3"
+  }
+}

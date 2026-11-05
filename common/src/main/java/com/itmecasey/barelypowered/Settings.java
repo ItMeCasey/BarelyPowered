@@ -80,6 +80,13 @@ public final class Settings {
         def("geothermal.lava_source_heat", 1.0, "Heat from a lava source block touching or near the generator.");
         def("geothermal.lava_flow_heat", 0.5, "Heat from flowing lava.");
         def("geothermal.magma_heat", 0.75, "Heat from a magma block.");
+
+        def("battery.basic.capacity", 100000, "Energy a basic battery holds.");
+        def("battery.iron.capacity", 400000, "Energy an iron battery holds.");
+        def("battery.steel.capacity", 1600000, "Energy a steel battery holds.");
+        def("battery.basic.rate", 200, "Most energy a basic battery takes in, and most it gives out, each tick.");
+        def("battery.iron.rate", 800, "Most energy an iron battery takes in, and most it gives out, each tick.");
+        def("battery.steel.rate", 3200, "Most energy a steel battery takes in, and most it gives out, each tick.");
     }
 
     private Settings() {

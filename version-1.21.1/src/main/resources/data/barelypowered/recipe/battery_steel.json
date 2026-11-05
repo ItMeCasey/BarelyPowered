@@ -1,0 +1,27 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "redstone",
+  "pattern": [
+    "SRS",
+    "KXK",
+    "SRS"
+  ],
+  "key": {
+    "K": {
+      "item": "minecraft:redstone_block"
+    },
+    "R": {
+      "item": "minecraft:redstone"
+    },
+    "S": {
+      "item": "barelypowered:steel_ingot"
+    },
+    "X": {
+      "item": "barelypowered:battery_iron"
+    }
+  },
+  "result": {
+    "id": "barelypowered:battery_steel",
+    "count": 1
+  }
+}

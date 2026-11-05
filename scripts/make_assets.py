@@ -21,8 +21,15 @@ def write(path, data):
     path.write_text(json.dumps(data, indent=2) + "\n", encoding="utf-8")
 
 
+BATTERIES = ["battery_basic", "battery_iron", "battery_steel"]
+
+
 def ids():
     return [name for name, _ in art.sets()]
+
+
+def all_ids():
+    return ids() + BATTERIES
 
 
 NAMES = {
@@ -39,6 +46,9 @@ NAMES = {
     "wind_turbine_2": "Advanced Wind Turbine",
     "water_wheel": "Water Wheel",
     "geothermal_generator": "Geothermal Generator",
+    "battery_basic": "Basic Battery",
+    "battery_iron": "Iron Battery",
+    "battery_steel": "Steel Battery",
 }
 
 
@@ -46,7 +56,6 @@ def lang():
     d = {f"block.{MODID}.{k}": v for k, v in NAMES.items()}
     d[f"item.{MODID}.steel_ingot"] = "Steel Ingot"
     d[f"itemGroup.{MODID}"] = "BarelyPowered"
-    d[f"block.{MODID}.test_energy_sink"] = "Test Energy Sink (dev only)"
     d.update({
         f"tooltip.{MODID}.hand_crank": "Right-click to crank. Free power for the first machines.",
         f"tooltip.{MODID}.combustion_generator": "Burns coal, charcoal, logs or planks. Right-click with fuel.",
@@ -56,6 +65,12 @@ def lang():
         f"tooltip.{MODID}.water_wheel": "Needs flowing water beside or above it.",
         f"tooltip.{MODID}.geothermal_generator": "Place next to lava or magma. Steady, no fuel.",
         f"tooltip.{MODID}.output": "Output: %s",
+        f"tooltip.{MODID}.battery": "Stores energy. Right-click a face with an empty hand to set it to input, output, both or off.",
+        f"tooltip.{MODID}.charge": "Charge: %s / %s FE",
+        f"tooltip.{MODID}.battery_rate": "Takes in and gives out up to %s FE per tick",
+        f"message.{MODID}.battery": "%s: %s | Charge %s / %s FE",
+        f"smwti.{MODID}.face": "%s: %s",
+        f"smwti.{MODID}.battery_rate": "Rate: %s FE/t",
         f"message.{MODID}.status": "Output %s FE/t | Stored %s / %s FE",
         f"message.{MODID}.fuel": " | Fuel: %s x%s (%ss left)",
         f"message.{MODID}.lava": " | Lava: %s / %s mB (%ss left)",
@@ -101,13 +116,35 @@ def block_models(root):
                     v["y"] = y
                 variants[f"facing={facing},lit={lit}"] = v
         write(base / "blockstates" / f"{name}.json", {"variants": variants})
+    for tier in ("basic", "iron", "steel"):
+        name = f"battery_{tier}"
+        variants = {}
+        for level in range(9):
+            write(base / "models" / "block" / f"{name}_c{level}.json", {
+                "parent": "minecraft:block/cube",
+                "textures": {
+                    "particle": f"{MODID}:block/{name}_top",
+                    "down": f"{MODID}:block/{name}_top",
+                    "up": f"{MODID}:block/{name}_top",
+                    "north": f"{MODID}:block/{name}_c{level}",
+                    "south": f"{MODID}:block/{name}_c{level}",
+                    "east": f"{MODID}:block/{name}_c{level}",
+                    "west": f"{MODID}:block/{name}_c{level}",
+                },
+            })
+            variants[f"charge={level}"] = {"model": f"{MODID}:block/{name}_c{level}"}
+        write(base / "blockstates" / f"{name}.json", {"variants": variants})
     write(base / "models" / "item" / "steel_ingot.json",
           {"parent": "minecraft:item/generated", "textures": {"layer0": f"{MODID}:item/steel_ingot"}})
     write(base / "lang" / "en_us.json", lang())
 
 
 def sink_assets(root, new):
+    """The dev-only test sink's files go in src/dev/resources, which only builds with -PdevTools."""
+    root = root.parent.parent / "dev" / "resources"
     base = root / "assets" / MODID
+    (base / "textures" / "block").mkdir(parents=True, exist_ok=True)
+    art.sink_texture().save(base / "textures" / "block" / "test_energy_sink.png")
     write(base / "blockstates" / "test_energy_sink.json", {"variants": {"": {"model": f"{MODID}:block/test_energy_sink"}}})
     write(base / "models" / "block" / "test_energy_sink.json",
           {"parent": "minecraft:block/cube_all", "textures": {"all": f"{MODID}:block/test_energy_sink"}})
@@ -118,21 +155,29 @@ def sink_assets(root, new):
         write(base / "models" / "item" / "test_energy_sink.json", {"parent": f"{MODID}:block/test_energy_sink"})
 
 
+def loot(root, v):
+    """Block loot tables. Minecraft 26.3 changed the layout (pool condition, entry modifier), so each version gets its own."""
+    data = root / "data" / MODID / "loot_table" / "blocks"
+    new263 = v == "26.3"
+    for name in all_ids():
+        entry = {"type": "minecraft:item", "name": f"{MODID}:{name}"}
+        if name in BATTERIES:
+            copy = {"source": "block_entity", "include": ["minecraft:custom_data"]}
+            if new263:
+                entry["modifier"] = dict(copy, type="minecraft:copy_components")
+            else:
+                entry["functions"] = [dict(copy, function="minecraft:copy_components")]
+        if new263:
+            pool = {"rolls": 1, "condition": {"type": "minecraft:survives_explosion"}, "entries": [entry]}
+        else:
+            pool = {"rolls": 1, "bonus_rolls": 0, "entries": [entry], "conditions": [{"condition": "minecraft:survives_explosion"}]}
+        write(data / f"{name}.json", {"type": "minecraft:block", "pools": [pool], "random_sequence": f"{MODID}:blocks/{name}"})
+
+
 def loot_and_tags(root):
     data = root / "data" / MODID
-    for name in ids():
-        write(data / "loot_table" / "blocks" / f"{name}.json", {
-            "type": "minecraft:block",
-            "pools": [{
-                "rolls": 1,
-                "bonus_rolls": 0,
-                "entries": [{"type": "minecraft:item", "name": f"{MODID}:{name}"}],
-                "conditions": [{"condition": "minecraft:survives_explosion"}],
-            }],
-            "random_sequence": f"{MODID}:blocks/{name}",
-        })
     write(root / "data" / "minecraft" / "tags" / "block" / "mineable" / "pickaxe.json",
-          {"replace": False, "values": [f"{MODID}:{n}" for n in ids()]})
+          {"replace": False, "values": [f"{MODID}:{n}" for n in all_ids()]})
     write(root / "data" / "c" / "tags" / "item" / "ingots" / "steel.json",
           {"replace": False, "values": [f"{MODID}:steel_ingot"]})
 
@@ -152,6 +197,7 @@ ING = {
     "D": "minecraft:gold_ingot",
     "M": "minecraft:magma_block",
     "T": "minecraft:stick",
+    "K": "minecraft:redstone_block",
     "P": "#minecraft:planks",
 }
 
@@ -169,6 +215,9 @@ SHAPED = {
     "wind_turbine_2": (["SIS", "IXI", "SRS"], {"X": "barelypowered:wind_turbine_1"}),
     "water_wheel": (["PTP", "TIT", "PTP"], {}),
     "geothermal_generator": (["III", "IMI", "SRS"], {}),
+    "battery_basic": (["IRI", "RKR", "IRI"], {}),
+    "battery_iron": (["IRI", "KXK", "IRI"], {"X": "barelypowered:battery_basic"}),
+    "battery_steel": (["SRS", "KXK", "SRS"], {"X": "barelypowered:battery_iron"}),
 }
 
 
@@ -207,6 +256,8 @@ def item_defs(root):
     base = root / "assets" / MODID
     for name in ids():
         write(base / "items" / f"{name}.json", {"model": {"type": "minecraft:model", "model": f"{MODID}:block/{name}"}})
+    for name in BATTERIES:
+        write(base / "items" / f"{name}.json", {"model": {"type": "minecraft:model", "model": f"{MODID}:block/{name}_c4"}})
     write(base / "items" / "steel_ingot.json", {"model": {"type": "minecraft:model", "model": f"{MODID}:item/steel_ingot"}})
 
 
@@ -214,6 +265,8 @@ def old_item_models(root):
     base = root / "assets" / MODID / "models" / "item"
     for name in ids():
         write(base / f"{name}.json", {"parent": f"{MODID}:block/{name}"})
+    for name in BATTERIES:
+        write(base / f"{name}.json", {"parent": f"{MODID}:block/{name}_c4"})
 
 
 def main():
@@ -224,11 +277,13 @@ def main():
     for v in OLD:
         res = ROOT / f"version-{v}" / "src" / "main" / "resources"
         recipes(res, False)
+        loot(res, v)
         old_item_models(res)
         sink_assets(res, False)
     for v in NEW:
         res = ROOT / f"version-{v}" / "src" / "main" / "resources"
         recipes(res, True)
+        loot(res, v)
         item_defs(res)
         sink_assets(res, True)
     print("assets written")

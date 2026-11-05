@@ -1,0 +1,18 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "redstone",
+  "pattern": [
+    "IRI",
+    "RKR",
+    "IRI"
+  ],
+  "key": {
+    "I": "minecraft:iron_ingot",
+    "K": "minecraft:redstone_block",
+    "R": "minecraft:redstone"
+  },
+  "result": {
+    "id": "barelypowered:battery_basic",
+    "count": 1
+  }
+}

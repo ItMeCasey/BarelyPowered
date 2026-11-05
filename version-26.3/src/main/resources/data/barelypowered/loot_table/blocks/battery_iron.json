@@ -1,0 +1,25 @@
+{
+  "type": "minecraft:block",
+  "pools": [
+    {
+      "rolls": 1,
+      "condition": {
+        "type": "minecraft:survives_explosion"
+      },
+      "entries": [
+        {
+          "type": "minecraft:item",
+          "name": "barelypowered:battery_iron",
+          "modifier": {
+            "source": "block_entity",
+            "include": [
+              "minecraft:custom_data"
+            ],
+            "type": "minecraft:copy_components"
+          }
+        }
+      ]
+    }
+  ],
+  "random_sequence": "barelypowered:blocks/battery_iron"
+}

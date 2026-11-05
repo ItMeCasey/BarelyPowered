@@ -4,19 +4,15 @@ import com.itmecasey.barelypowered.BarelyPowered;
 import com.itmecasey.barelypowered.FeBuffer;
 import com.itmecasey.barelypowered.ModContent;
 import com.itmecasey.barelypowered.PowerMath;
-import com.itmecasey.barelypowered.SelfTest;
+import com.itmecasey.barelypowered.Dev;
+import com.itmecasey.barelypowered.block.BatteryBlockEntity;
 import com.itmecasey.barelypowered.block.GeneratorBlockEntity;
-import com.itmecasey.barelypowered.block.SinkBlockEntity;
 import net.minecraft.core.registries.Registries;
-import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.fml.common.Mod;
-import net.neoforged.fml.loading.FMLEnvironment;
 import net.neoforged.fml.loading.FMLPaths;
 import net.neoforged.neoforge.capabilities.Capabilities;
 import net.neoforged.neoforge.capabilities.RegisterCapabilitiesEvent;
-import net.neoforged.neoforge.common.NeoForge;
-import net.neoforged.neoforge.event.server.ServerStartedEvent;
 import net.neoforged.neoforge.registries.RegisterEvent;
 import net.neoforged.neoforge.transfer.energy.EnergyHandler;
 import net.neoforged.neoforge.transfer.transaction.SnapshotJournal;
@@ -30,12 +26,7 @@ public final class NeoForgeBarelyPowered {
         BarelyPowered.init(FMLPaths.CONFIGDIR::get);
         modBus.addListener(NeoForgeBarelyPowered::register);
         modBus.addListener(NeoForgeBarelyPowered::capabilities);
-        if (FMLEnvironment.getDist() == Dist.CLIENT) {
-            NeoForgeClientSetup.install();
-        }
-        if (SelfTest.requested()) {
-            NeoForge.EVENT_BUS.addListener((ServerStartedEvent e) -> SelfTest.run(e.getServer()));
-        }
+        Dev.call("com.itmecasey.barelypowered.neoforge.dev.NeoForgeDev", "install", modBus);
         GeneratorBlockEntity.pusher = (level, pos, side, amount) -> {
             EnergyHandler target = level.getCapability(Capabilities.Energy.BLOCK, pos, side);
             if (target == null) {
@@ -56,18 +47,15 @@ public final class NeoForgeBarelyPowered {
         event.register(Registries.ITEM, helper -> ModContent.registerItems((name, v) -> helper.register(ModContent.id(name), v)));
         event.register(Registries.BLOCK_ENTITY_TYPE, helper -> {
             helper.register(ModContent.id("generator"), ModContent.GENERATOR);
-            if (ModContent.SINK_ENTITY != null) {
-                helper.register(ModContent.id("test_energy_sink"), ModContent.SINK_ENTITY);
-            }
+            helper.register(ModContent.id("battery"), ModContent.BATTERY);
+            ModContent.extraBlockEntityTypes().forEach((name, type) -> helper.register(ModContent.id(name), type));
         });
         event.register(Registries.CREATIVE_MODE_TAB, helper -> helper.register(ModContent.id("main"), ModContent.creativeTab()));
     }
 
     private static void capabilities(RegisterCapabilitiesEvent event) {
         event.registerBlockEntity(Capabilities.Energy.BLOCK, ModContent.GENERATOR, (be, side) -> new Output(be));
-        if (ModContent.SINK_ENTITY != null) {
-            event.registerBlockEntity(Capabilities.Energy.BLOCK, ModContent.SINK_ENTITY, (be, side) -> new Sink(be));
-        }
+        event.registerBlockEntity(Capabilities.Energy.BLOCK, ModContent.BATTERY, BatteryView::new);
     }
 
     /** What other mods see: energy that can be drawn out but never put in. */
@@ -123,47 +111,59 @@ public final class NeoForgeBarelyPowered {
         }
     }
 
-    /** The dev-only sink: takes any energy, gives none. */
-    private static final class Sink extends SnapshotJournal<Long> implements EnergyHandler {
-        private final SinkBlockEntity be;
+    /** A battery as other mods see it: each face follows its own input and output setting and the tier rate. */
+    private static final class BatteryView extends SnapshotJournal<int[]> implements EnergyHandler {
+        private final BatteryBlockEntity be;
+        private final net.minecraft.core.Direction side;
 
-        Sink(SinkBlockEntity be) {
+        BatteryView(BatteryBlockEntity be, net.minecraft.core.Direction side) {
             this.be = be;
+            this.side = side;
         }
 
         @Override
-        protected Long createSnapshot() {
-            return be.received();
+        protected int[] createSnapshot() {
+            return be.core().snapshot();
         }
 
         @Override
-        protected void revertToSnapshot(Long snapshot) {
-            be.setReceived(snapshot);
+        protected void revertToSnapshot(int[] snapshot) {
+            be.core().restore(snapshot);
+        }
+
+        @Override
+        protected void onRootCommit(int[] original) {
+            be.setChanged();
         }
 
         @Override
         public long getAmountAsLong() {
-            return 0;
+            return be.core().stored();
         }
 
         @Override
         public long getCapacityAsLong() {
-            return Integer.MAX_VALUE;
+            return be.core().capacity();
         }
 
         @Override
         public int insert(int amount, TransactionContext transaction) {
-            if (amount <= 0) {
-                return 0;
+            int taken = be.receive(side, amount, true);
+            if (taken > 0) {
+                updateSnapshots(transaction);
+                be.receive(side, taken, false);
             }
-            updateSnapshots(transaction);
-            be.accept(amount, false);
-            return amount;
+            return taken;
         }
 
         @Override
         public int extract(int amount, TransactionContext transaction) {
-            return 0;
+            int given = be.extract(side, amount, true);
+            if (given > 0) {
+                updateSnapshots(transaction);
+                be.extract(side, given, false);
+            }
+            return given;
         }
     }
 }

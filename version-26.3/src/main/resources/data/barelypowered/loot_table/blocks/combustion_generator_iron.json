@@ -1,0 +1,18 @@
+{
+  "type": "minecraft:block",
+  "pools": [
+    {
+      "rolls": 1,
+      "condition": {
+        "type": "minecraft:survives_explosion"
+      },
+      "entries": [
+        {
+          "type": "minecraft:item",
+          "name": "barelypowered:combustion_generator_iron"
+        }
+      ]
+    }
+  ],
+  "random_sequence": "barelypowered:blocks/combustion_generator_iron"
+}

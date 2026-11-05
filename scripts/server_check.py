@@ -37,7 +37,7 @@ def check(layer):
         "motd=BarelyPowered server check\nmax-tick-time=-1\n")
     log = []
     env = dict(os.environ, BARELYPOWERED_SELFTEST="1")
-    proc = subprocess.Popen(["cmd", "/c", str(folder / "gradlew.bat"), "runServer", "--no-daemon", "-q"], cwd=folder, env=env,
+    proc = subprocess.Popen(["cmd", "/c", str(folder / "gradlew.bat"), "runServer", "--no-daemon", "-q", "-PdevTools"], cwd=folder, env=env,
                             stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True, errors="replace")
 
     def pump():

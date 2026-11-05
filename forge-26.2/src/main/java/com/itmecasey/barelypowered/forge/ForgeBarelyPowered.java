@@ -3,9 +3,9 @@ package com.itmecasey.barelypowered.forge;
 import com.itmecasey.barelypowered.BarelyPowered;
 import com.itmecasey.barelypowered.ModContent;
 import com.itmecasey.barelypowered.PowerMath;
-import com.itmecasey.barelypowered.SelfTest;
+import com.itmecasey.barelypowered.Dev;
+import com.itmecasey.barelypowered.block.BatteryBlockEntity;
 import com.itmecasey.barelypowered.block.GeneratorBlockEntity;
-import com.itmecasey.barelypowered.block.SinkBlockEntity;
 import net.minecraft.core.Direction;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.world.level.block.entity.BlockEntity;
@@ -15,10 +15,8 @@ import net.minecraftforge.common.capabilities.ForgeCapabilities;
 import net.minecraftforge.common.capabilities.ICapabilityProvider;
 import net.minecraftforge.common.util.LazyOptional;
 import net.minecraftforge.energy.IEnergyStorage;
-import net.minecraftforge.event.server.ServerStartedEvent;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
-import net.minecraftforge.fml.loading.FMLEnvironment;
 import net.minecraftforge.fml.loading.FMLPaths;
 import net.minecraftforge.registries.RegisterEvent;
 import org.jetbrains.annotations.NotNull;
@@ -31,12 +29,7 @@ public final class ForgeBarelyPowered {
         BarelyPowered.init(FMLPaths.CONFIGDIR::get);
         RegisterEvent.getBus(context.getModBusGroup()).addListener(ForgeBarelyPowered::register);
         AttachCapabilitiesEvent.BlockEntities.BUS.addListener(ForgeBarelyPowered::attach);
-        if (FMLEnvironment.dist.isClient()) {
-            ForgeClientSetup.install();
-        }
-        if (SelfTest.requested()) {
-            ServerStartedEvent.BUS.addListener((ServerStartedEvent e) -> SelfTest.run(e.getServer()));
-        }
+        Dev.call("com.itmecasey.barelypowered.forge.dev.ForgeDev", "install", context);
         GeneratorBlockEntity.pusher = (level, pos, side, amount) -> {
             BlockEntity target = level.getBlockEntity(pos);
             if (target == null) {
@@ -52,20 +45,37 @@ public final class ForgeBarelyPowered {
         event.register(Registries.ITEM, helper -> ModContent.registerItems((name, v) -> helper.register(ModContent.id(name), v)));
         event.register(Registries.BLOCK_ENTITY_TYPE, helper -> {
             helper.register(ModContent.id("generator"), ModContent.GENERATOR);
-            if (ModContent.SINK_ENTITY != null) {
-                helper.register(ModContent.id("test_energy_sink"), ModContent.SINK_ENTITY);
-            }
+            helper.register(ModContent.id("battery"), ModContent.BATTERY);
+            ModContent.extraBlockEntityTypes().forEach((name, type) -> helper.register(ModContent.id(name), type));
         });
         event.register(Registries.CREATIVE_MODE_TAB, helper -> helper.register(ModContent.id("main"), ModContent.creativeTab()));
     }
 
     private static void attach(AttachCapabilitiesEvent.BlockEntities event) {
         BlockEntity be = event.getObject();
+        if (be instanceof BatteryBlockEntity battery) {
+            @SuppressWarnings("unchecked")
+            LazyOptional<IEnergyStorage>[] views = new LazyOptional[7];
+            for (int i = 0; i < 7; i++) {
+                Direction side = i == 6 ? null : Direction.values()[i];
+                views[i] = LazyOptional.of(() -> new BatteryView(battery, side));
+            }
+            event.addCapability(ModContent.id("battery_energy"), new ICapabilityProvider() {
+                @Override
+                public <T> @NotNull LazyOptional<T> getCapability(@NotNull Capability<T> cap, @Nullable Direction side) {
+                    return cap == ForgeCapabilities.ENERGY ? views[side == null ? 6 : side.ordinal()].cast() : LazyOptional.empty();
+                }
+            });
+            event.addListener(() -> {
+                for (LazyOptional<IEnergyStorage> view : views) {
+                    view.invalidate();
+                }
+            });
+            return;
+        }
         IEnergyStorage storage;
         if (be instanceof GeneratorBlockEntity generator) {
             storage = new Output(generator);
-        } else if (be instanceof SinkBlockEntity sink) {
-            storage = new Sink(sink);
         } else {
             return;
         }
@@ -116,36 +126,36 @@ public final class ForgeBarelyPowered {
         }
     }
 
-    /** The dev-only sink: takes any energy, gives none. */
-    private record Sink(SinkBlockEntity be) implements IEnergyStorage {
+    /** A battery as other mods see it: each face follows its own input and output setting and the tier rate. */
+    private record BatteryView(BatteryBlockEntity be, Direction side) implements IEnergyStorage {
         @Override
         public int receiveEnergy(int toReceive, boolean simulate) {
-            return be.accept(toReceive, simulate);
+            return be.receive(side, toReceive, simulate);
         }
 
         @Override
         public int extractEnergy(int toExtract, boolean simulate) {
-            return 0;
+            return be.extract(side, toExtract, simulate);
         }
 
         @Override
         public int getEnergyStored() {
-            return 0;
+            return be.core().stored();
         }
 
         @Override
         public int getMaxEnergyStored() {
-            return Integer.MAX_VALUE;
+            return be.core().capacity();
         }
 
         @Override
         public boolean canExtract() {
-            return false;
+            return be.core().mode(side == null ? -1 : side.ordinal()).canOutput();
         }
 
         @Override
         public boolean canReceive() {
-            return true;
+            return be.core().mode(side == null ? -1 : side.ordinal()).canInput();
         }
     }
 }

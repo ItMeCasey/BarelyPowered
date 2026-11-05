@@ -312,6 +312,38 @@ def sink_texture():
     return img
 
 
+BATTERY_BODIES = {"basic": ((96, 98, 112), (62, 64, 78), (140, 142, 158)), "iron": BODIES["iron"], "steel": BODIES["steel"]}
+GAUGE = [(214, 70, 24), (232, 100, 28), (244, 130, 34), (250, 156, 40), (252, 180, 52), (255, 204, 74), (255, 224, 110), (255, 240, 160)]
+
+
+def battery_side(tier, level, seed):
+    """A battery's side: a vertical gauge of 8 cells, the lowest `level` of them lit."""
+    body = BATTERY_BODIES[tier]
+    img = side_tile(body, seed, trim=GOLD_D)
+    px = img.load()
+    d = ImageDraw.Draw(img)
+    d.rectangle((5, 2, 10, 13), fill=NIGHT)
+    d.rectangle((5, 2, 10, 13), outline=body[1])
+    for i in range(8):
+        y = 11 - i
+        for x in range(6, 10):
+            if i < level:
+                px[x, y] = GAUGE[i]
+            else:
+                px[x, y] = (40, 36, 58) if (i % 2) else (34, 31, 50)
+    px[6, 3] = (80, 74, 110)
+    return img
+
+
+def battery_top(tier, seed):
+    body = BATTERY_BODIES[tier]
+    img = top_tile(body, seed, trim=GOLD_D)
+    d = ImageDraw.Draw(img)
+    d.rectangle((6, 6, 9, 9), fill=GOLD)
+    d.rectangle((7, 7, 8, 8), fill=GOLD_L)
+    return img
+
+
 def steel_ingot():
     img = Image.new("RGBA", (16, 16), (0, 0, 0, 0))
     d = ImageDraw.Draw(img)
@@ -404,10 +436,13 @@ def render_all(out):
     out = Path(out)
     for name, spec in sets():
         draw_block(name, spec, out)
+    for i, tier in enumerate(("basic", "iron", "steel")):
+        battery_top(tier, 400 + i).save(out / "block" / f"battery_{tier}_top.png")
+        for level in range(9):
+            battery_side(tier, level, 410 + i).save(out / "block" / f"battery_{tier}_c{level}.png")
     item = out / "item"
     item.mkdir(parents=True, exist_ok=True)
     steel_ingot().save(item / "steel_ingot.png")
-    sink_texture().save(out / "block" / "test_energy_sink.png")
 
 
 if __name__ == "__main__":

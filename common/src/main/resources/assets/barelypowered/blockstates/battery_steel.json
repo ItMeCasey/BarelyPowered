@@ -1,0 +1,31 @@
+{
+  "variants": {
+    "charge=0": {
+      "model": "barelypowered:block/battery_steel_c0"
+    },
+    "charge=1": {
+      "model": "barelypowered:block/battery_steel_c1"
+    },
+    "charge=2": {
+      "model": "barelypowered:block/battery_steel_c2"
+    },
+    "charge=3": {
+      "model": "barelypowered:block/battery_steel_c3"
+    },
+    "charge=4": {
+      "model": "barelypowered:block/battery_steel_c4"
+    },
+    "charge=5": {
+      "model": "barelypowered:block/battery_steel_c5"
+    },
+    "charge=6": {
+      "model": "barelypowered:block/battery_steel_c6"
+    },
+    "charge=7": {
+      "model": "barelypowered:block/battery_steel_c7"
+    },
+    "charge=8": {
+      "model": "barelypowered:block/battery_steel_c8"
+    }
+  }
+}
