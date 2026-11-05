@@ -136,7 +136,32 @@ public final class ShotTour {
 
     // --- The tour ----------------------------------------------------------------------------
 
+    static int ground() {
+        return ground;
+    }
+
+    /** The integration check: Jade scene plus a script of viewer steps, then quit (see ViewerTour). */
+    private static void planViewers() {
+        then(0, () -> {
+            server("gamerule doDaylightCycle false", "gamerule doWeatherCycle false", "gamerule doMobSpawning false",
+                    "time set noon", "weather clear", "kill @e[type=!player]", "clear @p");
+            player().getAbilities().flying = false;
+        });
+        ViewerTour.plan();
+        then(20, () -> {
+            Minecraft minecraft = Minecraft.getInstance();
+            minecraft.options.pauseOnLostFocus = pauseOnLostFocus;
+            LOGGER.info("BARELYPOWERED-SHOTS DONE");
+            stage = Stage.DONE;
+            minecraft.stop();
+        });
+    }
+
     private static void planTour() {
+        if ("viewers".equals(System.getenv("BARELYPOWERED_SHOTS"))) {
+            planViewers();
+            return;
+        }
         then(0, () -> {
             server("gamerule doDaylightCycle false", "gamerule doWeatherCycle false", "gamerule doMobSpawning false",
                     "time set noon", "weather clear", "kill @e[type=!player]", "clear @p");
@@ -320,7 +345,7 @@ public final class ShotTour {
         shoot("cables_cable_look", 50);
     }
 
-    private static void moveTo(Vec3 eye, Vec3 target) {
+    static void moveTo(Vec3 eye, Vec3 target) {
         Vec3 d = target.subtract(eye);
         float yaw = (float) (Mth.atan2(d.z, d.x) * Mth.RAD_TO_DEG) - 90.0F;
         float pitch = (float) -(Mth.atan2(d.y, Math.sqrt(d.x * d.x + d.z * d.z)) * Mth.RAD_TO_DEG);
@@ -333,7 +358,7 @@ public final class ShotTour {
         player.onUpdateAbilities();
     }
 
-    private static void shoot(String name, int delay) {
+    static void shoot(String name, int delay) {
         then(delay, () -> {
             Minecraft minecraft = Minecraft.getInstance();
             minecraft.gui.hud.getChat().clearMessages(false);
@@ -348,7 +373,7 @@ public final class ShotTour {
         });
     }
 
-    private static void then(int delay, Runnable action) {
+    static void then(int delay, Runnable action) {
         STEPS.add(new Step(delay, action));
     }
 
@@ -356,14 +381,14 @@ public final class ShotTour {
         return Minecraft.getInstance().player;
     }
 
-    private static void onServer(java.util.function.Consumer<MinecraftServer> action) {
+    static void onServer(java.util.function.Consumer<MinecraftServer> action) {
         MinecraftServer server = Minecraft.getInstance().getSingleplayerServer();
         if (server != null) {
             server.execute(() -> action.accept(server));
         }
     }
 
-    private static void server(String... commands) {
+    static void server(String... commands) {
         onServer(server -> {
             for (String command : commands) {
                 server.getCommands().performPrefixedCommand(server.createCommandSourceStack(), command);

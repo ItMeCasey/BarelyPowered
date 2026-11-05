@@ -1,0 +1,175 @@
+package com.itmecasey.barelypowered.dev;
+
+import java.lang.reflect.Method;
+import java.util.Locale;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.screens.inventory.InventoryScreen;
+import net.minecraft.client.input.CharacterEvent;
+import net.minecraft.client.input.KeyEvent;
+import net.minecraft.client.input.MouseButtonInfo;
+import net.minecraft.core.BlockPos;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
+import net.minecraft.world.phys.Vec3;
+import org.lwjgl.glfw.GLFW;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import com.itmecasey.barelypowered.block.BatteryBlockEntity;
+import com.itmecasey.barelypowered.block.GeneratorBlockEntity;
+
+/**
+ * Development-only checks of the optional integrations (item and recipe viewers, Jade) on a real client. It is part of the
+ * screenshot tour, selected with {@code BARELYPOWERED_SHOTS=viewers}. It builds a small scene for Jade, then runs a script of
+ * steps taken from {@code BARELYPOWERED_VIEWER_SCRIPT}, for example {@code inv;wait:40;shot:jei_inventory;key:ctrl+f;type:bars}.
+ *
+ * <p>Input goes straight into the game's own mouse and keyboard handlers, so nothing touches the real desktop. Steps:
+ * {@code inv} opens the inventory, {@code esc} closes the screen, {@code wait:N} ticks, {@code shot:name}, {@code move:x,y},
+ * {@code click:x,y[,button]}, {@code key:[ctrl+]name}, {@code type:text}. Coordinates are window pixels.
+ */
+final class ViewerTour {
+    private static final Logger LOGGER = LoggerFactory.getLogger("BarelyPowered");
+
+    private ViewerTour() {
+    }
+
+    static void plan() {
+        String script = System.getenv().getOrDefault("BARELYPOWERED_VIEWER_SCRIPT", "inv;wait:40;shot:viewer_inventory");
+        if (System.getenv("BARELYPOWERED_VIEWER_SCENE") != null) {
+            jadeScene();
+        }
+        for (String step : script.split(";")) {
+            String text = step.trim();
+            if (!text.isEmpty()) {
+                if (text.startsWith("click:")) {
+                    ShotTour.then(2, () -> run("down:" + text.substring(6)));
+                    ShotTour.then(4, () -> run("up:" + text.substring(6)));
+                    continue;
+                }
+                ShotTour.then(2, () -> run(text));
+                if (text.startsWith("shot:")) {
+                    String name = text.substring(5);
+                    ShotTour.shoot(name, 1);
+                }
+                if (text.startsWith("wait:")) {
+                    ShotTour.then(Integer.parseInt(text.substring(5)), () -> {
+                    });
+                }
+            }
+        }
+    }
+
+    /** A combustion generator, a battery and a cable, each looked at in turn so Jade has something to show. */
+    private static void jadeScene() {
+        int g = ShotTour.ground();
+        ShotTour.then(4, () -> ShotTour.server(
+                String.format(Locale.ROOT, "setblock 0 %d 0 barelypowered:combustion_generator_steel[facing=north]", g),
+                String.format(Locale.ROOT, "setblock 3 %d 0 barelypowered:battery_iron", g),
+                String.format(Locale.ROOT, "setblock 6 %d 0 barelycables:energy_cable_iron", g),
+                String.format(Locale.ROOT, "setblock 9 %d 0 barelypowered:lava_generator_iron[facing=north]", g)));
+        ShotTour.then(4, () -> ShotTour.onServer(srv -> {
+            if (srv.overworld().getBlockEntity(new BlockPos(0, g, 0)) instanceof GeneratorBlockEntity be) {
+                be.debugSet(new ItemStack(Items.CHARCOAL, 8), 0);
+            }
+            if (srv.overworld().getBlockEntity(new BlockPos(9, g, 0)) instanceof GeneratorBlockEntity be) {
+                be.debugSet(ItemStack.EMPTY, 3000);
+            }
+            if (srv.overworld().getBlockEntity(new BlockPos(3, g, 0)) instanceof BatteryBlockEntity b) {
+                b.core().setStored((int) (b.core().capacity() * 0.6));
+                b.cycleFace(net.minecraft.core.Direction.WEST);
+            }
+        }));
+        look("jade_generator", 0, g);
+        look("jade_battery", 3, g);
+        look("jade_cable", 6, g);
+        look("jade_lava", 9, g);
+    }
+
+    private static void look(String name, int x, int g) {
+        ShotTour.then(4, () -> ShotTour.moveTo(new Vec3(x + 0.5, g + 1.2, -2.2), new Vec3(x + 0.5, g + 0.5, 0.5)));
+        ShotTour.shoot(name, 60);
+    }
+
+    private static void run(String step) {
+        Minecraft mc = Minecraft.getInstance();
+        String[] parts = step.split(":", 2);
+        String arg = parts.length > 1 ? parts[1] : "";
+        try {
+            switch (parts[0]) {
+                case "inv" -> mc.setScreen(new InventoryScreen(mc.player));
+                case "esc" -> mc.setScreen(null);
+                case "move" -> move(mc, arg);
+                case "down" -> button(mc, arg, true);
+                case "up" -> button(mc, arg, false);
+                case "key" -> key(mc, arg);
+                case "type" -> type(mc, arg);
+                default -> {
+                }
+            }
+        } catch (ReflectiveOperationException e) {
+            LOGGER.warn("BARELYPOWERED-SHOTS viewer step '{}' failed", step, e);
+        }
+        LOGGER.info("BARELYPOWERED-SHOTS viewer step {}", step);
+    }
+
+    private static Method method(Class<?> type, String name) {
+        for (Method m : type.getDeclaredMethods()) {
+            if (m.getName().equals(name)) {
+                m.setAccessible(true);
+                return m;
+            }
+        }
+        throw new IllegalStateException("no method " + name + " in " + type);
+    }
+
+    private static void move(Minecraft mc, String arg) throws ReflectiveOperationException {
+        String[] xy = arg.split(",");
+        method(mc.mouseHandler.getClass(), "onMove").invoke(mc.mouseHandler, mc.getWindow().handle(),
+                Double.parseDouble(xy[0]), Double.parseDouble(xy[1]));
+    }
+
+    private static void button(Minecraft mc, String arg, boolean down) throws ReflectiveOperationException {
+        String[] parts = arg.split(",");
+        move(mc, parts[0] + "," + parts[1]);
+        int button = parts.length > 2 ? Integer.parseInt(parts[2]) : 0;
+        method(mc.mouseHandler.getClass(), "onButton").invoke(mc.mouseHandler, mc.getWindow().handle(),
+                new MouseButtonInfo(button, 0), down ? GLFW.GLFW_PRESS : GLFW.GLFW_RELEASE);
+    }
+
+    private static void key(Minecraft mc, String arg) throws ReflectiveOperationException {
+        int mods = 0;
+        String name = arg.toLowerCase(Locale.ROOT);
+        while (name.contains("+")) {
+            String mod = name.substring(0, name.indexOf('+'));
+            name = name.substring(name.indexOf('+') + 1);
+            mods |= mod.equals("ctrl") ? GLFW.GLFW_MOD_CONTROL : mod.equals("shift") ? GLFW.GLFW_MOD_SHIFT : 0;
+        }
+        int code = keyCode(name);
+        Method press = method(mc.keyboardHandler.getClass(), "keyPress");
+        long window = mc.getWindow().handle();
+        KeyEvent event = new KeyEvent(code, GLFW.glfwGetKeyScancode(code), mods);
+        press.invoke(mc.keyboardHandler, window, GLFW.GLFW_PRESS, event);
+        press.invoke(mc.keyboardHandler, window, GLFW.GLFW_RELEASE, event);
+    }
+
+    private static int keyCode(String name) {
+        if (name.length() == 1) {
+            char c = Character.toUpperCase(name.charAt(0));
+            return c == '/' ? GLFW.GLFW_KEY_SLASH : c;
+        }
+        return switch (name) {
+            case "enter" -> GLFW.GLFW_KEY_ENTER;
+            case "tab" -> GLFW.GLFW_KEY_TAB;
+            case "escape" -> GLFW.GLFW_KEY_ESCAPE;
+            case "backspace" -> GLFW.GLFW_KEY_BACKSPACE;
+            default -> Integer.parseInt(name);
+        };
+    }
+
+    private static void type(Minecraft mc, String text) throws ReflectiveOperationException {
+        Method typed = method(mc.keyboardHandler.getClass(), "charTyped");
+        for (char c : text.toCharArray()) {
+            typed.invoke(mc.keyboardHandler, mc.getWindow().handle(), new CharacterEvent(c));
+        }
+    }
+}
