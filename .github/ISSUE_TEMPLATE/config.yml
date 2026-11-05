@@ -1,0 +1,8 @@
+blank_issues_enabled: false
+contact_links:
+  - name: How BarelyPowered works and what it covers
+    url: https://itmecasey.com/wiki/barelypowered/
+    about: Each generator, its recipe, the config file and how output is worked out. Read this first.
+  - name: Troubleshooting
+    url: https://itmecasey.com/wiki/barelypowered/?p=troubleshooting
+    about: No power reaching a machine, zero output, and cable setups.

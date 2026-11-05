@@ -1,0 +1,54 @@
+name: Wrong output
+description: A generator makes more or less power than the wiki and config say it should.
+title: "[Output] "
+labels: ["bug"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Right-click a generator with an empty hand to see its output, stored energy and why the output is what it is.
+        Please include that line, and the surroundings (sky, height, water, lava, other turbines).
+  - type: input
+    id: generator
+    attributes:
+      label: Which generator and tier
+      placeholder: Advanced Wind Turbine at y=140
+    validations:
+      required: true
+  - type: textarea
+    id: shown
+    attributes:
+      label: What the status line says
+      description: Paste the line from the action bar, or a screenshot.
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: What you expected, and why
+      description: The number from the wiki or your config file.
+    validations:
+      required: true
+  - type: textarea
+    id: config
+    attributes:
+      label: Changes to config/barelypowered.properties
+      description: Only the lines you changed, if any.
+  - type: input
+    id: version
+    attributes:
+      label: BarelyPowered version
+    validations:
+      required: true
+  - type: input
+    id: minecraft
+    attributes:
+      label: Minecraft and loader versions
+      placeholder: Minecraft 1.21.1, NeoForge ...
+    validations:
+      required: true
+  - type: textarea
+    id: mods
+    attributes:
+      label: Other mods
+      description: Especially cable, battery or weather mods.
