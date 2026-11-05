@@ -19,6 +19,7 @@ import net.minecraftforge.energy.IEnergyStorage;
 import net.minecraftforge.event.server.ServerStartedEvent;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
+import net.minecraftforge.fml.loading.FMLEnvironment;
 import net.minecraftforge.fml.loading.FMLPaths;
 import net.minecraftforge.registries.RegisterEvent;
 import org.jetbrains.annotations.NotNull;
@@ -31,6 +32,9 @@ public final class ForgeBarelyPowered {
         BarelyPowered.init(FMLPaths.CONFIGDIR::get);
         context.getModEventBus().addListener(ForgeBarelyPowered::register);
         MinecraftForge.EVENT_BUS.addGenericListener(BlockEntity.class, ForgeBarelyPowered::attach);
+        if (FMLEnvironment.dist.isClient()) {
+            ForgeClientSetup.install();
+        }
         if (SelfTest.requested()) {
             MinecraftForge.EVENT_BUS.addListener((ServerStartedEvent e) -> SelfTest.run(e.getServer()));
         }

@@ -6,8 +6,10 @@ import com.itmecasey.barelypowered.SelfTest;
 import com.itmecasey.barelypowered.block.GeneratorBlockEntity;
 import com.itmecasey.barelypowered.block.SinkBlockEntity;
 import net.minecraft.core.registries.Registries;
+import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.fml.common.Mod;
+import net.neoforged.fml.loading.FMLEnvironment;
 import net.neoforged.fml.loading.FMLPaths;
 import net.neoforged.neoforge.capabilities.Capabilities;
 import net.neoforged.neoforge.common.NeoForge;
@@ -23,6 +25,9 @@ public final class NeoForgeBarelyPowered {
         BarelyPowered.init(FMLPaths.CONFIGDIR::get);
         modBus.addListener(NeoForgeBarelyPowered::register);
         modBus.addListener(NeoForgeBarelyPowered::capabilities);
+        if (FMLEnvironment.dist == Dist.CLIENT) {
+            NeoForgeClientSetup.install();
+        }
         if (SelfTest.requested()) {
             NeoForge.EVENT_BUS.addListener((ServerStartedEvent e) -> SelfTest.run(e.getServer()));
         }
