@@ -26,11 +26,11 @@ Every output rate, tier multiplier and the weather, height and flow rules are in
 
 - Outputs plain Forge Energy through the loader's energy interface on Forge and NeoForge.
 - Works against any block that accepts FE. A generator feeding AeroFlux energy pipes into a test block was checked on NeoForge 1.21.1.
-- Optional plugin for Show Me What This Is is planned; nothing else is required.
+- Optional plugin for Show Me What This Is: looking at a generator shows its output, fuel and why the output is what it is. Nothing else is required.
 
 The pictures on this page are illustrations drawn for the listing, not game screenshots.
 
-**Tested:** every layer (Forge and NeoForge on 1.21.1, 26.1.2, 26.2 and 26.3) compiles and loads on a dedicated server, where a self test checks that each generator delivers the expected energy into a neighboring block. TESTED_CLIENT_TEXT Cable mods other than AeroFlux, hoppers and pipes feeding fuel, and recipe balance over a full game have not been tried yet.
+**Tested:** every layer (Forge and NeoForge on 1.21.1, 26.1.2, 26.2 and 26.3) compiles and loads on a dedicated server, where a self test checks that each generator delivers the expected energy into a neighboring block. Each layer was also run in a real game client with a scripted tour that photographs every generator working beside an energy-accepting test block, with the Show Me What This Is plugin lines on screen. Cable mods other than AeroFlux, hoppers and pipes feeding fuel, and recipe balance over a full game have not been tried yet.
 
 ![FAQ](https://raw.githubusercontent.com/ItMeCasey/BarelyPowered/main/branding/banners/h_faq.png)
 

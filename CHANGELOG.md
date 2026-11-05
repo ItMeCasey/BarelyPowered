@@ -8,6 +8,7 @@ First version.
 - Generators push energy into adjacent acceptors and can be drawn from by cables on any side.
 - Output rules: fuel and tier for combustion and lava; daylight curve, sky access and weather for solar; height, open sky, blocked blades, other turbines and storms for wind; flow for the water wheel; heat from lava and magma for geothermal.
 - Right-click with an empty hand shows output, stored energy, fuel and the reason for the current output.
+- Optional Show Me What This Is plugin: output, fuel and the reason for a low output.
 - Config file `config/barelypowered.properties` with every rate, tier multiplier and rule.
 - Recipes for every generator and a steel ingot made in a blast furnace.
 - Animated front faces (flames, lava, blades, wheel, crank, geothermal glow), drawn for this mod.

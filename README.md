@@ -14,7 +14,7 @@ Generators only. BarelyPowered adds seven ways to make Forge Energy (FE) and not
 | Water wheel | Flowing water beside or above it |
 | Geothermal generator | Lava and magma next to it, steady, no fuel |
 
-Right-click a generator with an empty hand to see its output, stored energy, fuel and why the output is what it is. Every rate, tier multiplier and weather, height and flow rule is in `config/barelypowered.properties`.
+Right-click a generator with an empty hand to see its output, stored energy, fuel and why the output is what it is. An optional plugin for Show Me What This Is shows the same information when you look at a block. Every rate, tier multiplier and weather, height and flow rule is in `config/barelypowered.properties`.
 
 ## Versions
 
