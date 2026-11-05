@@ -1,7 +1,7 @@
 # Project Status
 <!-- status-format: 1 -->
 Updated: 2026-11-05
-Summary: Seven generators, three tiers of batteries and a separable BarelyCables cable module on all eight Forge and NeoForge layers, released as 2026.11.1; 2026.11.2 adds Jade plugins, viewer checks (BEI, JEI, REI, EMI where builds exist) and tall wind turbine towers with a turning 3D rotor, committed locally and waiting for the Project Manager to push.
+Summary: Seven generators, three tiers of batteries and a separable BarelyCables cable module on all eight Forge and NeoForge layers, released as 2026.11.1; 2026.11.2 (version bumped, docs and wiki files ready, release is the Project Manager's) adds Jade plugins, viewer checks (BEI, JEI, REI, EMI where builds exist), tall wind turbine towers with a turning 3D rotor and a bigger tier 2 solar panel.
 Spend: none
 
 ## Foundation
@@ -67,10 +67,12 @@ Spend: none
 - [~] build.yml and release.yml with dry_run input, upload only builds whose mod_version equals the tag (written for the two-project build; the upload script dry run resolves all CurseForge ids locally; build.yml has run green; release.yml ran for 2026.11.1 per the Project Manager) (w:2)
 - [x] CurseForge project created and id recorded (commit 6b7ccd1) (w:1)
 - [x] First release 2026.11.1 tagged and uploaded (reported by the Project Manager; not checked from this session) (w:2)
+- [x] mod_version bumped to 2026.11.2 in all 16 builds, own commit f99a4d9 (w:1)
+- [ ] Release 2026.11.2 tagged and uploaded, CI green on the tag (Project Manager) (w:2)
 
 ## Documentation and branding
 - [x] Icon, banners and section headers drawn in the SMWTI style (w:2)
 - [x] README, CHANGELOG, CurseForge description and listing kit (w:2)
 - [x] Issue templates (w:1)
-- [x] Wiki pages written for itmecasey.com (17 pages, local files only) (w:2)
+- [x] Wiki pages written for itmecasey.com (17 pages, local files only; wind turbine, solar panel, home, troubleshooting and known-gaps updated and new images wind.png and solar.png for 2026.11.2) (w:2)
 - [ ] Wiki deployed and checked live (w:1)
