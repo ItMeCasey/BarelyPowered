@@ -13,3 +13,10 @@ run/
 
 # Local notes
 PLAN.md
+
+run-data/
+runs/
+logs/
+crash-reports/
+release/
+dist/

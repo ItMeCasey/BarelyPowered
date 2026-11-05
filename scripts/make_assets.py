@@ -70,6 +70,14 @@ def lang():
     }
     for k, v in notes.items():
         d[f"message.{MODID}.note.{k}"] = v
+        d[f"smwti.{MODID}.note.{k}"] = v.replace(" | ", "")
+    d.update({
+        f"smwti.{MODID}.output": "Output: %s FE/t",
+        f"smwti.{MODID}.stored": "Stored: %s / %s FE",
+        f"smwti.{MODID}.fuel": "Fuel: %s x%s, %ss left",
+        f"smwti.{MODID}.no_fuel": "No fuel",
+        f"smwti.{MODID}.lava": "Lava: %s / %s mB, %ss left",
+    })
     return d
 
 

@@ -250,6 +250,8 @@ public final class ShotTour {
             }
         }));
         shoot(name + "_sink", 8);
+        then(2, () -> moveTo(new Vec3(x + 0.5, y + 0.9, -2.1), new Vec3(x + 0.5, y + 0.5, 0.5)));
+        shoot(name + "_look", 40);
     }
 
     /** A steel combustion generator, three AeroFlux energy pipes in a row, then the sink: does the pipe carry the power? */

@@ -236,6 +236,8 @@ public final class ShotTour {
             }
         }));
         shoot(name + "_sink", 8);
+        then(2, () -> moveTo(new Vec3(x + 0.5, y + 0.9, -2.1), new Vec3(x + 0.5, y + 0.5, 0.5)));
+        shoot(name + "_look", 40);
     }
 
     private static void moveTo(Vec3 eye, Vec3 target) {
