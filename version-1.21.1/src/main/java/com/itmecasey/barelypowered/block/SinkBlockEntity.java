@@ -19,6 +19,10 @@ public class SinkBlockEntity extends BlockEntity {
         return received;
     }
 
+    public void setReceived(long value) {
+        received = value;
+    }
+
     /** Accepts up to {@code amount}; the sink never fills up. */
     public int accept(int amount, boolean simulate) {
         if (!simulate && amount > 0) {

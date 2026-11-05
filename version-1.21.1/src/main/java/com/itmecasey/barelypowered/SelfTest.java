@@ -42,7 +42,7 @@ public final class SelfTest {
 
     public static int run(MinecraftServer server) {
         level = server.overworld();
-        level.setDayTime(6000L);
+        server.getCommands().performPrefixedCommand(server.createCommandSourceStack(), "time set noon");
         int failures = 0;
         BlockPos spawn = level.getSharedSpawnPos();
         int x = spawn.getX() + 3;
