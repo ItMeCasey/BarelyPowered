@@ -1,0 +1,262 @@
+<!doctype html>
+<!--
+  Renders the BarelyPowered banners. Each asset is picked by the URL hash, e.g. banners.html#banner.
+  branding/source/render_banners.py screenshots every asset with headless Chrome.
+  The pixel font and sprites below are original to this project.
+-->
+<html>
+<head>
+<meta charset="utf-8">
+<style>
+  :root {
+    --bg0: #0f0e1a; --bg1: #1a1830; --edge: #2e2a46;
+    --gold: #f2b33d; --gold-hi: #ffe28c; --gold-lo: #b27420;
+    --text: #f4f2ff; --muted: #a9a4c8; --mod: #7aa8ff; --green: #7ed957;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { background: var(--bg0); overflow: hidden; }
+  body { font-family: "Bahnschrift", "Segoe UI", sans-serif; color: var(--text); }
+  .stage { position: relative; overflow: hidden;
+    background:
+      radial-gradient(ellipse at 18% 40%, rgba(242,179,61,.16), transparent 55%),
+      radial-gradient(ellipse at 85% 70%, rgba(122,168,255,.12), transparent 50%),
+      linear-gradient(160deg, var(--bg1), var(--bg0)); }
+  .stage::before { content: ""; position: absolute; inset: 0;
+    background-image:
+      linear-gradient(rgba(255,255,255,.035) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(255,255,255,.035) 1px, transparent 1px);
+    background-size: 32px 32px; }
+  .stage > * { position: relative; }
+  canvas { image-rendering: pixelated; display: block; }
+  .icon { image-rendering: pixelated; display: block; filter: drop-shadow(0 10px 24px rgba(0,0,0,.5)); }
+  .tag { font-size: 30px; color: var(--muted); letter-spacing: .5px; }
+  .tag b { color: var(--text); font-weight: 600; }
+  .meta { display: flex; gap: 12px; flex-wrap: wrap; }
+  .pill { font-size: 20px; padding: 6px 14px; border-radius: 999px; border: 1px solid var(--edge);
+    background: rgba(255,255,255,.04); color: var(--muted); }
+  .pill.on { color: var(--bg0); background: var(--gold); border-color: var(--gold); font-weight: 600; }
+
+  /* Mock overlay panel, shaped like the mod's dark theme. */
+  .panel { display: inline-flex; flex-direction: column; gap: 8px; min-width: 330px;
+    padding: 14px 18px 16px; border-radius: 6px;
+    background: rgba(16, 14, 28, .94); border: 2px solid #3a3360;
+    box-shadow: inset 0 0 0 2px rgba(0,0,0,.6), 0 18px 40px rgba(0,0,0,.45); }
+  .row { display: flex; align-items: center; gap: 12px; }
+  .name { font-size: 26px; font-weight: 600; line-height: 1; }
+  .mod { font-size: 19px; color: var(--mod); font-style: italic; line-height: 1; margin-top: 4px; }
+  .line { font-size: 20px; color: #d9d6ee; }
+  .line .k { color: var(--muted); }
+  .bar { position: relative; height: 22px; border-radius: 3px; background: #2a2640; overflow: hidden;
+    border: 1px solid #000; }
+  .bar i { position: absolute; inset: 0 auto 0 0; }
+  .bar span { position: absolute; inset: 0; display: flex; align-items: center; padding-left: 8px;
+    font-size: 16px; color: #fff; text-shadow: 1px 1px 0 #000; }
+  .grid { display: flex; gap: 6px; }
+  .slot { position: relative; width: 44px; height: 44px; border-radius: 3px; background: #24203a;
+    display: grid; place-items: center; }
+  .slot b { position: absolute; right: 3px; bottom: 0; font-size: 15px; text-shadow: 1px 1px 0 #000; }
+  .hearts { display: flex; gap: 3px; }
+  .check { color: var(--green); font-weight: 700; }
+  .badge { margin-left: auto; display: flex; align-items: center; gap: 4px; }
+
+  .cap { font-size: 22px; color: var(--muted); margin-top: 14px; }
+  .cap b { display: block; font-size: 26px; color: var(--text); font-weight: 600; margin-bottom: 4px; }
+  /* Theme panels, colors from client/Palette.java. */
+  .tpanel { display: flex; flex-direction: column; gap: 10px; width: 330px; padding: 14px 16px 16px;
+    background: var(--p); color: var(--t); position: relative; }
+  .tpanel.edge { box-shadow: inset 0 0 0 3px var(--e); }
+  .tpanel.rounded { border-radius: 5px; }
+  .tpanel.accent::before { content: ""; position: absolute; left: 0; right: 0; top: 0; height: 4px; background: var(--a); }
+  .tpanel.shadow .name, .tpanel.shadow .line { text-shadow: 2px 2px 0 rgba(0,0,0,.55); }
+  .tpanel .name { color: var(--t); }
+  .tpanel .tmod { font-size: 19px; color: var(--s); line-height: 1; margin-top: 4px; }
+  .tpanel .line { color: var(--t); }
+  .tpanel .bar { background: var(--b); border: 0; border-radius: 0; }
+  .tlabel { margin-top: 18px; display: flex; justify-content: center; }
+
+  .tip { display: inline-flex; flex-direction: column; gap: 4px; min-width: 330px; padding: 10px 14px 12px; border-radius: 4px;
+    background: rgba(16, 0, 16, .94); border: 2px solid #3a1f6e; box-shadow: inset 0 0 0 1px rgba(0,0,0,.6), 0 18px 40px rgba(0,0,0,.45); }
+  .tip .tt { font-size: 24px; font-weight: 600; color: #fff; margin-bottom: 2px; }
+  .tip .tl { font-size: 18px; }
+  .tl.hunger { color: #e8a33d; } .tl.sat { color: #ffd966; } .tl.info { color: #aaaaaa; } .tl.dim { color: #8f8fa3; }
+  .tl.best { color: #ffaa00; } .tl.warn { color: #ff8c1a; } .tl.bad { color: #ff5555; } .tl.good { color: #55ff55; }
+</style>
+</head>
+<body>
+<div id="root"></div>
+<script>
+// ---------- pixel font (5x7, original) ----------
+const FONT = {
+  A:[".###.","#...#","#...#","#####","#...#","#...#","#...#"],
+  B:["####.","#...#","#...#","####.","#...#","#...#","####."],
+  C:[".###.","#...#","#....","#....","#....","#...#",".###."],
+  D:["####.","#...#","#...#","#...#","#...#","#...#","####."],
+  E:["#####","#....","#....","####.","#....","#....","#####"],
+  F:["#####","#....","#....","####.","#....","#....","#...."],
+  G:[".###.","#...#","#....","#.###","#...#","#...#",".###."],
+  H:["#...#","#...#","#...#","#####","#...#","#...#","#...#"],
+  I:["###",".#.",".#.",".#.",".#.",".#.","###"],
+  J:["..###","...#.","...#.","...#.","#..#.","#..#.",".##.."],
+  K:["#...#","#..#.","#.#..","##...","#.#..","#..#.","#...#"],
+  L:["#....","#....","#....","#....","#....","#....","#####"],
+  M:["#...#","##.##","#.#.#","#.#.#","#...#","#...#","#...#"],
+  N:["#...#","##..#","#.#.#","#..##","#...#","#...#","#...#"],
+  O:[".###.","#...#","#...#","#...#","#...#","#...#",".###."],
+  P:["####.","#...#","#...#","####.","#....","#....","#...."],
+  Q:[".###.","#...#","#...#","#...#","#.#.#","#..#.",".##.#"],
+  R:["####.","#...#","#...#","####.","#.#..","#..#.","#...#"],
+  S:[".####","#....","#....",".###.","....#","....#","####."],
+  T:["#####","..#..","..#..","..#..","..#..","..#..","..#.."],
+  U:["#...#","#...#","#...#","#...#","#...#","#...#",".###."],
+  V:["#...#","#...#","#...#","#...#","#...#",".#.#.","..#.."],
+  W:["#...#","#...#","#...#","#.#.#","#.#.#","##.##","#...#"],
+  X:["#...#","#...#",".#.#.","..#..",".#.#.","#...#","#...#"],
+  Y:["#...#","#...#",".#.#.","..#..","..#..","..#..","..#.."],
+  Z:["#####","....#","...#.","..#..",".#...","#....","#####"],
+  "?":[".###.","#...#","....#","..##.","..#..",".....","..#.."],
+  "!":["#","#","#","#","#",".","#"],
+  ".":[".",".",".",".",".",".","#"],
+  "-":["....","....","....","####","....","....","...."],
+  " ":["...","...","...","...","...","...","..."],
+};
+const BEVEL = ["#ffe28c","#ffe28c","#f7c95a","#f2b33d","#f2b33d","#d8952e","#b27420"];
+const WHITE = ["#ffffff","#ffffff","#f1efff","#e4e1f7","#e4e1f7","#cfcbe6","#b3aed0"];
+
+function pixelText(str, s, colors = BEVEL) {
+  const cols = [];
+  for (const ch of str.toUpperCase()) { const g = FONT[ch] || FONT["?"]; cols.push(g, null); }
+  const w = cols.reduce((n, g) => n + (g ? g[0].length : 1), 0);
+  const c = document.createElement("canvas");
+  c.width = (w + 1) * s; c.height = 8 * s;
+  const x2 = c.getContext("2d");
+  for (const pass of ["shadow", "face"]) {
+    let x = 0;
+    for (const g of cols) {
+      if (!g) { x += 1; continue; }
+      g.forEach((row, y) => [...row].forEach((p, i) => {
+        if (p !== "#") return;
+        if (pass === "shadow") { x2.fillStyle = "rgba(0,0,0,.55)"; x2.fillRect((x + i) * s + s * .6, y * s + s * .6, s, s); }
+        else { x2.fillStyle = colors[y]; x2.fillRect((x + i) * s, y * s, s, s); }
+      }));
+      x += g[0].length;
+    }
+  }
+  return c;
+}
+
+
+// ---------- helpers ----------
+function half(c) { c.style.width = c.width / 2 + "px"; c.style.height = c.height / 2 + "px"; return c; }
+function el(tag, attrs = {}, ...kids) {
+  const e = document.createElement(tag);
+  for (const [k, v] of Object.entries(attrs)) k === "style" ? (e.style.cssText = v) : e.setAttribute(k, v);
+  for (const k of kids) e.append(k);
+  return e;
+}
+function iconImg(px) { return el("img", {class: "icon", src: "../icon/icon_512.png", width: px, height: px}); }
+
+// ---------- block art, straight from the mod's own textures (first frame of each animation) ----------
+const TEX = "../../common/src/main/resources/assets/barelypowered/textures/block/";
+function block(name, px) {
+  return el("div", {style: `width:${px}px;height:${px}px;background:url(${TEX}${name}.png) 0 0 / 100% auto no-repeat;image-rendering:pixelated;box-shadow:0 10px 24px rgba(0,0,0,.5)`});
+}
+const GENS = [
+  ["hand_crank_front_on", "Hand Crank", "Free power for the first machines"],
+  ["combustion_generator_steel_front_on", "Combustion", "Coal, charcoal or wood. Stone, iron, steel"],
+  ["lava_generator_iron_front_on", "Lava", "A bucket of lava, a lot of power"],
+  ["solar_panel_2_front_on", "Solar", "Follows the sun. Tier 2 keeps a trickle at night"],
+  ["wind_turbine_2_front_on", "Wind", "Build high, keep the blades clear"],
+  ["water_wheel_front_on", "Water Wheel", "Flowing water beside it"],
+  ["geothermal_generator_front_on", "Geothermal", "On or near lava. Steady, no fuel"],
+];
+
+function card(g, px, zoom) {
+  return el("div", {style: `display:flex;flex-direction:column;align-items:flex-start;gap:12px;width:${px + 60}px;zoom:${zoom || 1}`},
+    block(g[0], px), el("div", {class: "cap", style: "margin:0"}, el("b", {}, g[1]), g[2]));
+}
+
+// A line chart in an inline SVG: points are [x, y] in 0..1.
+function chart(title, note, pts, xl, yl) {
+  const W = 520, H = 300, P = 40;
+  const path = pts.map(([x, y], i) => `${i ? "L" : "M"}${P + x * (W - 2 * P)},${H - P - y * (H - 2 * P)}`).join(" ");
+  const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="${W}" height="${H}" viewBox="0 0 ${W} ${H}">
+    <rect width="${W}" height="${H}" fill="rgba(10,9,18,.7)" stroke="#2e2a46" stroke-width="2"/>
+    <line x1="${P}" y1="${H - P}" x2="${W - P}" y2="${H - P}" stroke="#5a5480" stroke-width="2"/>
+    <line x1="${P}" y1="${P}" x2="${P}" y2="${H - P}" stroke="#5a5480" stroke-width="2"/>
+    <path d="${path}" fill="none" stroke="#f2b33d" stroke-width="5" stroke-linejoin="round"/>
+    <text x="${W / 2}" y="${H - 10}" fill="#a9a4c8" font-size="16" text-anchor="middle">${xl}</text>
+    <text x="14" y="${H / 2}" fill="#a9a4c8" font-size="16" text-anchor="middle" transform="rotate(-90 14 ${H / 2})">${yl}</text></svg>`;
+  const d = el("div", {class: "cap", style: "margin:0;max-width:520px"}, el("b", {}, title), note);
+  const holder = el("div", {style: "display:flex;flex-direction:column;gap:14px"});
+  holder.innerHTML = svg;
+  holder.append(d);
+  return holder;
+}
+const sunPts = Array.from({length: 49}, (_, i) => { const t = i / 48; return [t, t <= 0.5 ? Math.sin(Math.PI * t * 2) : 0]; });
+const windPts = [[0, 0.15], [0.33, 0.15], [1, 1.0]];
+const flowPts = [[0, 0], [0.25, 0.44], [0.5, 0.88], [0.75, 1.0], [1, 1.0]];
+
+// ---------- assets ----------
+const ASSETS = {
+  banner: [800, 150, (r) => {
+    r.style.cssText += "display:flex;align-items:center;gap:24px;padding:0 28px";
+    r.append(iconImg(104));
+    r.append(el("div", {style: "display:flex;flex-direction:column;align-items:flex-start;gap:11px;flex:1"},
+      half(pixelText("BarelyPowered", 8)),
+      el("div", {class: "tag", style: "font-size:16px"}, "Generators only. ", el("b", {}, "Power for any cable mod.")),
+      el("div", {class: "meta", style: "gap:6px"},
+        el("span", {class: "pill on", style: "font-size:11px;padding:3px 9px"}, "Forge"),
+        el("span", {class: "pill on", style: "font-size:11px;padding:3px 9px"}, "NeoForge"),
+        el("span", {class: "pill", style: "font-size:11px;padding:3px 9px"}, "Forge Energy out"),
+        el("span", {class: "pill", style: "font-size:11px;padding:3px 9px"}, "7 generators"))));
+    const row = el("div", {style: "display:flex;gap:8px"});
+    for (const g of [GENS[1], GENS[3], GENS[4]]) row.append(block(g[0], 54));
+    r.append(row);
+  }],
+  social: [1280, 640, (r) => {
+    r.style.cssText += "display:flex;flex-direction:column;align-items:center;justify-content:center;gap:28px;text-align:center";
+    r.append(iconImg(220));
+    r.append(pixelText("BarelyPowered", 9));
+    r.append(el("div", {class: "tag"}, "Generators for Forge and NeoForge. No cables, no machines, just power."));
+  }],
+  features: [1920, 1080, (r) => {
+    r.style.cssText += "display:flex;flex-direction:column;align-items:center;justify-content:center;padding:30px 70px;gap:44px";
+    r.append(el("div", {style: "display:flex;align-items:center;gap:36px"}, iconImg(130),
+      el("div", {style: "display:flex;flex-direction:column;gap:16px"}, pixelText("BarelyPowered", 9),
+        el("div", {class: "tag"}, "Seven ways to make power, and every one of them moves with the world"))));
+    const grid = el("div", {style: "display:flex;flex-wrap:wrap;gap:40px 36px;justify-content:center;max-width:1760px"});
+    for (const g of GENS) grid.append(card(g, 130, 1.12));
+    r.append(grid);
+    r.append(el("div", {class: "meta"},
+      el("span", {class: "pill on"}, "Forge"), el("span", {class: "pill on"}, "NeoForge"),
+      el("span", {class: "pill"}, "Works with any cable mod"), el("span", {class: "pill"}, "Every number in the config"),
+      el("span", {class: "pill"}, "MIT license")));
+  }],
+  output: [1920, 1080, (r) => {
+    r.style.cssText += "display:flex;flex-direction:column;align-items:center;justify-content:center;gap:48px";
+    r.append(el("div", {style: "display:flex;align-items:center;gap:30px"}, block("solar_panel_1_front", 80), pixelText("How output is worked out", 7)));
+    r.append(el("div", {style: "zoom:1.08;display:flex;gap:44px;align-items:flex-start"},
+      chart("Solar follows the day", "Zero at sunrise, full at noon, zero again at sunset. Rain and thunder dim it. Tier 2 keeps a small trickle at night.", sunPts, "Time of day", "Output"),
+      chart("Wind rises with height", "Weakest at sea level, full strength at the top of the build limit. Blocks near the blades and other turbines take some away.", windPts, "Build height", "Output"),
+      chart("Water follows the flow", "A falling stream counts the most, a flowing block counts by its level. Still water gives nothing.", flowPts, "Flow beside the wheel", "Output")));
+    r.append(el("div", {class: "tag", style: "font-size:24px"}, "Illustration drawn for this page. Every number can be changed in the config file."));
+  }],
+};
+for (const [k, label] of Object.entries({features: "Features", generators: "The generators", config: "Settings", compat: "Compatibility", faq: "FAQ"})) {
+  ASSETS["h_" + k] = [800, 46, (r) => {
+    r.style.cssText += "display:flex;align-items:center;gap:14px;padding:0 16px;border-top:2px solid var(--gold)";
+    r.append(iconImg(30));
+    r.append(half(pixelText(label, 5)));
+  }];
+}
+
+const name = location.hash.slice(1) || "banner";
+const [w, h, build] = ASSETS[name];
+const root = document.getElementById("root");
+root.className = "stage";
+root.style.cssText = `width:${w}px;height:${h}px`;
+build(root);
+window.ASSET_NAMES = Object.keys(ASSETS);
+</script>
+</body>
+</html>
