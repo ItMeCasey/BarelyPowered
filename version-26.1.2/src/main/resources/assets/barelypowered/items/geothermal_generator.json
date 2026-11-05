@@ -1,0 +1,6 @@
+{
+  "model": {
+    "type": "minecraft:model",
+    "model": "barelypowered:block/geothermal_generator"
+  }
+}

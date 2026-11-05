@@ -1,0 +1,18 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "redstone",
+  "pattern": [
+    "CCC",
+    "CFC",
+    "CRC"
+  ],
+  "key": {
+    "C": "minecraft:cobblestone",
+    "F": "minecraft:furnace",
+    "R": "minecraft:redstone"
+  },
+  "result": {
+    "id": "barelypowered:combustion_generator_stone",
+    "count": 1
+  }
+}

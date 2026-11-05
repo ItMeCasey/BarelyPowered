@@ -1,0 +1,8 @@
+{
+  "parent": "minecraft:block/orientable",
+  "textures": {
+    "top": "barelypowered:block/solar_panel_1_top_on",
+    "front": "barelypowered:block/solar_panel_1_front_on",
+    "side": "barelypowered:block/solar_panel_1_side"
+  }
+}

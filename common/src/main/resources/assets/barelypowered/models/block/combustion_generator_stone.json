@@ -1,0 +1,8 @@
+{
+  "parent": "minecraft:block/orientable",
+  "textures": {
+    "top": "barelypowered:block/combustion_generator_stone_top",
+    "front": "barelypowered:block/combustion_generator_stone_front",
+    "side": "barelypowered:block/combustion_generator_stone_side"
+  }
+}

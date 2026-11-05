@@ -1,0 +1,8 @@
+{
+  "parent": "minecraft:block/orientable",
+  "textures": {
+    "top": "barelypowered:block/geothermal_generator_top_on",
+    "front": "barelypowered:block/geothermal_generator_front_on",
+    "side": "barelypowered:block/geothermal_generator_side"
+  }
+}

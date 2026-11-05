@@ -1,0 +1,18 @@
+{
+  "replace": false,
+  "values": [
+    "barelypowered:combustion_generator_stone",
+    "barelypowered:lava_generator_stone",
+    "barelypowered:combustion_generator_iron",
+    "barelypowered:lava_generator_iron",
+    "barelypowered:combustion_generator_steel",
+    "barelypowered:lava_generator_steel",
+    "barelypowered:solar_panel_1",
+    "barelypowered:solar_panel_2",
+    "barelypowered:wind_turbine_1",
+    "barelypowered:wind_turbine_2",
+    "barelypowered:water_wheel",
+    "barelypowered:geothermal_generator",
+    "barelypowered:hand_crank"
+  ]
+}

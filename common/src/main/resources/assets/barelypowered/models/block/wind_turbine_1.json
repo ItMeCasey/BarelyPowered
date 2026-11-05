@@ -1,0 +1,8 @@
+{
+  "parent": "minecraft:block/orientable",
+  "textures": {
+    "top": "barelypowered:block/wind_turbine_1_top",
+    "front": "barelypowered:block/wind_turbine_1_front",
+    "side": "barelypowered:block/wind_turbine_1_side"
+  }
+}

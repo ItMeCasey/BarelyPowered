@@ -1,0 +1,19 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "redstone",
+  "pattern": [
+    "CCC",
+    "CBC",
+    "IFI"
+  ],
+  "key": {
+    "B": "minecraft:bucket",
+    "C": "minecraft:cobblestone",
+    "F": "minecraft:furnace",
+    "I": "minecraft:iron_ingot"
+  },
+  "result": {
+    "id": "barelypowered:lava_generator_stone",
+    "count": 1
+  }
+}

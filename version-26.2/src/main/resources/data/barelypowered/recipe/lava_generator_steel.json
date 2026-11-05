@@ -1,0 +1,18 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "redstone",
+  "pattern": [
+    "SRS",
+    "SXS",
+    "SSS"
+  ],
+  "key": {
+    "R": "minecraft:redstone",
+    "S": "barelypowered:steel_ingot",
+    "X": "barelypowered:lava_generator_iron"
+  },
+  "result": {
+    "id": "barelypowered:lava_generator_steel",
+    "count": 1
+  }
+}

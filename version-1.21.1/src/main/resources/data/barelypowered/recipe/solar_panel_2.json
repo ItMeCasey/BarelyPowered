@@ -1,0 +1,30 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "redstone",
+  "pattern": [
+    "QSQ",
+    "XXX",
+    "DRD"
+  ],
+  "key": {
+    "D": {
+      "item": "minecraft:gold_ingot"
+    },
+    "Q": {
+      "item": "minecraft:quartz"
+    },
+    "R": {
+      "item": "minecraft:redstone"
+    },
+    "S": {
+      "item": "barelypowered:steel_ingot"
+    },
+    "X": {
+      "item": "barelypowered:solar_panel_1"
+    }
+  },
+  "result": {
+    "id": "barelypowered:solar_panel_2",
+    "count": 1
+  }
+}

@@ -1,0 +1,15 @@
+# Gradle and build output
+.gradle/
+build/
+out/
+run/
+*.class
+*.log
+
+# IDEs
+.idea/
+.vscode/
+*.iml
+
+# Local notes
+PLAN.md

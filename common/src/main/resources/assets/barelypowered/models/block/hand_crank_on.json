@@ -1,0 +1,8 @@
+{
+  "parent": "minecraft:block/orientable",
+  "textures": {
+    "top": "barelypowered:block/hand_crank_top_on",
+    "front": "barelypowered:block/hand_crank_front_on",
+    "side": "barelypowered:block/hand_crank_side"
+  }
+}

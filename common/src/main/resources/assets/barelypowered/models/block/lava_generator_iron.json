@@ -1,0 +1,8 @@
+{
+  "parent": "minecraft:block/orientable",
+  "textures": {
+    "top": "barelypowered:block/lava_generator_iron_top",
+    "front": "barelypowered:block/lava_generator_iron_front",
+    "side": "barelypowered:block/lava_generator_iron_side"
+  }
+}

@@ -1,0 +1,19 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "redstone",
+  "pattern": [
+    "SIS",
+    "IXI",
+    "SRS"
+  ],
+  "key": {
+    "I": "minecraft:iron_ingot",
+    "R": "minecraft:redstone",
+    "S": "barelypowered:steel_ingot",
+    "X": "barelypowered:wind_turbine_1"
+  },
+  "result": {
+    "id": "barelypowered:wind_turbine_2",
+    "count": 1
+  }
+}

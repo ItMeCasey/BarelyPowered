@@ -1,0 +1,19 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "redstone",
+  "pattern": [
+    "IPI",
+    "PRP",
+    "CCC"
+  ],
+  "key": {
+    "C": "minecraft:cobblestone",
+    "I": "minecraft:iron_ingot",
+    "P": "#minecraft:planks",
+    "R": "minecraft:redstone"
+  },
+  "result": {
+    "id": "barelypowered:wind_turbine_1",
+    "count": 1
+  }
+}

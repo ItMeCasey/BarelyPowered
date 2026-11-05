@@ -1,0 +1,8 @@
+{
+  "parent": "minecraft:block/orientable",
+  "textures": {
+    "top": "barelypowered:block/water_wheel_top_on",
+    "front": "barelypowered:block/water_wheel_front_on",
+    "side": "barelypowered:block/water_wheel_side"
+  }
+}

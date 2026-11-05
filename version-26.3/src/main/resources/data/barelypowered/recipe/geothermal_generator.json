@@ -1,0 +1,19 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "redstone",
+  "pattern": [
+    "III",
+    "IMI",
+    "SRS"
+  ],
+  "key": {
+    "I": "minecraft:iron_ingot",
+    "M": "minecraft:magma_block",
+    "R": "minecraft:redstone",
+    "S": "barelypowered:steel_ingot"
+  },
+  "result": {
+    "id": "barelypowered:geothermal_generator",
+    "count": 1
+  }
+}
