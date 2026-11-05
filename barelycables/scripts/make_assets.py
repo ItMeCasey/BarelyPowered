@@ -219,6 +219,8 @@ def main():
     models(common)
     write(common / "data" / "minecraft" / "tags" / "block" / "mineable" / "pickaxe.json",
           {"replace": False, "values": [f"{MODID}:energy_cable_{t}" for t in TIERS]})
+    # Declared empty so the steel recipe always parses; BarelyPowered or any mod with steel fills it.
+    write(common / "data" / "c" / "tags" / "item" / "ingots" / "steel.json", {"replace": False, "values": []})
     for v in OLD + NEW:
         new = v in NEW
         res = ROOT / f"version-{v}" / "src" / "main" / "resources"

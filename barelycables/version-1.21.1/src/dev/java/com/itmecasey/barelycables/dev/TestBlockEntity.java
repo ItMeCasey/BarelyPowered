@@ -27,6 +27,15 @@ public class TestBlockEntity extends BlockEntity {
         return received;
     }
 
+    public long[] snapshot() {
+        return new long[] {sent, received};
+    }
+
+    public void restore(long[] state) {
+        sent = state[0];
+        received = state[1];
+    }
+
     /** A source gives everything asked of it; a sink gives nothing. */
     public int give(int max, boolean simulate) {
         if (!source || max <= 0) {
