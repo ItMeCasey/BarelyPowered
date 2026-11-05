@@ -14,6 +14,7 @@
   "block.barelypowered.geothermal_generator": "Geothermal Generator",
   "item.barelypowered.steel_ingot": "Steel Ingot",
   "itemGroup.barelypowered": "BarelyPowered",
+  "block.barelypowered.test_energy_sink": "Test Energy Sink (dev only)",
   "tooltip.barelypowered.hand_crank": "Right-click to crank. Free power for the first machines.",
   "tooltip.barelypowered.combustion_generator": "Burns coal, charcoal, logs or planks. Right-click with fuel.",
   "tooltip.barelypowered.lava_generator": "Burns lava. Right-click with a lava bucket.",

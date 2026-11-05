@@ -173,24 +173,21 @@ def rot(cx, cy, r, ang):
 def blade_frame(body, seed, frame, blades, steps, lit=True, hub=GOLD):
     img = frame_with_panel(body, seed)
     d = ImageDraw.Draw(img)
-    d.rectangle((3, 3, 12, 12), fill=(30, 38, 66))
-    # a little sky gradient
     px = img.load()
     for y in range(4, 12):
         for x in range(4, 12):
-            px[x, y] = mix((44, 62, 108), (92, 128, 186), (y - 4) / 8)
+            px[x, y] = mix((52, 78, 132), (110, 150, 205), (y - 4) / 8)
     cx = cy = 7.5
     ang0 = 2 * math.pi / blades * frame / steps
-    col = (236, 240, 248) if lit else (150, 154, 166)
-    edge = (150, 158, 178) if lit else (96, 100, 112)
+    col = (250, 250, 255) if lit else (160, 164, 176)
+    edge = (176, 188, 214) if lit else (110, 114, 126)
     for b in range(blades):
         a = ang0 + 2 * math.pi * b / blades
-        tip = rot(cx, cy, 4.6, a)
-        left = rot(cx, cy, 2.2, a - 0.55)
-        right = rot(cx, cy, 2.2, a + 0.55)
-        d.polygon([(cx, cy), left, tip, right], fill=col)
-        d.line([(cx, cy), tip], fill=edge)
-    d.ellipse((6, 6, 9, 9), fill=hub)
+        tip = rot(cx, cy, 5.2, a)
+        left = rot(cx, cy, 2.4, a - 0.42)
+        right = rot(cx, cy, 2.4, a + 0.42)
+        d.polygon([(cx, cy), left, tip, right], fill=col, outline=edge)
+    d.ellipse((6.4, 6.4, 8.6, 8.6), fill=hub)
     px[7, 7] = GOLD_L
     d.rectangle((3, 3, 12, 12), outline=NIGHT_L)
     return img
@@ -287,6 +284,34 @@ def solar_top2(lit, seed):
     return img
 
 
+def solar_front(body, seed, advanced, lit):
+    img = frame_with_panel(body, seed)
+    px = img.load()
+    for y in range(4, 12):
+        for x in range(4, 12):
+            if (x - 4) % 4 == 3 or (y - 4) % 4 == 3:
+                px[x, y] = (150, 170, 210) if lit else (90, 104, 140)
+            else:
+                px[x, y] = (58, 94, 184) if lit else (34, 52, 104)
+    if lit:
+        px[5, 5] = (220, 236, 255)
+        px[6, 6] = (190, 214, 250)
+    if advanced:
+        for x in range(3, 13):
+            px[x, 3] = GOLD if lit else GOLD_D
+    return img
+
+
+def sink_texture():
+    img = Image.new("RGB", (16, 16), (70, 40, 110))
+    d = ImageDraw.Draw(img)
+    d.rectangle((0, 0, 15, 15), outline=(40, 22, 70))
+    d.rectangle((2, 2, 13, 13), outline=(120, 80, 170))
+    bolt = [(9, 2), (5, 8), (8, 8), (6, 14), (11, 6), (8, 6), (10, 2)]
+    d.polygon(bolt, fill=GOLD, outline=GOLD_D)
+    return img
+
+
 def steel_ingot():
     img = Image.new("RGBA", (16, 16), (0, 0, 0, 0))
     d = ImageDraw.Draw(img)
@@ -336,9 +361,8 @@ def draw_block(name, spec, out):
     if kind in ("solar1", "solar2"):
         maker = solar_top if kind == "solar1" else solar_top2
         top, top_on = maker(False, seed), maker(True, seed)
-        front = side_tile(BODIES["solar" if kind == "solar1" else "steel"], seed + 300)
-        front_on = front
-        frames_on = [front]
+        front = solar_front(BODIES["solar" if kind == "solar1" else "steel"], seed + 300, kind == "solar2", False)
+        frames_on = [solar_front(BODIES["solar" if kind == "solar1" else "steel"], seed + 300, kind == "solar2", True)]
     else:
         top_on = top
         if kind == "fire":
@@ -383,6 +407,7 @@ def render_all(out):
     item = out / "item"
     item.mkdir(parents=True, exist_ok=True)
     steel_ingot().save(item / "steel_ingot.png")
+    sink_texture().save(out / "block" / "test_energy_sink.png")
 
 
 if __name__ == "__main__":

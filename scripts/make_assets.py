@@ -46,6 +46,7 @@ def lang():
     d = {f"block.{MODID}.{k}": v for k, v in NAMES.items()}
     d[f"item.{MODID}.steel_ingot"] = "Steel Ingot"
     d[f"itemGroup.{MODID}"] = "BarelyPowered"
+    d[f"block.{MODID}.test_energy_sink"] = "Test Energy Sink (dev only)"
     d.update({
         f"tooltip.{MODID}.hand_crank": "Right-click to crank. Free power for the first machines.",
         f"tooltip.{MODID}.combustion_generator": "Burns coal, charcoal, logs or planks. Right-click with fuel.",
@@ -95,6 +96,18 @@ def block_models(root):
     write(base / "models" / "item" / "steel_ingot.json",
           {"parent": "minecraft:item/generated", "textures": {"layer0": f"{MODID}:item/steel_ingot"}})
     write(base / "lang" / "en_us.json", lang())
+
+
+def sink_assets(root, new):
+    base = root / "assets" / MODID
+    write(base / "blockstates" / "test_energy_sink.json", {"variants": {"": {"model": f"{MODID}:block/test_energy_sink"}}})
+    write(base / "models" / "block" / "test_energy_sink.json",
+          {"parent": "minecraft:block/cube_all", "textures": {"all": f"{MODID}:block/test_energy_sink"}})
+    if new:
+        write(base / "items" / "test_energy_sink.json",
+              {"model": {"type": "minecraft:model", "model": f"{MODID}:block/test_energy_sink"}})
+    else:
+        write(base / "models" / "item" / "test_energy_sink.json", {"parent": f"{MODID}:block/test_energy_sink"})
 
 
 def loot_and_tags(root):
@@ -204,10 +217,12 @@ def main():
         res = ROOT / f"version-{v}" / "src" / "main" / "resources"
         recipes(res, False)
         old_item_models(res)
+        sink_assets(res, False)
     for v in NEW:
         res = ROOT / f"version-{v}" / "src" / "main" / "resources"
         recipes(res, True)
         item_defs(res)
+        sink_assets(res, True)
     print("assets written")
 
 

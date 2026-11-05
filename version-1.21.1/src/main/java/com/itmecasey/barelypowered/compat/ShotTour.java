@@ -155,6 +155,7 @@ public final class ShotTour {
         then(10, () -> selectSlot(0));
         then(2, () -> moveTo(new Vec3(0.5, ground + 2.0, -2.0), new Vec3(0.5, ground + 0.5, 0.5)));
         shoot("hotbar_items", 20);
+        then(2, () -> server("clear @p"));
 
         scene("hand_crank", "hand_crank", x, ground, 5, (be, level, pos) -> be.crank(), "crank");
         scene("combustion_stone_coal", "combustion_generator_stone", x += 4, ground, SETTLE,
@@ -171,20 +172,20 @@ public final class ShotTour {
         then(2, () -> server("time set noon"));
         scene("wind_tier1_low", "wind_turbine_1", x += 4, ground, SETTLE, (be, level, pos) -> {
         }, "wind_low");
-        scene("wind_tier1_high", "wind_turbine_1", x += 4, 200, SETTLE, (be, level, pos) -> {
+        scene("wind_tier1_high", "wind_turbine_1", x += 8, 200, SETTLE, (be, level, pos) -> {
         }, "wind_high");
-        scene("wind_tier2_high", "wind_turbine_2", x += 4, 200, SETTLE, (be, level, pos) -> {
+        scene("wind_tier2_high", "wind_turbine_2", x += 8, 200, SETTLE, (be, level, pos) -> {
         }, "wind_2");
-        scene("water_wheel", "water_wheel", x += 4, ground, SETTLE, (be, level, pos) -> {
-        }, "water", pos -> {
-            server(String.format(Locale.ROOT, "setblock %d %d %d minecraft:water", pos.getX() - 1, pos.getY() + 1, pos.getZ()));
-        });
-        scene("geothermal", "geothermal_generator", x += 4, ground, SETTLE, (be, level, pos) -> {
+        scene("geothermal", "geothermal_generator", x += 8, ground, SETTLE, (be, level, pos) -> {
         }, "geothermal", pos -> {
-            server(String.format(Locale.ROOT, "setblock %d %d %d minecraft:lava", pos.getX() - 1, pos.getY(), pos.getZ()),
+            server(String.format(Locale.ROOT, "setblock %d %d %d minecraft:lava", pos.getX() - 1, pos.getY(), pos.getZ() + 1),
                     String.format(Locale.ROOT, "setblock %d %d %d minecraft:lava", pos.getX(), pos.getY(), pos.getZ() + 1));
         });
 
+        scene("water_wheel", "water_wheel", x += 8, ground, SETTLE, (be, level, pos) -> {
+        }, "water", pos -> {
+            server(String.format(Locale.ROOT, "setblock %d %d %d minecraft:water", pos.getX() - 1, pos.getY() + 1, pos.getZ()));
+        });
         then(20, () -> {
             Minecraft minecraft = Minecraft.getInstance();
             minecraft.options.pauseOnLostFocus = pauseOnLostFocus;

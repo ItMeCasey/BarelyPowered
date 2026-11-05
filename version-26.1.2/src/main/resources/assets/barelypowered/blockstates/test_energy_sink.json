@@ -1,0 +1,7 @@
+{
+  "variants": {
+    "": {
+      "model": "barelypowered:block/test_energy_sink"
+    }
+  }
+}
