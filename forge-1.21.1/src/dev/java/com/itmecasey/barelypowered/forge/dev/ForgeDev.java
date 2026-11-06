@@ -27,6 +27,24 @@ public final class ForgeDev {
     public static void install(Object context) {
         MinecraftForge.EVENT_BUS.addGenericListener(BlockEntity.class, ForgeDev::attach);
         if (SelfTest.requested()) {
+            SelfTest.probe = new SelfTest.Probe() {
+                @Override
+                public int items(net.minecraft.server.level.ServerLevel level, net.minecraft.core.BlockPos pos, net.minecraft.world.item.ItemStack stack) {
+                    net.minecraft.world.level.block.entity.BlockEntity be = level.getBlockEntity(pos);
+                    net.minecraftforge.items.IItemHandler h = be == null ? null
+                            : be.getCapability(net.minecraftforge.common.capabilities.ForgeCapabilities.ITEM_HANDLER, null).orElse(null);
+                    return h == null ? -1 : stack.getCount() - h.insertItem(0, stack, false).getCount();
+                }
+
+                @Override
+                public int lava(net.minecraft.server.level.ServerLevel level, net.minecraft.core.BlockPos pos, int millibuckets) {
+                    net.minecraft.world.level.block.entity.BlockEntity be = level.getBlockEntity(pos);
+                    net.minecraftforge.fluids.capability.IFluidHandler h = be == null ? null
+                            : be.getCapability(net.minecraftforge.common.capabilities.ForgeCapabilities.FLUID_HANDLER, null).orElse(null);
+                    return h == null ? -1 : h.fill(new net.minecraftforge.fluids.FluidStack(net.minecraft.world.level.material.Fluids.LAVA, millibuckets),
+                            net.minecraftforge.fluids.capability.IFluidHandler.FluidAction.EXECUTE);
+                }
+            };
             MinecraftForge.EVENT_BUS.addListener((ServerStartedEvent e) -> SelfTest.run(e.getServer()));
         }
         if (FMLEnvironment.dist.isClient() && System.getenv("BARELYPOWERED_SHOTS") != null) {

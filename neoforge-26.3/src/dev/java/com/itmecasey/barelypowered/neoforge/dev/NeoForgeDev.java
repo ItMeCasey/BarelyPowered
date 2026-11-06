@@ -24,6 +24,35 @@ public final class NeoForgeDev {
     public static void install(IEventBus modBus) {
         modBus.addListener(NeoForgeDev::capabilities);
         if (SelfTest.requested()) {
+            SelfTest.probe = new SelfTest.Probe() {
+                @Override
+                public int items(net.minecraft.server.level.ServerLevel level, net.minecraft.core.BlockPos pos, net.minecraft.world.item.ItemStack stack) {
+                    net.neoforged.neoforge.transfer.ResourceHandler<net.neoforged.neoforge.transfer.item.ItemResource> h =
+                            level.getCapability(Capabilities.Item.BLOCK, pos, null);
+                    if (h == null) {
+                        return -1;
+                    }
+                    try (net.neoforged.neoforge.transfer.transaction.Transaction t = net.neoforged.neoforge.transfer.transaction.Transaction.openRoot()) {
+                        int moved = h.insert(net.neoforged.neoforge.transfer.item.ItemResource.of(stack), stack.getCount(), t);
+                        t.commit();
+                        return moved;
+                    }
+                }
+
+                @Override
+                public int lava(net.minecraft.server.level.ServerLevel level, net.minecraft.core.BlockPos pos, int millibuckets) {
+                    net.neoforged.neoforge.transfer.ResourceHandler<net.neoforged.neoforge.transfer.fluid.FluidResource> h =
+                            level.getCapability(Capabilities.Fluid.BLOCK, pos, null);
+                    if (h == null) {
+                        return -1;
+                    }
+                    try (net.neoforged.neoforge.transfer.transaction.Transaction t = net.neoforged.neoforge.transfer.transaction.Transaction.openRoot()) {
+                        int moved = h.insert(net.neoforged.neoforge.transfer.fluid.FluidResource.of(net.minecraft.world.level.material.Fluids.LAVA), millibuckets, t);
+                        t.commit();
+                        return moved;
+                    }
+                }
+            };
             NeoForge.EVENT_BUS.addListener((ServerStartedEvent e) -> SelfTest.run(e.getServer()));
         }
         if (FMLEnvironment.getDist() == Dist.CLIENT && System.getenv("BARELYPOWERED_SHOTS") != null) {

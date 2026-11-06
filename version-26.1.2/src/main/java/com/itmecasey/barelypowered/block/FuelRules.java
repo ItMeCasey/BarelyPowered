@@ -21,8 +21,11 @@ public final class FuelRules {
         if (stack.is(Items.CHARCOAL)) {
             return Fuel.CHARCOAL;
         }
-        if (stack.is(ItemTags.LOGS_THAT_BURN) || stack.is(ItemTags.PLANKS)) {
+        if (stack.is(ItemTags.LOGS_THAT_BURN)) {
             return Fuel.WOOD;
+        }
+        if (stack.is(ItemTags.PLANKS)) {
+            return Fuel.PLANKS;
         }
         return null;
     }

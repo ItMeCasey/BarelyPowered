@@ -2,6 +2,7 @@ package com.itmecasey.barelypowered.block;
 
 import com.itmecasey.barelypowered.EnergyPusher;
 import com.itmecasey.barelypowered.FeBuffer;
+import com.itmecasey.barelypowered.Automation;
 import com.itmecasey.barelypowered.Fuel;
 import com.itmecasey.barelypowered.Kind;
 import com.itmecasey.barelypowered.ModContent;
@@ -117,6 +118,52 @@ public class GeneratorBlockEntity extends BlockEntity {
             return stack.is(Items.LAVA_BUCKET) && lavaMb + 1000 <= lavaCapacity();
         }
         return false;
+    }
+
+    // ---- Automation: hoppers, pipes and other mods' item and fluid transfer ----
+
+    /**
+     * How many items of the stack a hopper or pipe may put in as fuel (combustion generators only). With simulate false
+     * the items are put in. The caller keeps the rest of its stack.
+     */
+    public int insertFuel(ItemStack stack, boolean simulate) {
+        if (kind != Kind.COMBUSTION || stack.isEmpty() || FuelRules.of(stack) == null) {
+            return 0;
+        }
+        boolean same = fuel.isEmpty() || ItemStack.isSameItemSameComponents(fuel, stack);
+        int move = Automation.fuelRoom(fuel.getCount(), stack.getMaxStackSize(), stack.getCount(), same);
+        if (move > 0 && !simulate) {
+            if (fuel.isEmpty()) {
+                fuel = stack.copyWithCount(move);
+            } else {
+                fuel.grow(move);
+            }
+            setChanged();
+        }
+        return move;
+    }
+
+    /** How many millibuckets of lava a pipe may put in (lava generators only). With simulate false the lava is put in. */
+    public int insertLava(int millibuckets, boolean simulate) {
+        if (kind != Kind.LAVA) {
+            return 0;
+        }
+        int move = Automation.lavaRoom(lavaMb, lavaCapacity(), millibuckets);
+        if (move > 0 && !simulate) {
+            lavaMb += move;
+            setChanged();
+        }
+        return move;
+    }
+
+    /** Puts a snapshot of the fuel slot back (an aborted transfer). */
+    public void restoreFuel(ItemStack stack) {
+        fuel = stack;
+    }
+
+    /** Puts a snapshot of the lava tank back (an aborted transfer). */
+    public void restoreLava(int millibuckets) {
+        lavaMb = millibuckets;
     }
 
     public void insertFrom(Player player, InteractionHand hand, ItemStack stack) {

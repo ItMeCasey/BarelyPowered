@@ -6,12 +6,17 @@ import com.itmecasey.barelypowered.Dev;
 import com.itmecasey.barelypowered.block.BatteryBlockEntity;
 import com.itmecasey.barelypowered.block.GeneratorBlockEntity;
 import net.minecraft.core.registries.Registries;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.material.Fluids;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.fml.common.Mod;
 import net.neoforged.fml.loading.FMLPaths;
 import net.neoforged.neoforge.capabilities.Capabilities;
 import net.neoforged.neoforge.capabilities.RegisterCapabilitiesEvent;
 import net.neoforged.neoforge.energy.IEnergyStorage;
+import net.neoforged.neoforge.fluids.FluidStack;
+import net.neoforged.neoforge.fluids.capability.IFluidHandler;
+import net.neoforged.neoforge.items.IItemHandler;
 import net.neoforged.neoforge.registries.RegisterEvent;
 
 /** NeoForge entry point for Minecraft 1.21.1. Registers the content and exposes each generator's energy. */
@@ -44,6 +49,11 @@ public final class NeoForgeBarelyPowered {
         event.registerBlockEntity(Capabilities.EnergyStorage.BLOCK, ModContent.GENERATOR,
                 (be, side) -> new Output(be));
         event.registerBlockEntity(Capabilities.EnergyStorage.BLOCK, ModContent.BATTERY, BatteryView::new);
+        // hoppers and pipes: coal, charcoal, logs and planks into a combustion generator, lava into a lava generator
+        event.registerBlockEntity(Capabilities.ItemHandler.BLOCK, ModContent.GENERATOR,
+                (be, side) -> be.kind() == com.itmecasey.barelypowered.Kind.COMBUSTION ? new FuelSlot(be) : null);
+        event.registerBlockEntity(Capabilities.FluidHandler.BLOCK, ModContent.GENERATOR,
+                (be, side) -> be.kind() == com.itmecasey.barelypowered.Kind.LAVA ? new LavaTank(be) : null);
     }
 
     /** What other mods see: energy that can be drawn out but never put in. */
@@ -113,6 +123,78 @@ public final class NeoForgeBarelyPowered {
         @Override
         public boolean canReceive() {
             return be.core().mode(side == null ? -1 : side.ordinal()).canInput();
+        }
+    }
+
+    /** The fuel slot as other mods see it: fuel can go in, nothing comes out. */
+    private record FuelSlot(GeneratorBlockEntity be) implements IItemHandler {
+        @Override
+        public int getSlots() {
+            return 1;
+        }
+
+        @Override
+        public ItemStack getStackInSlot(int slot) {
+            return be.fuelStack().copy();
+        }
+
+        @Override
+        public ItemStack insertItem(int slot, ItemStack stack, boolean simulate) {
+            int moved = be.insertFuel(stack, simulate);
+            return moved >= stack.getCount() ? ItemStack.EMPTY : stack.copyWithCount(stack.getCount() - moved);
+        }
+
+        @Override
+        public ItemStack extractItem(int slot, int amount, boolean simulate) {
+            return ItemStack.EMPTY;
+        }
+
+        @Override
+        public int getSlotLimit(int slot) {
+            return 64;
+        }
+
+        @Override
+        public boolean isItemValid(int slot, ItemStack stack) {
+            return com.itmecasey.barelypowered.block.FuelRules.of(stack) != null;
+        }
+    }
+
+    /** The lava tank as other mods see it: lava can be pumped in, nothing comes out. */
+    private record LavaTank(GeneratorBlockEntity be) implements IFluidHandler {
+        @Override
+        public int getTanks() {
+            return 1;
+        }
+
+        @Override
+        public FluidStack getFluidInTank(int tank) {
+            return be.lavaMillibuckets() > 0 ? new FluidStack(Fluids.LAVA, be.lavaMillibuckets()) : FluidStack.EMPTY;
+        }
+
+        @Override
+        public int getTankCapacity(int tank) {
+            return be.lavaCapacity();
+        }
+
+        @Override
+        public boolean isFluidValid(int tank, FluidStack stack) {
+            return stack.getFluid().isSame(Fluids.LAVA);
+        }
+
+        @Override
+        public int fill(FluidStack resource, FluidAction action) {
+            return resource.getFluid().isSame(Fluids.LAVA) ? be.insertLava(resource.getAmount(), action.simulate()) : 0;
+        }
+
+        @Override
+        public FluidStack drain(FluidStack resource, FluidAction action) {
+            return FluidStack.EMPTY;
+        }
+
+        @Override
+        public FluidStack drain(int maxDrain, FluidAction action) {
+            return FluidStack.EMPTY;
         }
     }
 }

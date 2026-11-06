@@ -42,6 +42,18 @@ public final class SelfTest {
         boolean ok(GeneratorBlockEntity be, SinkBlockEntity sink);
     }
 
+    /**
+     * Set by the loader's dev code: puts items or lava into a generator through the loader's own capability, as a hopper or a
+     * pipe would. Each returns how many were accepted, or -1 when the block offers no such capability.
+     */
+    public interface Probe {
+        int items(ServerLevel level, BlockPos pos, ItemStack stack);
+
+        int lava(ServerLevel level, BlockPos pos, int millibuckets);
+    }
+
+    public static Probe probe;
+
     private static ServerLevel level;
 
     private SelfTest() {
@@ -83,13 +95,13 @@ public final class SelfTest {
                 (l, p, be) -> {
                 }, (be, sink) -> Math.abs(be.output() - 40.0) < 1e-6 && sink.received() >= 40 * TICKS - 80);
         failures += check("wind_with_a_block_above_makes_nothing", Kind.WIND, 1, 150, x + 8, z + 8,
-                (l, p, be) -> l.setBlock(p.above(), Blocks.STONE.defaultBlockState(), 3),
+                (l, p, be) -> l.setBlock(p.above(Tiers.windHeight(1)), Blocks.STONE.defaultBlockState(), 3),
                 (be, sink) -> be.output() == 0.0);
         failures += check("water_wheel_flowing", Kind.WATER_WHEEL, 1, ground + 20, x + 12, z + 8,
                 (l, p, be) -> {
                     l.setBlock(p.north(), Blocks.WATER.defaultBlockState().setValue(LiquidBlock.LEVEL, 1), 3);
                     l.setBlock(p.above(), Blocks.WATER.defaultBlockState().setValue(LiquidBlock.LEVEL, 8), 3);
-                }, (be, sink) -> Math.abs(be.output() - 52.5) < 1e-6 && sink.received() >= 52 * TICKS - 100);
+                }, (be, sink) -> Math.abs(be.output() - 37.5) < 1e-6 && sink.received() >= 37 * TICKS - 100);
         failures += check("water_wheel_still_water_gives_nothing", Kind.WATER_WHEEL, 1, ground + 20, x + 16, z + 8,
                 (l, p, be) -> l.setBlock(p.north(), Blocks.WATER.defaultBlockState(), 3), (be, sink) -> be.output() == 0.0);
         failures += check("geothermal_two_lava", Kind.GEOTHERMAL, 1, ground + 20, x + 16, z + 4,
@@ -97,6 +109,7 @@ public final class SelfTest {
                     l.setBlock(p.north(), Blocks.LAVA.defaultBlockState(), 3);
                     l.setBlock(p.west(), Blocks.LAVA.defaultBlockState(), 3);
                 }, (be, sink) -> Math.abs(be.output() - 32.0) < 1e-6 && sink.received() >= 32 * TICKS - 64);
+        failures += automation(ground, x, z);
         failures += batteryChain(ground, x, z);
         LOGGER.info("SELFTEST DONE failures={}", failures);
         return failures;
@@ -164,6 +177,67 @@ public final class SelfTest {
         } catch (RuntimeException e) {
             LOGGER.error("SELFTEST error in battery chain", e);
             failures += verdict("battery_chain_ran_without_error", false, e.toString());
+        }
+        return failures;
+    }
+
+    /** Fuel and lava put in through the loader's capabilities: counts, limits, refusals and then real energy to the sink. */
+    private static int automation(int ground, int x, int z) {
+        if (probe == null) {
+            return fail("automation_probe", "the loader dev code set no probe");
+        }
+        int failures = 0;
+        try {
+            BlockPos pos = new BlockPos(x + 20, ground, z);
+            BlockPos sinkPos = pos.east();
+            clear(pos);
+            level.setBlock(pos, ModContent.blocks().get(Tiers.blockId(Kind.COMBUSTION, 1)).defaultBlockState(), 3);
+            level.setBlock(sinkPos, DevContent.SINK.defaultBlockState(), 3);
+            GeneratorBlockEntity be = (GeneratorBlockEntity) level.getBlockEntity(pos);
+            SinkBlockEntity sink = (SinkBlockEntity) level.getBlockEntity(sinkPos);
+            int a = probe.items(level, pos, new ItemStack(Items.COAL, 10));
+            int b = probe.items(level, pos, new ItemStack(Items.COAL, 64));
+            int c = probe.items(level, pos, new ItemStack(Items.OAK_PLANKS, 5));
+            int d = probe.items(level, pos, new ItemStack(Items.COBBLESTONE, 5));
+            int lavaIntoCombustion = probe.lava(level, pos, 1000);
+            failures += verdict("hopper_fuel_counts", a == 10 && b == 54 && be.fuelStack().getCount() == 64,
+                    "first=" + a + " second=" + b + " stored=" + be.fuelStack().getCount());
+            failures += verdict("hopper_fuel_refuses_other_items", c == 0 && d == 0, "planks=" + c + " cobblestone=" + d);
+            failures += verdict("combustion_has_no_fluid_input", lavaIntoCombustion == -1, "lava=" + lavaIntoCombustion);
+            for (int i = 0; i < TICKS; i++) {
+                GeneratorBlockEntity.serverTick(level, pos, level.getBlockState(pos), be);
+            }
+            failures += verdict("hopper_fuel_burns_into_energy", sink.received() >= 30 * TICKS - 60,
+                    "received=" + sink.received());
+            clear(pos);
+
+            level.setBlock(pos, ModContent.blocks().get(Tiers.blockId(Kind.LAVA, 1)).defaultBlockState(), 3);
+            level.setBlock(sinkPos, DevContent.SINK.defaultBlockState(), 3);
+            be = (GeneratorBlockEntity) level.getBlockEntity(pos);
+            sink = (SinkBlockEntity) level.getBlockEntity(sinkPos);
+            int capacity = be.lavaCapacity();
+            int e1 = probe.lava(level, pos, 250);
+            int e2 = probe.lava(level, pos, capacity * 2);
+            int e3 = probe.lava(level, pos, 1000);
+            int itemsIntoLava = probe.items(level, pos, new ItemStack(Items.COAL, 4));
+            failures += verdict("pipe_lava_counts", e1 == 250 && e2 == capacity - 250 && e3 == 0 && be.lavaMillibuckets() == capacity,
+                    "first=" + e1 + " second=" + e2 + " third=" + e3 + " stored=" + be.lavaMillibuckets());
+            failures += verdict("lava_generator_has_no_item_input", itemsIntoLava == -1, "items=" + itemsIntoLava);
+            for (int i = 0; i < TICKS; i++) {
+                GeneratorBlockEntity.serverTick(level, pos, level.getBlockState(pos), be);
+            }
+            failures += verdict("pipe_lava_burns_into_energy", sink.received() >= 80 * TICKS - 160, "received=" + sink.received());
+            clear(pos);
+
+            level.setBlock(pos, ModContent.blocks().get(Tiers.blockId(Kind.SOLAR, 1)).defaultBlockState(), 3);
+            int solarItems = probe.items(level, pos, new ItemStack(Items.COAL, 1));
+            int solarLava = probe.lava(level, pos, 1000);
+            failures += verdict("solar_has_no_item_or_fluid_input", solarItems == -1 && solarLava == -1,
+                    "items=" + solarItems + " lava=" + solarLava);
+            clear(pos);
+        } catch (RuntimeException e) {
+            LOGGER.error("SELFTEST error in automation", e);
+            failures += fail("automation", e.toString());
         }
         return failures;
     }

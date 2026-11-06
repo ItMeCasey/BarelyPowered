@@ -70,8 +70,8 @@ class PowerMathTest {
         assertEquals(0.0, PowerMath.waterFlow(8, true, false), 1e-9);
         assertEquals(1.0, PowerMath.waterFlow(8, false, true), 1e-9);
         assertEquals(0.5, PowerMath.waterFlow(4, false, false), 1e-9);
-        assertEquals(28.0, PowerMath.waterWheelOutput(1.0), 1e-9);
-        assertEquals(56.0, PowerMath.waterWheelOutput(5.0), 1e-9);
+        assertEquals(20.0, PowerMath.waterWheelOutput(1.0), 1e-9);
+        assertEquals(40.0, PowerMath.waterWheelOutput(5.0), 1e-9);
         assertEquals(0.0, PowerMath.waterWheelOutput(0.0), 1e-9);
     }
 
@@ -146,5 +146,21 @@ class PowerMathTest {
     void windTowersAreTallerAtTier2() {
         assertEquals(3, Tiers.windHeight(1));
         assertEquals(5, Tiers.windHeight(2));
+    }
+
+    @Test
+    void planksNeverBeatTheLogTheyAreCraftedFrom() {
+        // one log makes four planks, so four planks must not hold more energy than the log
+        assertTrue(4 * PowerMath.combustionEnergyPerItem(Fuel.PLANKS, 1) <= PowerMath.combustionEnergyPerItem(Fuel.WOOD, 1));
+        assertEquals(900, PowerMath.combustionEnergyPerItem(Fuel.PLANKS, 1));
+        assertEquals(3600, PowerMath.combustionEnergyPerItem(Fuel.WOOD, 1));
+    }
+
+    @Test
+    void everyTierGetsMoreEnergyOutOfTheSameFuel() {
+        for (Fuel f : Fuel.values()) {
+            assertTrue(PowerMath.combustionEnergyPerItem(f, 2) > PowerMath.combustionEnergyPerItem(f, 1));
+            assertTrue(PowerMath.combustionEnergyPerItem(f, 3) > PowerMath.combustionEnergyPerItem(f, 2));
+        }
     }
 }

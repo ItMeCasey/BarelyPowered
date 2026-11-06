@@ -8,6 +8,8 @@ import com.itmecasey.barelypowered.block.BatteryBlockEntity;
 import com.itmecasey.barelypowered.block.GeneratorBlockEntity;
 import net.minecraft.core.Direction;
 import net.minecraft.core.registries.Registries;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.material.Fluids;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraftforge.event.AttachCapabilitiesEvent;
 import net.minecraftforge.common.capabilities.Capability;
@@ -15,6 +17,9 @@ import net.minecraftforge.common.capabilities.ForgeCapabilities;
 import net.minecraftforge.common.capabilities.ICapabilityProvider;
 import net.minecraftforge.common.util.LazyOptional;
 import net.minecraftforge.energy.IEnergyStorage;
+import net.minecraftforge.fluids.FluidStack;
+import net.minecraftforge.fluids.capability.IFluidHandler;
+import net.minecraftforge.items.IItemHandler;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 import net.minecraftforge.fml.loading.FMLPaths;
@@ -82,13 +87,32 @@ public final class ForgeBarelyPowered {
             return;
         }
         LazyOptional<IEnergyStorage> lazy = LazyOptional.of(() -> storage);
+        GeneratorBlockEntity gen = (GeneratorBlockEntity) be;
+        // hoppers and pipes: coal, charcoal, logs and planks into a combustion generator, lava into a lava generator
+        // Forge attaches capabilities while the block entity is still being constructed, before it knows its kind, so which
+        // handler applies is decided when a capability is asked for.
+        LazyOptional<IItemHandler> items = LazyOptional.of(() -> new FuelSlot(gen));
+        LazyOptional<IFluidHandler> fluids = LazyOptional.of(() -> new LavaTank(gen));
         event.addCapability(ModContent.id("energy"), new ICapabilityProvider() {
             @Override
             public <T> @NotNull LazyOptional<T> getCapability(@NotNull Capability<T> cap, @Nullable Direction side) {
-                return cap == ForgeCapabilities.ENERGY ? lazy.cast() : LazyOptional.empty();
+                if (cap == ForgeCapabilities.ENERGY) {
+                    return lazy.cast();
+                }
+                if (cap == ForgeCapabilities.ITEM_HANDLER && gen.kind() == com.itmecasey.barelypowered.Kind.COMBUSTION) {
+                    return items.cast();
+                }
+                if (cap == ForgeCapabilities.FLUID_HANDLER && gen.kind() == com.itmecasey.barelypowered.Kind.LAVA) {
+                    return fluids.cast();
+                }
+                return LazyOptional.empty();
             }
         });
-        event.addListener(lazy::invalidate);
+        event.addListener(() -> {
+            lazy.invalidate();
+            items.invalidate();
+            fluids.invalidate();
+        });
     }
 
     /** What other mods see: energy that can be drawn out but never put in. */
@@ -158,6 +182,78 @@ public final class ForgeBarelyPowered {
         @Override
         public boolean canReceive() {
             return be.core().mode(side == null ? -1 : side.ordinal()).canInput();
+        }
+    }
+
+    /** The fuel slot as other mods see it: fuel can go in, nothing comes out. */
+    private record FuelSlot(GeneratorBlockEntity be) implements IItemHandler {
+        @Override
+        public int getSlots() {
+            return 1;
+        }
+
+        @Override
+        public @NotNull ItemStack getStackInSlot(int slot) {
+            return be.fuelStack().copy();
+        }
+
+        @Override
+        public @NotNull ItemStack insertItem(int slot, @NotNull ItemStack stack, boolean simulate) {
+            int moved = be.insertFuel(stack, simulate);
+            return moved >= stack.getCount() ? ItemStack.EMPTY : stack.copyWithCount(stack.getCount() - moved);
+        }
+
+        @Override
+        public @NotNull ItemStack extractItem(int slot, int amount, boolean simulate) {
+            return ItemStack.EMPTY;
+        }
+
+        @Override
+        public int getSlotLimit(int slot) {
+            return 64;
+        }
+
+        @Override
+        public boolean isItemValid(int slot, @NotNull ItemStack stack) {
+            return com.itmecasey.barelypowered.block.FuelRules.of(stack) != null;
+        }
+    }
+
+    /** The lava tank as other mods see it: lava can be pumped in, nothing comes out. */
+    private record LavaTank(GeneratorBlockEntity be) implements IFluidHandler {
+        @Override
+        public int getTanks() {
+            return 1;
+        }
+
+        @Override
+        public @NotNull FluidStack getFluidInTank(int tank) {
+            return be.lavaMillibuckets() > 0 ? new FluidStack(Fluids.LAVA, be.lavaMillibuckets()) : FluidStack.EMPTY;
+        }
+
+        @Override
+        public int getTankCapacity(int tank) {
+            return be.lavaCapacity();
+        }
+
+        @Override
+        public boolean isFluidValid(int tank, @NotNull FluidStack stack) {
+            return stack.getFluid().isSame(Fluids.LAVA);
+        }
+
+        @Override
+        public int fill(FluidStack resource, FluidAction action) {
+            return resource.getFluid().isSame(Fluids.LAVA) ? be.insertLava(resource.getAmount(), action.simulate()) : 0;
+        }
+
+        @Override
+        public @NotNull FluidStack drain(FluidStack resource, FluidAction action) {
+            return FluidStack.EMPTY;
+        }
+
+        @Override
+        public @NotNull FluidStack drain(int maxDrain, FluidAction action) {
+            return FluidStack.EMPTY;
         }
     }
 }

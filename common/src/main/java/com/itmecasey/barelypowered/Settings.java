@@ -39,8 +39,10 @@ public final class Settings {
         def("combustion.coal.burn_ticks", 1600, "Ticks one coal burns in a stone-tier generator.");
         def("combustion.charcoal.fe_per_tick", 24, "Stone-tier output while charcoal burns.");
         def("combustion.charcoal.burn_ticks", 1600, "Ticks one charcoal burns in a stone-tier generator.");
-        def("combustion.wood.fe_per_tick", 12, "Stone-tier output while logs or planks burn.");
-        def("combustion.wood.burn_ticks", 300, "Ticks one log or plank burns in a stone-tier generator.");
+        def("combustion.wood.fe_per_tick", 12, "Stone-tier output while logs burn.");
+        def("combustion.wood.burn_ticks", 300, "Ticks one log burns in a stone-tier generator.");
+        def("combustion.planks.fe_per_tick", 12, "Stone-tier output while planks burn.");
+        def("combustion.planks.burn_ticks", 75, "Ticks one plank burns in a stone-tier generator (a quarter of a log, so planks never beat the log they came from).");
         def("combustion.tier.output_multiplier", "1.0,2.0,4.0", "Output multiplier for stone, iron and steel generators.");
         def("combustion.tier.burn_multiplier", "1.0,0.75,0.6", "Burn time multiplier for stone, iron and steel generators (lower burns faster).");
 
@@ -71,7 +73,7 @@ public final class Settings {
         def("wind.turbine_penalty", 0.2, "Output lost for each other turbine in range.");
         def("wind.turbine_min_factor", 0.3, "Output never drops below this share because of other turbines.");
 
-        def("water_wheel.fe_per_flow", 28.0, "Output for one unit of flow. A falling stream counts as 1.0 and a flowing block counts level/8.");
+        def("water_wheel.fe_per_flow", 20.0, "Output for one unit of flow. A falling stream counts as 1.0 and a flowing block counts level/8.");
         def("water_wheel.max_flow", 2.0, "Flow beyond this adds nothing.");
         def("water_wheel.source_flow", 0.0, "Flow credited for a still water source block touching the wheel (0 = needs flowing water).");
 

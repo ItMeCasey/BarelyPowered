@@ -71,8 +71,8 @@ def lang():
     d[f"itemGroup.{MODID}"] = "BarelyPowered"
     d.update({
         f"tooltip.{MODID}.hand_crank": "Right-click to crank. Free power for the first machines.",
-        f"tooltip.{MODID}.combustion_generator": "Burns coal, charcoal, logs or planks. Right-click with fuel.",
-        f"tooltip.{MODID}.lava_generator": "Burns lava. Right-click with a lava bucket.",
+        f"tooltip.{MODID}.combustion_generator": "Burns coal, charcoal, logs or planks. Right-click with fuel, or feed it from a hopper or pipe.",
+        f"tooltip.{MODID}.lava_generator": "Burns lava. Right-click with a lava bucket, or pipe lava in.",
         f"tooltip.{MODID}.solar_panel": "Needs open sky. Strongest at noon, weaker in rain.",
         f"tooltip.{MODID}.wind_turbine": "Builds a tower: needs 2 free blocks above (4 for the Advanced). Needs open sky; stronger higher up, weaker with blocks or turbines nearby.",
         f"tooltip.{MODID}.water_wheel": "Needs flowing water beside or above it.",

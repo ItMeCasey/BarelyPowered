@@ -4,7 +4,9 @@ package com.itmecasey.barelypowered;
 public enum Fuel {
     COAL("coal"),
     CHARCOAL("charcoal"),
-    WOOD("wood");
+    WOOD("wood"),
+    /** Planks burn for a quarter of a log, so crafting a log into planks cannot make more energy than burning it. */
+    PLANKS("planks");
 
     private final String key;
 

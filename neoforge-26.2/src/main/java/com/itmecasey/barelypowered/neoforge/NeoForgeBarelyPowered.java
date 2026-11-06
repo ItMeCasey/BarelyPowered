@@ -8,13 +8,18 @@ import com.itmecasey.barelypowered.Dev;
 import com.itmecasey.barelypowered.block.BatteryBlockEntity;
 import com.itmecasey.barelypowered.block.GeneratorBlockEntity;
 import net.minecraft.core.registries.Registries;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.material.Fluids;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.fml.common.Mod;
 import net.neoforged.fml.loading.FMLPaths;
 import net.neoforged.neoforge.capabilities.Capabilities;
 import net.neoforged.neoforge.capabilities.RegisterCapabilitiesEvent;
 import net.neoforged.neoforge.registries.RegisterEvent;
+import net.neoforged.neoforge.transfer.ResourceHandler;
 import net.neoforged.neoforge.transfer.energy.EnergyHandler;
+import net.neoforged.neoforge.transfer.fluid.FluidResource;
+import net.neoforged.neoforge.transfer.item.ItemResource;
 import net.neoforged.neoforge.transfer.transaction.SnapshotJournal;
 import net.neoforged.neoforge.transfer.transaction.Transaction;
 import net.neoforged.neoforge.transfer.transaction.TransactionContext;
@@ -57,6 +62,11 @@ public final class NeoForgeBarelyPowered {
     private static void capabilities(RegisterCapabilitiesEvent event) {
         event.registerBlockEntity(Capabilities.Energy.BLOCK, ModContent.GENERATOR, (be, side) -> new Output(be));
         event.registerBlockEntity(Capabilities.Energy.BLOCK, ModContent.BATTERY, BatteryView::new);
+        // hoppers and pipes: coal, charcoal, logs and planks into a combustion generator, lava into a lava generator
+        event.registerBlockEntity(Capabilities.Item.BLOCK, ModContent.GENERATOR,
+                (be, side) -> be.kind() == com.itmecasey.barelypowered.Kind.COMBUSTION ? new FuelSlot(be) : null);
+        event.registerBlockEntity(Capabilities.Fluid.BLOCK, ModContent.GENERATOR,
+                (be, side) -> be.kind() == com.itmecasey.barelypowered.Kind.LAVA ? new LavaTank(be) : null);
     }
 
     /** What other mods see: energy that can be drawn out but never put in. */
@@ -165,6 +175,138 @@ public final class NeoForgeBarelyPowered {
                 be.extract(side, given, false);
             }
             return given;
+        }
+    }
+
+    /** The fuel slot as other mods see it: fuel can go in, nothing comes out. */
+    private static final class FuelSlot extends SnapshotJournal<ItemStack> implements ResourceHandler<ItemResource> {
+        private final GeneratorBlockEntity be;
+
+        FuelSlot(GeneratorBlockEntity be) {
+            this.be = be;
+        }
+
+        @Override
+        protected ItemStack createSnapshot() {
+            return be.fuelStack().copy();
+        }
+
+        @Override
+        protected void revertToSnapshot(ItemStack snapshot) {
+            be.restoreFuel(snapshot);
+        }
+
+        @Override
+        protected void onRootCommit(ItemStack original) {
+            be.setChanged();
+        }
+
+        @Override
+        public int size() {
+            return 1;
+        }
+
+        @Override
+        public ItemResource getResource(int index) {
+            return ItemResource.of(be.fuelStack());
+        }
+
+        @Override
+        public long getAmountAsLong(int index) {
+            return be.fuelStack().getCount();
+        }
+
+        @Override
+        public long getCapacityAsLong(int index, ItemResource resource) {
+            return resource.getMaxStackSize();
+        }
+
+        @Override
+        public boolean isValid(int index, ItemResource resource) {
+            return com.itmecasey.barelypowered.block.FuelRules.of(resource.toStack()) != null;
+        }
+
+        @Override
+        public int insert(int index, ItemResource resource, int amount, TransactionContext transaction) {
+            ItemStack offered = resource.toStack(amount);
+            int moved = be.insertFuel(offered, true);
+            if (moved > 0) {
+                updateSnapshots(transaction);
+                be.insertFuel(offered, false);
+            }
+            return moved;
+        }
+
+        @Override
+        public int extract(int index, ItemResource resource, int amount, TransactionContext transaction) {
+            return 0;
+        }
+    }
+
+    /** The lava tank as other mods see it: lava can be pumped in, nothing comes out. */
+    private static final class LavaTank extends SnapshotJournal<Integer> implements ResourceHandler<FluidResource> {
+        private final GeneratorBlockEntity be;
+
+        LavaTank(GeneratorBlockEntity be) {
+            this.be = be;
+        }
+
+        @Override
+        protected Integer createSnapshot() {
+            return be.lavaMillibuckets();
+        }
+
+        @Override
+        protected void revertToSnapshot(Integer snapshot) {
+            be.restoreLava(snapshot);
+        }
+
+        @Override
+        protected void onRootCommit(Integer original) {
+            be.setChanged();
+        }
+
+        @Override
+        public int size() {
+            return 1;
+        }
+
+        @Override
+        public FluidResource getResource(int index) {
+            return be.lavaMillibuckets() > 0 ? FluidResource.of(Fluids.LAVA) : FluidResource.EMPTY;
+        }
+
+        @Override
+        public long getAmountAsLong(int index) {
+            return be.lavaMillibuckets();
+        }
+
+        @Override
+        public long getCapacityAsLong(int index, FluidResource resource) {
+            return be.lavaCapacity();
+        }
+
+        @Override
+        public boolean isValid(int index, FluidResource resource) {
+            return resource.getFluid().isSame(Fluids.LAVA);
+        }
+
+        @Override
+        public int insert(int index, FluidResource resource, int amount, TransactionContext transaction) {
+            if (!resource.getFluid().isSame(Fluids.LAVA)) {
+                return 0;
+            }
+            int moved = be.insertLava(amount, true);
+            if (moved > 0) {
+                updateSnapshots(transaction);
+                be.insertLava(moved, false);
+            }
+            return moved;
+        }
+
+        @Override
+        public int extract(int index, FluidResource resource, int amount, TransactionContext transaction) {
+            return 0;
         }
     }
 }
