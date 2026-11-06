@@ -34,6 +34,7 @@ REI needs Architectury API and Cloth Config. Cloth Config for 26.3 on NeoForge i
 
 ## Not covered
 
+- Item pipes and fluid pipes from other mods feeding the generators were not tried (a vanilla hopper was; the fluid and item connections themselves are checked by the server self test on every layer).
 - Click-through lookups (uses, catalysts) and bookmarks were not exercised; only search, item list and one crafting recipe were.
 - Fuel values (what the combustion generator burns) are not shown in any viewer; they are in the Jade and Show Me What This Is lines and on the wiki. Adding a fuel category would need a plugin for each viewer.
 - Each check ran in a fresh superflat world with only BarelyPowered, BarelyCables and the viewer (plus the viewer's required mods) loaded.

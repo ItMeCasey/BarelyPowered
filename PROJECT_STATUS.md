@@ -1,7 +1,7 @@
 # Project Status
 <!-- status-format: 1 -->
-Updated: 2026-11-05
-Summary: Seven generators, three tiers of batteries and a separable BarelyCables cable module on all eight Forge and NeoForge layers, released as 2026.11.1; 2026.11.2 (version bumped, docs and wiki files ready, release is the Project Manager's) adds Jade plugins, viewer checks (BEI, JEI, REI, EMI where builds exist), tall wind turbine towers with a turning 3D rotor and a bigger tier 2 solar panel.
+Updated: 2026-11-06
+Summary: Seven generators, three tiers of batteries and a separable BarelyCables cable module on all eight Forge and NeoForge layers; 2026.11.2 (tall wind towers, bigger tier 2 solar, viewer and Jade checks) is released and 2026.11.3 (hopper and pipe feeding of fuel and lava, planks and water wheel balance) is committed locally, waiting for the Project Manager to push and release.
 Spend: none
 
 ## Foundation
@@ -21,8 +21,10 @@ Spend: none
 - [x] Water wheel from flowing water (w:3)
 - [x] Geothermal generator on or near lava and magma (w:3)
 - [x] FE output into adjacent acceptors through the loader energy API (checked against a dev energy sink on all eight layers) (w:5)
-- [ ] Fluid-fed lava generator through pipes (bucket feeding only for now) (w:2)
-- [ ] Hopper and pipe fuel input (w:2)
+- [x] Hopper fuel input into the combustion generator through the loader item capability on all eight layers; a real hopper seen feeding it on NeoForge 1.21.1, Forge 1.21.1 and NeoForge 26.3 (w:2)
+- [~] Fluid-fed lava generator: the fluid capability is checked by the server self test on all eight layers; no real fluid pipe or tank mod was tried (w:2)
+- [x] Recipes and balance reviewed on paper: planks no longer beat their log, water wheel lowered to 20 FE per flow, numbers on the wiki Balance page (w:2)
+- [ ] Third-party item and fluid pipes (AeroFlux, BarelyStorage nodes, others) feeding the generators (not tried) (w:1)
 
 ## Batteries
 - [x] Battery blocks in three tiers with capacity and rate from config (w:4)
@@ -68,7 +70,9 @@ Spend: none
 - [x] CurseForge project created and id recorded (commit 6b7ccd1) (w:1)
 - [x] First release 2026.11.1 tagged and uploaded (reported by the Project Manager; not checked from this session) (w:2)
 - [x] mod_version bumped to 2026.11.2 in all 16 builds, own commit f99a4d9 (w:1)
-- [ ] Release 2026.11.2 tagged and uploaded, CI green on the tag (Project Manager) (w:2)
+- [x] Release 2026.11.2 tagged and uploaded (reported by the Project Manager, tag v2026.11.2; not checked from this session) (w:2)
+- [x] BarelyPowered mod_version bumped to 2026.11.3 in its eight builds (BarelyCables stays at 2026.11.2), own commit b4bffac (w:1)
+- [ ] Release 2026.11.3 tagged and uploaded, CI green on the tag (Project Manager) (w:2)
 
 ## Documentation and branding
 - [x] Icon, banners and section headers drawn in the SMWTI style (w:2)

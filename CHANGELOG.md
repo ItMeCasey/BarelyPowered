@@ -1,5 +1,15 @@
 # Changelog
 
+## 2026.11.3
+
+- Hoppers, item pipes and other mods' item transfer can feed the combustion generator: coal, charcoal, logs and planks go in from any side, one kind at a time up to a stack, and nothing comes out.
+- Fluid pipes and tanks can fill the lava generator: lava only, any amount, up to its four buckets, and nothing comes out. Buckets still work.
+- Planks are now their own fuel and burn a quarter as long as a log (900 FE in a stone generator instead of 3,600), so a log crafted into planks no longer gives four times the energy. New config keys `combustion.planks.*`.
+- The water wheel makes 20 FE per unit of flow instead of 28 (40 FE/t at most instead of 56). A config file written by an older version keeps its old value; delete the `water_wheel.fe_per_flow` line to get the new one.
+- The tooltips of both generators mention hoppers and pipes.
+- Wiki: a new *Balance numbers* page, updated generator pages and known gaps.
+- BarelyCables is unchanged and stays at 2026.11.2.
+
 ## 2026.11.2
 
 - New hand-built models for the solar panels and wind turbines, made in Blockbench (sources in `art/`).

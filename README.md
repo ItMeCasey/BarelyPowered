@@ -7,8 +7,8 @@ Power for Forge and NeoForge in Forge Energy (FE): seven generators, batteries i
 | Generator | Power from |
 |---|---|
 | Hand crank | Right-clicks, free and tiny |
-| Combustion generator (stone, iron, steel) | Coal, charcoal, logs, planks |
-| Lava generator (stone, iron, steel) | Buckets of lava |
+| Combustion generator (stone, iron, steel) | Coal, charcoal, logs, planks; by hand or from a hopper or pipe |
+| Lava generator (stone, iron, steel) | Lava, by bucket or by pipe |
 | Solar panel (tier 1, tier 2) | Daylight, sky access, weather; tier 2 is a taller, wider three-panel array and keeps a trickle at night and in rain |
 | Wind turbine (tier 1, tier 2) | A tall tower (3 blocks, or 5 for tier 2) with a turning 3D rotor; build height, open sky, storms; nearby blocks and other turbines reduce it |
 | Water wheel | Flowing water beside or above it |
@@ -43,7 +43,7 @@ The wiki is at https://itmecasey.com/wiki/barelypowered/ (generators, recipes, c
 
 ## What was verified
 
-Honest status, per layer, is on the wiki's *Versions and known gaps* page and in `PROJECT_STATUS.md`. In short: every layer compiles and passes a headless server self test that places each generator beside an energy sink and checks the energy delivered; the scripted client tour (`scripts/client_tour.py`) shows each generator running. The item viewers and Jade were checked in a real client where they have a build (table in `docs/COMPATIBILITY.md`). The wind turbine tower with its turning rotor and the taller tier 2 solar panel were seen in a real client on every layer (frames in `docs/frames/models`). Balance has not been play-tested over a full game, and only AeroFlux energy pipes were tried among cable mods.
+Honest status, per layer, is on the wiki's *Versions and known gaps* page and in `PROJECT_STATUS.md`. In short: every layer compiles and passes a headless server self test that places each generator beside an energy sink and checks the energy delivered; the scripted client tour (`scripts/client_tour.py`) shows each generator running. The item viewers and Jade were checked in a real client where they have a build (table in `docs/COMPATIBILITY.md`). The wind turbine tower with its turning rotor and the taller tier 2 solar panel were seen in a real client on every layer (frames in `docs/frames/models`). Hopper feeding was seen in a client on NeoForge 1.21.1, Forge 1.21.1 and NeoForge 26.3, and the item and fluid inputs are in the server self test on every layer (frames in `docs/frames/automation`). Balance has not been play-tested over a full game, and only AeroFlux energy pipes were tried among cable mods.
 
 ## Building
 

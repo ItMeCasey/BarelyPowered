@@ -210,6 +210,13 @@ public final class ShotTour {
         }, "water", pos -> {
             server(String.format(Locale.ROOT, "setblock %d %d %d minecraft:water", pos.getX() - 1, pos.getY() + 1, pos.getZ()));
         });
+        // a hopper above an iron combustion generator feeds it coal through the item capability
+        scene("hopper_feed_combustion", "combustion_generator_iron", x += 8, ground, SETTLE * 2, (be, level, pos) -> {
+            level.setBlock(pos.above(), net.minecraft.world.level.block.Blocks.HOPPER.defaultBlockState(), 3);
+            if (level.getBlockEntity(pos.above()) instanceof net.minecraft.world.level.block.entity.HopperBlockEntity hopper) {
+                hopper.setItem(0, new ItemStack(Items.COAL, 6));
+            }
+        }, "hopper_feed");
         batteryScene(x += 8);
         if (haveCables()) {
             cableScene(x += 8);
