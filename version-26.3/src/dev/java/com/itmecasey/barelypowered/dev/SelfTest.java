@@ -109,6 +109,7 @@ public final class SelfTest {
                     l.setBlock(p.north(), Blocks.LAVA.defaultBlockState(), 3);
                     l.setBlock(p.west(), Blocks.LAVA.defaultBlockState(), 3);
                 }, (be, sink) -> Math.abs(be.output() - 32.0) < 1e-6 && sink.received() >= 32 * TICKS - 64);
+        failures += recipes(server);
         failures += automation(ground, x, z);
         failures += batteryChain(ground, x, z);
         LOGGER.info("SELFTEST DONE failures={}", failures);
@@ -240,6 +241,44 @@ public final class SelfTest {
             failures += fail("automation", e.toString());
         }
         return failures;
+    }
+
+    /** Our recipes are registered in the running game, and real crafting layouts resolve to the right results. */
+    private static int recipes(MinecraftServer server) {
+        int failures = 0;
+        try {
+            long ours = server.getRecipeManager().getRecipes().stream().filter(h -> h.id().toString().contains("barelypowered:")).count();
+            failures += verdict("recipes_loaded", ours >= 17, "barelypowered recipes=" + ours);
+            ItemStack e = ItemStack.EMPTY;
+            ItemStack stick = new ItemStack(Items.STICK);
+            ItemStack planks = new ItemStack(Items.OAK_PLANKS);
+            ItemStack cobble = new ItemStack(Items.COBBLESTONE);
+            ItemStack iron = new ItemStack(Items.IRON_INGOT);
+            ItemStack redstone = new ItemStack(Items.REDSTONE);
+            failures += craft(server, "hand_crank", java.util.List.of(e, stick, e, e, stick, e, planks, cobble, planks));
+            failures += craft(server, "combustion_generator_stone", java.util.List.of(cobble, cobble, cobble, cobble,
+                    new ItemStack(Items.FURNACE), cobble, cobble, redstone, cobble));
+            failures += craft(server, "combustion_generator_iron", java.util.List.of(iron, redstone, iron, iron,
+                    new ItemStack(ModContent.items().get("combustion_generator_stone")), iron, iron, iron, iron));
+            failures += craft(server, "solar_panel_1", java.util.List.of(new ItemStack(Items.GLASS), new ItemStack(Items.GLASS),
+                    new ItemStack(Items.GLASS), new ItemStack(Items.LAPIS_LAZULI), redstone, new ItemStack(Items.LAPIS_LAZULI), iron, iron, iron));
+            failures += craft(server, "water_wheel", java.util.List.of(planks, stick, planks, stick, iron, stick, planks, stick, planks));
+            var steel = server.getRecipeManager().getRecipeFor(net.minecraft.world.item.crafting.RecipeType.BLASTING,
+                    new net.minecraft.world.item.crafting.SingleRecipeInput(iron), level);
+            failures += verdict("recipe_steel_ingot_blasting", steel.isPresent() && steel.get().id().toString().contains("steel_ingot"),
+                    "found=" + steel.isPresent());
+        } catch (RuntimeException ex) {
+            LOGGER.error("SELFTEST error in recipes", ex);
+            failures += fail("recipes", ex.toString());
+        }
+        return failures;
+    }
+
+    private static int craft(MinecraftServer server, String result, java.util.List<ItemStack> grid) {
+        var input = net.minecraft.world.item.crafting.CraftingInput.of(3, 3, grid);
+        var found = server.getRecipeManager().getRecipeFor(net.minecraft.world.item.crafting.RecipeType.CRAFTING, input, level);
+        boolean ok = found.isPresent() && found.get().id().toString().contains("barelypowered:" + result);
+        return verdict("recipe_crafts_" + result, ok, found.isPresent() ? found.get().id().toString() : "no recipe matched");
     }
 
     private static int verdict(String name, boolean ok, String detail) {

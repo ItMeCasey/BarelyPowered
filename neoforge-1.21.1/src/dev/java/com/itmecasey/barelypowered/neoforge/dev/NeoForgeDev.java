@@ -21,7 +21,7 @@ public final class NeoForgeDev {
 
     public static void install(IEventBus modBus) {
         modBus.addListener(NeoForgeDev::capabilities);
-        if (SelfTest.requested()) {
+        {
             SelfTest.probe = new SelfTest.Probe() {
                 @Override
                 public int items(net.minecraft.server.level.ServerLevel level, net.minecraft.core.BlockPos pos, net.minecraft.world.item.ItemStack stack) {
@@ -36,6 +36,8 @@ public final class NeoForgeDev {
                             net.neoforged.neoforge.fluids.capability.IFluidHandler.FluidAction.EXECUTE);
                 }
             };
+        }
+        if (SelfTest.requested()) {
             NeoForge.EVENT_BUS.addListener((ServerStartedEvent e) -> SelfTest.run(e.getServer()));
         }
         if (FMLEnvironment.dist == Dist.CLIENT && System.getenv("BARELYPOWERED_SHOTS") != null) {

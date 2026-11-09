@@ -2,26 +2,61 @@
 
 Usage: python scripts/client_tour.py <layer> [<layer> ...]     e.g. neoforge-1.21.1 forge-26.2
 
-Starts `gradlew runClient` with BARELYPOWERED_SHOTS set, moves the game window to DISPLAY6 (the right-hand monitor) as soon as it
-exists, waits for the tour to finish (it quits the game itself), and prints the screenshot names. The game is muted and the
-tour lets go of the mouse, so nothing needs a person at the keyboard. Screenshots land in <layer>/run/screenshots.
+Starts `gradlew runClient` with BARELYPOWERED_SHOTS set through the studio's isolated launcher (launch-isolated.ps1 in the
+user's .claude\\tools folder), which runs the game on a hidden Windows desktop so its window, focus and cursor cannot reach the
+person using the PC, and mutes it. Waits for the tour to finish (it quits the game itself), stops anything left over, and
+prints the screenshot names. Screenshots land in <layer>/run/screenshots. The game output is read from the launcher's log.
 """
 import os
 import re
 import shutil
 import subprocess
 import sys
-import threading
 import time
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
-PLACE = r"C:\Users\casey\.claude\tools\place-window.ps1"
-TIMEOUT = 600
+ISOLATED = r"C:\Users\casey\.claude\tools\launch-isolated.ps1"
+ISOLATED_LOG = Path(os.environ.get("LOCALAPPDATA", "")) / "launch-isolated" / "MCTest.log"
+TIMEOUT = 300
 OPTIONS = (
     "soundCategory_master:0.0\nmusic:0.0\npauseOnLostFocus:false\nonboardAccessibility:false\n"
     "skipMultiplayerWarning:true\njoinedFirstServer:true\ntutorialStep:none\nfullscreen:false\nguiScale:3\nlang:en_us\n"
 )
+
+
+def run_isolated(folder, gradle_args, extra_env, done_marker, timeout=TIMEOUT):
+    """Runs `gradlew <gradle_args>` in folder on the hidden desktop; returns (output lines, timed_out).
+
+    extra_env is set in the command itself (the launcher runs it with cmd.exe /c), the marker ends the wait, and the launcher's
+    -Kill removes whatever is still running afterwards.
+    """
+    start = ISOLATED_LOG.stat().st_size if ISOLATED_LOG.exists() else 0
+    sets = "".join(f'set "{k}={v}"&& ' for k, v in extra_env.items())
+    command = f".\\gradlew.bat {gradle_args}"
+    command = sets + command
+    subprocess.run(["powershell", "-NoProfile", "-File", ISOLATED, "-Run", "-WorkDir", str(folder), "-Command", command],
+                   check=True, capture_output=True)
+
+    def lines():
+        if not ISOLATED_LOG.exists():
+            return []
+        data = ISOLATED_LOG.read_bytes()
+        offset = start if len(data) >= start else 0
+        return data[offset:].decode("utf-8", errors="replace").splitlines()
+
+    began = time.time()
+    done = False
+    while time.time() - began < timeout:
+        time.sleep(2)
+        if any(done_marker in line for line in lines()):
+            done = True
+            break
+    if done:
+        time.sleep(15)  # the tour quits the game itself; give it a moment before anything is stopped
+    out = lines()
+    subprocess.run(["powershell", "-NoProfile", "-File", ISOLATED, "-Kill"], capture_output=True)
+    return out, not done
 
 
 def tour(layer):
@@ -32,31 +67,9 @@ def tour(layer):
     shots = run / "screenshots"
     if shots.exists():
         shutil.rmtree(shots)
-    env = dict(os.environ, BARELYPOWERED_SHOTS="1")
-    log = []
-    proc = subprocess.Popen(["cmd", "/c", str(folder / "gradlew.bat"), "runClient", "--no-daemon", "-q", "-PdevTools"], cwd=folder,
-                            env=env, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True, errors="replace")
-
-    def pump():
-        for line in proc.stdout:
-            log.append(line.rstrip())
-
-    threading.Thread(target=pump, daemon=True).start()
-
-    def place():
-        # The window title starts with "Minecraft"; this waits up to two minutes for it and moves it to DISPLAY6.
-        # Only Java windows count: other windows (a browser tab about Minecraft) must never be moved.
-        subprocess.run(["powershell", "-NoProfile", "-File", PLACE, "-ProcessName", "java*", "-Match", "Minecraft",
-                        "-Wait", "180"],
-                       capture_output=True)
-
-    threading.Thread(target=place, daemon=True).start()
     start = time.time()
-    while proc.poll() is None and time.time() - start < TIMEOUT:
-        time.sleep(2)
-    timed_out = proc.poll() is None
-    if timed_out:
-        subprocess.run(["taskkill", "/T", "/F", "/PID", str(proc.pid)], capture_output=True)
+    log, timed_out = run_isolated(folder, "runClient --no-daemon -q -PdevTools", {"BARELYPOWERED_SHOTS": "1"},
+                                  "BARELYPOWERED-SHOTS DONE")
     (run / "client_tour.log").write_text("\n".join(log), encoding="utf-8")
     names = sorted(p.name for p in shots.glob("*.png")) if shots.exists() else []
     done = any("BARELYPOWERED-SHOTS DONE" in line for line in log)

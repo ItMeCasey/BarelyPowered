@@ -210,6 +210,11 @@ public final class ShotTour {
             }
         }, "hopper_feed");
         ResourceLocation pipeId = ResourceLocation.fromNamespaceAndPath("aeroflux", "copper_energy_pipe");
+        ResourceLocation itemPipeId = ResourceLocation.fromNamespaceAndPath("aeroflux", "iron_item_pipe");
+        ResourceLocation fluidPipeId = ResourceLocation.fromNamespaceAndPath("aeroflux", "iron_fluid_pipe");
+        if (BuiltInRegistries.ITEM.containsKey(itemPipeId) && BuiltInRegistries.ITEM.containsKey(fluidPipeId)) {
+            aeroFluxFeedScene(x += 12, BuiltInRegistries.ITEM.get(itemPipeId), BuiltInRegistries.ITEM.get(fluidPipeId));
+        }
         if (BuiltInRegistries.ITEM.containsKey(pipeId)) {
             aeroFluxScene(x += 10, BuiltInRegistries.ITEM.get(pipeId));
             if (haveCables()) {
@@ -308,6 +313,71 @@ public final class ShotTour {
     }
 
     /** A steel combustion generator, three AeroFlux energy pipes in a row, then the sink: does the pipe carry the power? */
+    /**
+     * Another mod's pipes feeding our generators: a chest of coal, an AeroFlux item pipe and a combustion generator, and a tank of
+     * lava, an AeroFlux fluid pipe and a lava generator. The frames show what each generator holds after the pipes have worked.
+     */
+    private static void aeroFluxFeedScene(int x, Item itemPipe, Item fluidPipe) {
+        BlockPos chest = new BlockPos(x, ground, 0);
+        BlockPos coalGen = new BlockPos(x + 2, ground, 0);
+        BlockPos tank = new BlockPos(x, ground, 6);
+        BlockPos lavaGen = new BlockPos(x + 2, ground, 6);
+        then(4, () -> {
+            server(String.format(Locale.ROOT, "setblock %d %d %d minecraft:chest", chest.getX(), chest.getY(), chest.getZ()),
+                    String.format(Locale.ROOT, "setblock %d %d %d barelypowered:combustion_generator_iron[facing=north]", coalGen.getX(), coalGen.getY(), coalGen.getZ()),
+                    String.format(Locale.ROOT, "setblock %d %d %d barelypowered:lava_generator_iron[facing=north]", lavaGen.getX(), lavaGen.getY(), lavaGen.getZ()),
+                    String.format(Locale.ROOT, "setblock %d %d %d aeroflux:copper_tank", tank.getX(), tank.getY(), tank.getZ()));
+        });
+        then(4, () -> onServer(srv -> {
+            if (srv.overworld().getBlockEntity(chest) instanceof net.minecraft.world.level.block.entity.ChestBlockEntity c) {
+                c.setItem(0, new ItemStack(Items.COAL, 32));
+            }
+            int filled = SelfTest.probe == null ? -2 : SelfTest.probe.lava(srv.overworld(), tank, 4000);
+            LOGGER.info("BARELYPOWERED-SHOTS feed: lava put into the AeroFlux tank={}", filled);
+        }));
+        placePipe(new BlockPos(chest.getX() + 1, ground, 0), itemPipe, x + 1.5, 0);
+        placePipe(new BlockPos(tank.getX() + 1, ground, 6), fluidPipe, x + 1.5, 6);
+        then(2, () -> server("clear @p"));
+        then(2, () -> moveTo(new Vec3(x + 1.5, ground + 1.4, -3.4), new Vec3(x + 1.5, ground + 0.4, 0.5)));
+        shoot("aeroflux_feed_items_a", 20);
+        then(2, () -> moveTo(new Vec3(x + 1.5, ground + 1.4, -3.4), new Vec3(x + 1.5, ground + 0.4, 0.5)));
+        shoot("aeroflux_feed_items_b", 160);
+        then(2, () -> onServer(srv -> {
+            ServerPlayer p = srv.getPlayerList().getPlayers().get(0);
+            if (srv.overworld().getBlockEntity(coalGen) instanceof GeneratorBlockEntity be) {
+                LOGGER.info("BARELYPOWERED-SHOTS feed: combustion generator via AeroFlux item pipe: {}", be.statusLine().getString());
+                p.displayClientMessage(net.minecraft.network.chat.Component.literal("Via AeroFlux item pipe: ").append(be.statusLine()), true);
+            }
+        }));
+        shoot("aeroflux_feed_items_status", 8);
+        then(2, () -> moveTo(new Vec3(x + 1.5, ground + 1.4, 2.6), new Vec3(x + 1.5, ground + 0.4, 6.5)));
+        shoot("aeroflux_feed_lava_a", 40);
+        then(2, () -> onServer(srv -> {
+            ServerPlayer p = srv.getPlayerList().getPlayers().get(0);
+            if (srv.overworld().getBlockEntity(lavaGen) instanceof GeneratorBlockEntity be) {
+                LOGGER.info("BARELYPOWERED-SHOTS feed: lava generator via AeroFlux fluid pipe: {} (lava {} mB)", be.statusLine().getString(), be.lavaMillibuckets());
+                p.displayClientMessage(net.minecraft.network.chat.Component.literal("Via AeroFlux fluid pipe: ").append(be.statusLine()), true);
+            }
+        }));
+        shoot("aeroflux_feed_lava_status", 8);
+    }
+
+    /** Places a pipe item at a position by using it on the block below, as a player would. */
+    private static void placePipe(BlockPos at, Item pipe, double lookX, int z) {
+        then(2, () -> {
+            moveTo(new Vec3(at.getX() + 0.5, ground + 1.62, z - 2.5), new Vec3(at.getX() + 0.5, ground + 0.3, z + 0.5));
+            ItemStack stack = new ItemStack(pipe);
+            player().getInventory().setItem(0, stack.copy());
+            player().getInventory().selected = 0;
+            Minecraft.getInstance().gameMode.handleCreativeModeItemAdd(stack, 36);
+        });
+        then(3, () -> {
+            BlockPos below = at.below();
+            Minecraft.getInstance().gameMode.useItemOn(player(), InteractionHand.MAIN_HAND,
+                    new BlockHitResult(Vec3.atCenterOf(below).add(0, 0.5, 0), Direction.UP, below, false));
+        });
+    }
+
     private static void aeroFluxScene(int x, Item pipe) {
         BlockPos gen = new BlockPos(x, ground, 0);
         then(4, () -> {

@@ -1,7 +1,7 @@
 # Project Status
 <!-- status-format: 1 -->
-Updated: 2026-11-06
-Summary: Seven generators, three tiers of batteries and a separable BarelyCables cable module on all eight Forge and NeoForge layers; 2026.11.2 (tall wind towers, bigger tier 2 solar, viewer and Jade checks) is released and 2026.11.3 (hopper and pipe feeding of fuel and lava, planks and water wheel balance) is committed locally, waiting for the Project Manager to push and release.
+Updated: 2026-11-09
+Summary: Seven generators, three tiers of batteries and a separable BarelyCables cable module on all eight Forge and NeoForge layers, released through 2026.11.3 (tall wind towers, bigger tier 2 solar, hopper and pipe feeding, balance fixes); open items are things that need a person, another mod's build, or a launcher install.
 Spend: none
 
 ## Foundation
@@ -9,22 +9,23 @@ Spend: none
 - [x] Gradle builds for NeoForge and Forge on 1.21.1, 26.1.2, 26.2 and 26.3 (w:4)
 - [x] Combined jar per Minecraft version with BarelyCables nested (scripts/build_all.sh; four jars in dist/) (w:2)
 - [x] Development tools (self test, test energy sink, screenshot tour) only build with -PdevTools; release jars checked to hold none (w:2)
-- [~] GitHub repository (public repo exists and the Project Manager pushed the first 11 commits; later commits are local until pushed) (w:1)
+- [x] GitHub repository ItMeCasey/BarelyPowered: public, main matches origin (9b241dd when checked 2026-11-09), tags v2026.11.1 to v2026.11.3 and a pre-release with four jars for each (w:1)
 
 ## Generators
 - [x] Hand crank (self test and client tour on all eight layers) (w:2)
-- [x] Combustion generator, stone, iron and steel tiers, coal, charcoal and wood fuel (w:4)
-- [x] Lava generator, three tiers, lava bucket fed (w:3)
+- [x] Combustion generator, stone, iron and steel tiers, coal, charcoal, log and plank fuel, hopper and pipe fed (w:4)
+- [x] Lava generator, three tiers, fed by bucket or by pipe (w:3)
 - [x] Solar tier 1 and 2 with day curve, sky access, weather, night trickle on tier 2 (w:3)
 - [x] Wind turbine tier 1 and 2: height, open sky, blocked blades, other turbines, storms (w:4)
 - [x] Wind turbine as a tall multiblock tower with a turning 3D rotor (3 and 5 blocks), solar tier 2 bigger; seen on a client on all eight layers; Casey confirmed the blades turn smoothly (w:4)
-- [x] Water wheel from flowing water (w:3)
+- [x] Water wheel from flowing water, 20 FE per unit of flow, 40 FE/t at most (client frame "Output 40 FE/t", neoforge-1.21.1) (w:3)
 - [x] Geothermal generator on or near lava and magma (w:3)
 - [x] FE output into adjacent acceptors through the loader energy API (checked against a dev energy sink on all eight layers) (w:5)
 - [x] Hopper fuel input into the combustion generator through the loader item capability on all eight layers; a real hopper seen feeding it on NeoForge 1.21.1, Forge 1.21.1 and NeoForge 26.3 (w:2)
-- [~] Fluid-fed lava generator: the fluid capability is checked by the server self test on all eight layers; no real fluid pipe or tank mod was tried (w:2)
+- [x] Fluid-fed lava generator: the fluid capability is in the server self test on all eight layers, and AeroFlux's fluid pipe moved lava from an AeroFlux tank into it in a real client on NeoForge 1.21.1 ("Lava: 3000 / 4000 mB", docs/frames/automation) (w:2)
 - [x] Recipes and balance reviewed on paper: planks no longer beat their log, water wheel lowered to 20 FE per flow, numbers on the wiki Balance page (w:2)
-- [ ] Third-party item and fluid pipes (AeroFlux, BarelyStorage nodes, others) feeding the generators (not tried) (w:1)
+- [x] A third-party item pipe feeding the combustion generator: AeroFlux's item pipe moved coal from a chest into it ("Coal x31", docs/frames/automation, NeoForge 1.21.1) (w:1)
+- [ ] Third-party pipes feeding the generators on Forge and on 26.x, and BarelyStorage nodes (jars exist in AeroFlux/dist and BarelyPipes/dist; the tour scene exists only for NeoForge 1.21.1; only the vanilla hopper and the self test cover the rest) (w:1)
 
 ## Batteries
 - [x] Battery blocks in three tiers with capacity and rate from config (w:4)
@@ -40,15 +41,16 @@ Spend: none
 - [x] Cheap shared network: one leader per network, quiet networks check less often, energy conserved including neighbors that misreport (11 unit tests, 9-check self test on all eight layers) (w:5)
 - [x] Cable lines in the SMWTI overlay (network rate, buffer, size, switched-off sides) (w:1)
 - [x] Nested in the BarelyPowered jar with jar-in-jar; the loader keeps one copy when two mods embed it (two dummy mods per layer, and the real combined jar next to the cables layer; both on all eight layers) (w:4)
-- [ ] The nested copy used on its own, in a launcher with only the BarelyPowered jar (not tested; the dev runs always load the cables layer or dummy mods) (w:1)
-- [ ] BarelyCables published as its own mod with an optional dependency from BarelyPowered (planned; the folder move is the only code change) (w:3)
+- [ ] The nested copy used on its own, in a launcher with only the BarelyPowered jar (blocked, two attempts 2026-11-09: no Forge or NeoForge 1.21.1 or 26.x install exists in the launcher folders, only old vanilla versions and an unrelated modpack instance, and a loader install means downloading the installers; the real jar's META-INF/jarjar/metadata.json does list barelycables with range [version,) and the dummy-mod and next-to-the-cables-layer tests pass on all eight layers) (w:1)
+- [ ] BarelyCables published as its own mod with an optional dependency from BarelyPowered (planned; it needs its own repository and CurseForge project, which is the Project Manager's and Casey's call; the folder layout and the no-imports rule are ready) (w:3)
 - [x] Generator to cable to battery to consumer seen in a client on all eight layers (w:2)
-- [~] AeroFlux energy pipes with batteries and with BarelyCables (seen working on NeoForge 1.21.1 only; other layers and other cable mods not tried) (w:3)
+- [~] AeroFlux energy pipes with batteries and with BarelyCables (energy pipes seen on NeoForge 1.21.1 only; AeroFlux item and fluid pipes feeding the generators also seen there; other layers and other cable mods not tried) (w:3)
 
 ## Config and balance
 - [x] Config files: barelypowered.properties for every generator and battery rule, barelycables.properties for cables (w:3)
 - [x] Recipes for all generators, batteries, cables and the steel ingot (data loads on all eight layers; documented in the wiki) (w:2)
-- [ ] Recipes crafted and balance played in a real game (w:2)
+- [x] Recipes load and craft in the running game: 17 registered, five real crafting layouts and the steel blasting recipe resolve to the right results on all eight layers (server self test, 32 checks) (w:2)
+- [ ] Balance played over a whole game by a person (needs a human play session; the numbers were reviewed on paper and the wiki Balance page lists them) (w:2)
 
 ## Art and animation
 - [x] Original pixel textures drawn by script, animated front faces for fire, lava, blades, wheel, geothermal and crank, gauge for batteries, cable models (w:4)
@@ -58,25 +60,27 @@ Spend: none
 - [x] SMWTI plugins for generators, batteries and cables (seen on all eight layers) (w:2)
 - [x] Jade plugins for generators, batteries and cables on NeoForge (frames of all four scenes on 1.21.1, 26.1.2, 26.2 and 26.3; Jade has no Forge build) (w:2)
 - [x] Item viewers show our items and the Hand Crank recipe: BEI on all eight layers, JEI on NeoForge x4 and Forge 1.21.1, REI on NeoForge x4, EMI on NeoForge 1.21.1 (frames in docs/frames/viewers; table in docs/COMPATIBILITY.md) (w:4)
-- [ ] Viewers on builds that do not exist yet: JEI Forge 26.x, REI Forge, EMI 26.x and Forge, Jade Forge (no upstream build on 2026-11-05; check when they ship) (w:1)
-- [ ] Viewer click-through (uses, catalysts) and a fuel list in the viewers (not tried; no custom recipe categories exist) (w:1)
+- [ ] Viewers on builds that do not exist yet: JEI Forge 26.x, REI Forge, EMI 26.x and Forge, Jade Forge (re-checked on CurseForge 2026-11-09, still no build for any of them; check when they ship) (w:1)
+- [x] Viewer click-through: in JEI on NeoForge 1.21.1 a right click on the steel ingot shows its uses (steel cable, advanced solar panel, advanced wind turbine) and a left click shows the blasting recipe with the blast furnace as catalyst, 20 s (docs/frames/viewers/neoforge-1.21.1/jei_uses_steel.png and jei_recipes_steel.png) (w:1)
+- [ ] A BarelyPowered fuel category in the viewers (the vanilla fuel category already lists coal, charcoal, logs and planks; a category with our burn times and energy needs one plugin per viewer) (w:1)
 
 ## Testing and release
-- [x] Unit tests: 20 for BarelyPowered (output math, config, battery core, face modes) and 11 for BarelyCables (network conservation, tier throughput, face switches) on every layer (w:3)
-- [x] Unit tests run in CI (build.yml ran green on b6cc51d: version check, tests, 16 layer builds, combine and nest, no dev files in release jars) (w:1)
-- [x] Headless server load check with the self tests (17 checks per BarelyPowered layer, 9 per BarelyCables layer, ports 8960 to 8967 and 8970 to 8977) (w:3)
+- [x] Unit tests: 26 for BarelyPowered (output math, config, battery core, face modes, automation room rules, planks and tiers) and 11 for BarelyCables (network conservation, tier throughput, face switches) on every layer (w:3)
+- [x] Unit tests run in CI (build.yml green on main at 9b241dd, run 42174560866: version check, tests, 16 layer builds, combine and nest, no dev files in release jars) (w:1)
+- [x] Headless server load check with the self tests (32 checks per BarelyPowered layer, 9 per BarelyCables layer, ports 8960 to 8967 and 8970 to 8977; passed on all eight layers on 2026-11-09) (w:3)
 - [x] Client check with screenshots on every layer (scripts/client_tour.py, frames in docs/frames) (w:4)
-- [~] build.yml and release.yml with dry_run input, upload only builds whose mod_version equals the tag (written for the two-project build; the upload script dry run resolves all CurseForge ids locally; build.yml has run green; release.yml ran for 2026.11.1 per the Project Manager) (w:2)
+- [x] build.yml and release.yml with dry_run input, upload only builds whose mod_version equals the tag (release.yml green on tags v2026.11.1, v2026.11.2 and v2026.11.3 and on three manual dry runs, checked with gh run list) (w:2)
 - [x] CurseForge project created and id recorded (commit 6b7ccd1) (w:1)
-- [x] First release 2026.11.1 tagged and uploaded (reported by the Project Manager; not checked from this session) (w:2)
+- [x] First release 2026.11.1 tagged and uploaded (GitHub pre-release with four jars; CurseForge file ids 9455478 to 9455481 in the run log) (w:2)
 - [x] mod_version bumped to 2026.11.2 in all 16 builds, own commit f99a4d9 (w:1)
-- [x] Release 2026.11.2 tagged and uploaded (reported by the Project Manager, tag v2026.11.2; not checked from this session) (w:2)
+- [x] Release 2026.11.2 tagged and uploaded (GitHub pre-release with four jars; CurseForge file ids 9466790 to 9466793 in the run log) (w:2)
 - [x] BarelyPowered mod_version bumped to 2026.11.3 in its eight builds (BarelyCables stays at 2026.11.2), own commit b4bffac (w:1)
-- [ ] Release 2026.11.3 tagged and uploaded, CI green on the tag (Project Manager) (w:2)
+- [x] Release 2026.11.3 tagged and uploaded, CI green on the tag (run 42175560957; GitHub pre-release with four jars; CurseForge file ids 9469707 to 9469710 in the run log; CurseForge review status not checked) (w:2)
 
 ## Documentation and branding
 - [x] Icon, banners and section headers drawn in the SMWTI style (w:2)
 - [x] README, CHANGELOG, CurseForge description and listing kit (w:2)
 - [x] Issue templates (w:1)
-- [x] Wiki pages written for itmecasey.com (17 pages, local files only; wind turbine, solar panel, home, troubleshooting and known-gaps updated and new images wind.png and solar.png for 2026.11.2) (w:2)
-- [ ] Wiki deployed and checked live (w:1)
+- [x] Wiki pages written for itmecasey.com (18 pages including Balance numbers, images wind.png and solar.png for 2026.11.2) (w:2)
+- [x] Wiki deployed and checked live: on 2026-11-09 all 18 pages, mod.json and the images were byte-identical to the local draft before the audit fixes (w:1)
+- [ ] Wiki audit fixes of 2026-11-09 deployed (home, FAQ, recipes, balance, getting started and known-gaps text corrected in the local draft; the Project Manager deploys) (w:1)
