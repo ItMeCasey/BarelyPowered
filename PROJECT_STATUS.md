@@ -36,13 +36,14 @@ Spend: none
 - [x] Generator to battery to consumer seen in a client on all eight layers (w:2)
 
 ## BarelyCables (separable module in barelycables/)
+
+Decision (Casey, 2026-11-09): BarelyCables stays part of BarelyPowered and is NOT published as its own mod. Item and fluid transport is the job of Barely Pipes.
 - [x] Own namespace, package, config, language keys, textures, Gradle layers and tests; imports nothing from BarelyPowered or AeroFlux (w:3)
 - [x] Energy cables in three tiers with arms toward neighbors, per-side switches by right-click on an arm (w:4)
 - [x] Cheap shared network: one leader per network, quiet networks check less often, energy conserved including neighbors that misreport (11 unit tests, 9-check self test on all eight layers) (w:5)
 - [x] Cable lines in the SMWTI overlay (network rate, buffer, size, switched-off sides) (w:1)
 - [x] Nested in the BarelyPowered jar with jar-in-jar; the loader keeps one copy when two mods embed it (two dummy mods per layer, and the real combined jar next to the cables layer; both on all eight layers) (w:4)
 - [ ] The nested copy used on its own, in a launcher with only the BarelyPowered jar (blocked, two attempts 2026-11-09: no Forge or NeoForge 1.21.1 or 26.x install exists in the launcher folders, only old vanilla versions and an unrelated modpack instance, and a loader install means downloading the installers; the real jar's META-INF/jarjar/metadata.json does list barelycables with range [version,) and the dummy-mod and next-to-the-cables-layer tests pass on all eight layers) (w:1)
-- [ ] BarelyCables published as its own mod with an optional dependency from BarelyPowered (planned; it needs its own repository and CurseForge project, which is the Project Manager's and Casey's call; the folder layout and the no-imports rule are ready) (w:3)
 - [x] Generator to cable to battery to consumer seen in a client on all eight layers (w:2)
 - [~] AeroFlux energy pipes with batteries and with BarelyCables (energy pipes seen on NeoForge 1.21.1 only; AeroFlux item and fluid pipes feeding the generators also seen there; other layers and other cable mods not tried) (w:3)
 
