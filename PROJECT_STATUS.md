@@ -84,4 +84,5 @@ Spend: none
 - [x] Issue templates (w:1)
 - [x] Wiki pages written for itmecasey.com (18 pages including Balance numbers, images wind.png and solar.png for 2026.11.2) (w:2)
 - [x] Wiki deployed and checked live: on 2026-11-09 all 18 pages, mod.json and the images were byte-identical to the local draft before the audit fixes (w:1)
-- [ ] Wiki audit fixes of 2026-11-09 deployed (home, FAQ, recipes, balance, getting started and known-gaps text corrected in the local draft; the Project Manager deploys) (w:1)
+- [x] Wiki audit fixes of 2026-11-09 deployed: checked on 2026-11-09 that every page and mod.json on itmecasey.com is identical to the local draft except known-gaps (w:1)
+- [ ] Wiki known-gaps sentence about the BarelyStorage run deployed (local draft only, the Project Manager deploys) (w:1)
