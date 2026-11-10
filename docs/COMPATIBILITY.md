@@ -26,10 +26,10 @@ REI needs Architectury API and Cloth Config. Cloth Config for 26.3 on NeoForge i
 | Viewer | NeoForge 1.21.1 | NeoForge 26.1.2 | NeoForge 26.2 | NeoForge 26.3 | Forge 1.21.1 | Forge 26.1.2 | Forge 26.2 | Forge 26.3 |
 |---|---|---|---|---|---|---|---|---|
 | BEI | drew | drew | drew | drew | drew | drew | drew | drew |
-| JEI | drew | drew | drew | drew | drew | no upstream build | no upstream build | no upstream build |
-| REI | drew | drew | drew | drew | no upstream build | no upstream build | no upstream build | no upstream build |
-| EMI | drew | no upstream build | no upstream build | no upstream build | no upstream build | no upstream build | no upstream build | no upstream build |
-| Jade | drew | drew | drew | drew | no upstream build | no upstream build | no upstream build | no upstream build |
+| JEI | drew | drew | drew | drew | drew | n/a (no build) | n/a (no build) | n/a (no build) |
+| REI | drew | drew | drew | drew | n/a (no build) | n/a (no build) | n/a (no build) | n/a (no build) |
+| EMI | drew | n/a (no build) | n/a (no build) | n/a (no build) | n/a (no build) | n/a (no build) | n/a (no build) | n/a (no build) |
+| Jade | drew | drew | drew | drew | n/a (no build) | n/a (no build) | n/a (no build) | n/a (no build) |
 | SMWTI | drew (earlier tour) | drew (earlier tour) | drew (earlier tour) | drew (earlier tour) | drew (earlier tour) | drew (earlier tour) | drew (earlier tour) | drew (earlier tour) |
 
 ## Not covered
@@ -40,7 +40,7 @@ REI needs Architectury API and Cloth Config. Cloth Config for 26.3 on NeoForge i
 - Each check ran in a fresh superflat world with only BarelyPowered, BarelyCables and the viewer (plus the viewer's required mods) loaded.
 - Jade, JEI, REI and EMI were never run together with each other.
 - EMI printed a tag warning for `#c:ingots/steel` before the translation key `tag.item.c.ingots.steel` was added; the frames above are from after the fix.
-- When a viewer later ships a build for a Minecraft version or loader marked "no upstream build", the integration needs a check on that version; nothing in our code is expected to change because no recipe types are custom.
+- When a viewer later ships a build for a Minecraft version or loader marked "n/a (no build)", the integration needs a check on that version; nothing in our code is expected to change because no recipe types are custom.
 
 ## How the checks were made
 

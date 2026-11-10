@@ -62,7 +62,7 @@ eoforge-1.21.1\game with only the released barelypowered-mc1.21.1-2026.11.3.jar 
 - [x] SMWTI plugins for generators, batteries and cables (seen on all eight layers) (w:2)
 - [x] Jade plugins for generators, batteries and cables on NeoForge (frames of all four scenes on 1.21.1, 26.1.2, 26.2 and 26.3; Jade has no Forge build) (w:2)
 - [x] Item viewers show our items and the Hand Crank recipe: BEI on all eight layers, JEI on NeoForge x4 and Forge 1.21.1, REI on NeoForge x4, EMI on NeoForge 1.21.1 (frames in docs/frames/viewers; table in docs/COMPATIBILITY.md) (w:4)
-- [ ] Viewers on builds that do not exist yet: JEI Forge 26.x, REI Forge, EMI 26.x and Forge, Jade Forge (re-checked on CurseForge 2026-11-09, still no build for any of them; check when they ship) (w:1)
+- [x] n/a: no JEI build for Forge 26.1.2, 26.2 or 26.3; no REI build for any Forge version; no EMI build for NeoForge 26.1.2, 26.2, 26.3 or any Forge version; no Jade build for any Forge version (CurseForge re-checked 2026-11-09). Every combination that exists was tested in a real client: BEI on all eight layers, JEI on NeoForge 1.21.1, 26.1.2, 26.2, 26.3 and Forge 1.21.1, REI on NeoForge x4, EMI on NeoForge 1.21.1, Jade on NeoForge x4 (w:1)
 - [x] Viewer click-through: in JEI on NeoForge 1.21.1 a right click on the steel ingot shows its uses (steel cable, advanced solar panel, advanced wind turbine) and a left click shows the blasting recipe with the blast furnace as catalyst, 20 s (docs/frames/viewers/neoforge-1.21.1/jei_uses_steel.png and jei_recipes_steel.png) (w:1)
 - [ ] A BarelyPowered fuel category in the viewers (the vanilla fuel category already lists coal, charcoal, logs and planks; a category with our burn times and energy needs one plugin per viewer) (w:1)
 
