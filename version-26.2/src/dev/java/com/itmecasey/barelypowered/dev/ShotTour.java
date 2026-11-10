@@ -2,6 +2,11 @@ package com.itmecasey.barelypowered.dev;
 
 import net.minecraft.network.chat.Component;
 import net.minecraft.core.Direction;
+import net.minecraft.world.item.Item;
+import net.minecraft.resources.Identifier;
+import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.world.phys.BlockHitResult;
 import com.itmecasey.barelypowered.block.BatteryBlockEntity;
 import com.itmecasey.barelypowered.block.BatteryBlock;
 import com.itmecasey.barelypowered.Dev;
@@ -217,6 +222,16 @@ public final class ShotTour {
                 hopper.setItem(0, new ItemStack(Items.COAL, 6));
             }
         }, "hopper_feed");
+        // another mod's pipes feeding our generators (AeroFlux or Barely Pipes, whichever jar is in run/mods)
+        for (String modid : new String[] {"aeroflux", "barelypipes"}) {
+            Identifier itemPipeId = Identifier.fromNamespaceAndPath(modid, "iron_item_pipe");
+            Identifier fluidPipeId = Identifier.fromNamespaceAndPath(modid, "iron_fluid_pipe");
+            if (BuiltInRegistries.ITEM.containsKey(itemPipeId)) {
+                Item fluidPipe = BuiltInRegistries.ITEM.containsKey(fluidPipeId) ? BuiltInRegistries.ITEM.getValue(fluidPipeId) : null;
+                pipeFeedScene(x += 12, modid, BuiltInRegistries.ITEM.getValue(itemPipeId), fluidPipe);
+                break;
+            }
+        }
         batteryScene(x += 8);
         if (haveCables()) {
             cableScene(x += 8);
@@ -289,6 +304,77 @@ public final class ShotTour {
     }
 
     /** A steel combustion generator feeding an iron battery feeding the sink: charge builds, then a face is switched off. */
+    /**
+     * Another mod's pipes feeding our generators: a chest of coal, an item pipe and a combustion generator, and (when the mod has a
+     * tank) a tank of lava, a fluid pipe and a lava generator. The frames show what each generator holds after the pipes have worked.
+     */
+    private static void pipeFeedScene(int x, String modid, Item itemPipe, Item fluidPipe) {
+        BlockPos chest = new BlockPos(x, ground, 0);
+        BlockPos coalGen = new BlockPos(x + 2, ground, 0);
+        BlockPos tank = new BlockPos(x, ground, 6);
+        BlockPos lavaGen = new BlockPos(x + 2, ground, 6);
+        boolean tankMod = BuiltInRegistries.BLOCK.containsKey(Identifier.fromNamespaceAndPath(modid, "copper_tank")) && fluidPipe != null;
+        then(4, () -> {
+            server(String.format(Locale.ROOT, "setblock %d %d %d minecraft:chest", chest.getX(), chest.getY(), chest.getZ()),
+                    String.format(Locale.ROOT, "setblock %d %d %d barelypowered:combustion_generator_iron[facing=north]", coalGen.getX(), coalGen.getY(), coalGen.getZ()));
+            if (tankMod) {
+                server(String.format(Locale.ROOT, "setblock %d %d %d barelypowered:lava_generator_iron[facing=north]", lavaGen.getX(), lavaGen.getY(), lavaGen.getZ()),
+                        String.format(Locale.ROOT, "setblock %d %d %d %s:copper_tank", tank.getX(), tank.getY(), tank.getZ(), modid));
+            }
+        });
+        then(4, () -> onServer(srv -> {
+            if (srv.overworld().getBlockEntity(chest) instanceof net.minecraft.world.level.block.entity.ChestBlockEntity c) {
+                c.setItem(0, new ItemStack(Items.COAL, 32));
+            }
+            if (tankMod) {
+                int filled = SelfTest.probe == null ? -2 : SelfTest.probe.lava(srv.overworld(), tank, 4000);
+                LOGGER.info("BARELYPOWERED-SHOTS feed: lava put into the {} tank={}", modid, filled);
+            }
+        }));
+        placePipe(new BlockPos(chest.getX() + 1, ground, 0), itemPipe);
+        if (tankMod) {
+            placePipe(new BlockPos(tank.getX() + 1, ground, 6), fluidPipe);
+        }
+        then(2, () -> moveTo(new Vec3(x + 1.5, ground + 1.4, -3.4), new Vec3(x + 1.5, ground + 0.4, 0.5)));
+        shoot("pipe_feed_items_a", 20);
+        then(2, () -> moveTo(new Vec3(x + 1.5, ground + 1.4, -3.4), new Vec3(x + 1.5, ground + 0.4, 0.5)));
+        shoot("pipe_feed_items_b", 160);
+        then(2, () -> onServer(srv -> {
+            ServerPlayer p = srv.getPlayerList().getPlayers().get(0);
+            if (srv.overworld().getBlockEntity(coalGen) instanceof GeneratorBlockEntity be) {
+                LOGGER.info("BARELYPOWERED-SHOTS feed: combustion generator via {} item pipe: {}", modid, be.statusLine().getString());
+                p.sendOverlayMessage(net.minecraft.network.chat.Component.literal("Via " + modid + " item pipe: ").append(be.statusLine()));
+            }
+        }));
+        shoot("pipe_feed_items_status", 8);
+        if (tankMod) {
+            then(2, () -> moveTo(new Vec3(x + 1.5, ground + 1.4, 2.6), new Vec3(x + 1.5, ground + 0.4, 6.5)));
+            shoot("pipe_feed_lava_a", 40);
+            then(2, () -> onServer(srv -> {
+                ServerPlayer p = srv.getPlayerList().getPlayers().get(0);
+                if (srv.overworld().getBlockEntity(lavaGen) instanceof GeneratorBlockEntity be) {
+                    LOGGER.info("BARELYPOWERED-SHOTS feed: lava generator via {} fluid pipe: {} (lava {} mB)", modid, be.statusLine().getString(), be.lavaMillibuckets());
+                    p.sendOverlayMessage(net.minecraft.network.chat.Component.literal("Via " + modid + " fluid pipe: ").append(be.statusLine()));
+                }
+            }));
+            shoot("pipe_feed_lava_status", 8);
+        }
+    }
+
+    /** Places a pipe item at a position by using it on the block below, on the server as a right click would. */
+    private static void placePipe(BlockPos at, Item pipe) {
+        then(3, () -> onServer(srv -> {
+            ServerPlayer p = srv.getPlayerList().getPlayers().get(0);
+            ItemStack stack = new ItemStack(pipe);
+            p.setItemInHand(InteractionHand.MAIN_HAND, stack);
+            BlockPos below = at.below();
+            net.minecraft.world.item.context.UseOnContext ctx = new net.minecraft.world.item.context.UseOnContext(
+                    srv.overworld(), p, InteractionHand.MAIN_HAND, stack, new BlockHitResult(Vec3.atCenterOf(below).add(0, 0.5, 0), Direction.UP, below, false));
+            stack.useOn(ctx);
+            p.setItemInHand(InteractionHand.MAIN_HAND, ItemStack.EMPTY);
+        }));
+    }
+
     private static void batteryScene(int x) {
         BlockPos gen = new BlockPos(x, ground, 0);
         BlockPos bat = gen.east();

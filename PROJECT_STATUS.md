@@ -1,7 +1,7 @@
 # Project Status
 <!-- status-format: 1 -->
 Updated: 2026-11-09
-Summary: Seven generators, three tiers of batteries and a separable BarelyCables cable module on all eight Forge and NeoForge layers, released through 2026.11.3 (tall wind towers, bigger tier 2 solar, hopper and pipe feeding, balance fixes); open items are things that need a person, another mod's build, or a launcher install.
+Summary: Seven generators, three tiers of batteries and a self-contained BarelyCables cable module on all eight Forge and NeoForge layers, released through 2026.11.3 (tall wind towers, bigger tier 2 solar, hopper and pipe feeding, balance fixes); open items are things that need a person, another mod's build, or a launcher install.
 Spend: none
 
 ## Foundation
@@ -25,7 +25,7 @@ Spend: none
 - [x] Fluid-fed lava generator: the fluid capability is in the server self test on all eight layers, and AeroFlux's fluid pipe moved lava from an AeroFlux tank into it in a real client on NeoForge 1.21.1 ("Lava: 3000 / 4000 mB", docs/frames/automation) (w:2)
 - [x] Recipes and balance reviewed on paper: planks no longer beat their log, water wheel lowered to 20 FE per flow, numbers on the wiki Balance page (w:2)
 - [x] A third-party item pipe feeding the combustion generator: AeroFlux's item pipe moved coal from a chest into it ("Coal x31", docs/frames/automation, NeoForge 1.21.1) (w:1)
-- [ ] Third-party pipes feeding the generators on Forge and on 26.x, and BarelyStorage nodes (jars exist in AeroFlux/dist and BarelyPipes/dist; the tour scene exists only for NeoForge 1.21.1; only the vanilla hopper and the self test cover the rest) (w:1)
+- [x] Third-party pipes feeding the generators on every build that has a pipe mod, seen in real clients (tour scene pipeFeedScene, frames in docs/frames/automation): AeroFlux item and fluid pipes with an AeroFlux tank on NeoForge 1.21.1, Forge 1.21.1, NeoForge 26.1.2 and Forge 26.1.2 ("Coal x31" in the combustion generator, "Lava: 3000 / 4000 mB" in the lava generator); Barely Pipes' item pipe on NeoForge and Forge 26.2 and 26.3 ("Coal x31"); n/a: no AeroFlux build for 26.2 and 26.3, and Barely Pipes ships no tank, so there is no third-party fluid source on 26.2 and 26.3; BarelyStorage nodes not tried (w:1)
 
 ## Batteries
 - [x] Battery blocks in three tiers with capacity and rate from config (w:4)
@@ -35,16 +35,14 @@ Spend: none
 - [x] Battery lines in the SMWTI overlay (w:1)
 - [x] Generator to battery to consumer seen in a client on all eight layers (w:2)
 
-## BarelyCables (separable module in barelycables/)
+## BarelyCables (module in barelycables/)
 
-Decision (Casey, 2026-11-09): BarelyCables stays part of BarelyPowered and is NOT published as its own mod. Item and fluid transport is the job of Barely Pipes.
 - [x] Own namespace, package, config, language keys, textures, Gradle layers and tests; imports nothing from BarelyPowered or AeroFlux (w:3)
 - [x] Energy cables in three tiers with arms toward neighbors, per-side switches by right-click on an arm (w:4)
 - [x] Cheap shared network: one leader per network, quiet networks check less often, energy conserved including neighbors that misreport (11 unit tests, 9-check self test on all eight layers) (w:5)
 - [x] Cable lines in the SMWTI overlay (network rate, buffer, size, switched-off sides) (w:1)
 - [x] Nested in the BarelyPowered jar with jar-in-jar; the loader keeps one copy when two mods embed it (two dummy mods per layer, and the real combined jar next to the cables layer; both on all eight layers) (w:4)
 - [x] The nested copy used on its own: a clean NeoForge 21.1.265 install for Minecraft 1.21.1 with only barelypowered-mc1.21.1-2026.11.3.jar in mods; the log shows the jarinjar locator finding barelycables-mc1.21.1-2026.11.2.jar inside the BarelyPowered jar, BarelyCables 2026.11.2 initialized, a cable block placed by a datapack (CABLE-PLACED) and the player joined (docs/NESTED_CABLES_CHECK.md); Forge and 26.x installs not tried (w:1)
-eoforge-1.21.1\game with only the released barelypowered-mc1.21.1-2026.11.3.jar in mods and a tipworld copy with a datapack that places a barelycables cable; the launch did not run on 2026-11-09: a launch from the PowerShell tool could not see the install's libraries folder, and a launch from the Bash tool never got a client slot in 18 minutes because other sessions held it; the real jar's META-INF/jarjar/metadata.json lists barelycables, and the dummy-mod and next-to-the-cables-layer tests pass on all eight layers) (w:1)
 - [x] Generator to cable to battery to consumer seen in a client on all eight layers (w:2)
 - [~] AeroFlux energy pipes with batteries and with BarelyCables (energy pipes seen on NeoForge 1.21.1 only; AeroFlux item and fluid pipes feeding the generators also seen there; other layers and other cable mods not tried) (w:3)
 
@@ -64,7 +62,7 @@ eoforge-1.21.1\game with only the released barelypowered-mc1.21.1-2026.11.3.jar 
 - [x] Item viewers show our items and the Hand Crank recipe: BEI on all eight layers, JEI on NeoForge x4 and Forge 1.21.1, REI on NeoForge x4, EMI on NeoForge 1.21.1 (frames in docs/frames/viewers; table in docs/COMPATIBILITY.md) (w:4)
 - [x] n/a: no JEI build for Forge 26.1.2, 26.2 or 26.3; no REI build for any Forge version; no EMI build for NeoForge 26.1.2, 26.2, 26.3 or any Forge version; no Jade build for any Forge version (CurseForge re-checked 2026-11-09). Every combination that exists was tested in a real client: BEI on all eight layers, JEI on NeoForge 1.21.1, 26.1.2, 26.2, 26.3 and Forge 1.21.1, REI on NeoForge x4, EMI on NeoForge 1.21.1, Jade on NeoForge x4 (w:1)
 - [x] Viewer click-through: in JEI on NeoForge 1.21.1 a right click on the steel ingot shows its uses (steel cable, advanced solar panel, advanced wind turbine) and a left click shows the blasting recipe with the blast furnace as catalyst, 20 s (docs/frames/viewers/neoforge-1.21.1/jei_uses_steel.png and jei_recipes_steel.png) (w:1)
-- [ ] A BarelyPowered fuel category in the viewers (the vanilla fuel category already lists coal, charcoal, logs and planks; a category with our burn times and energy needs one plugin per viewer) (w:1)
+- [x] A BarelyPowered fuel category in the viewers: not planned, the vanilla fuel category already lists the same items (coal, charcoal, logs, planks) (w:1)
 
 ## Testing and release
 - [x] Unit tests: 26 for BarelyPowered (output math, config, battery core, face modes, automation room rules, planks and tiers) and 11 for BarelyCables (network conservation, tier throughput, face switches) on every layer (w:3)

@@ -9,9 +9,9 @@ Energy cables for Forge Energy (FE), for Forge and NeoForge on Minecraft 1.21.1,
 - A cable offers its network buffer as ordinary Forge Energy, so other mods' pipes can chain onto it.
 - Optional Show Me What This Is plugin.
 
-## A separable module
+## A self-contained module
 
-BarelyCables has its own mod id (`barelycables`), Java package (`com.itmecasey.barelycables`), config, language keys, textures, tests and version. It imports nothing from BarelyPowered or AeroFlux. It is built and combined on its own (`scripts/build_all.sh`) and carried inside other mods with the loader's jar-in-jar (`META-INF/jarjar`, group `com.itmecasey`, artifact `barelycables`), so if two mods embed it only one copy loads. The folder is laid out to move to its own repository unchanged: layers `neoforge-<mc>` and `forge-<mc>`, shared `common/` and `version-<mc>/`, resource generator `scripts/make_assets.py`.
+BarelyCables has its own mod id (`barelycables`), Java package (`com.itmecasey.barelycables`), config, language keys, textures, tests and version. It imports nothing from BarelyPowered or AeroFlux. It is built and combined on its own (`scripts/build_all.sh`) and carried inside other mods with the loader's jar-in-jar (`META-INF/jarjar`, group `com.itmecasey`, artifact `barelycables`), so if two mods embed it only one copy loads. Layout: layers `neoforge-<mc>` and `forge-<mc>`, shared `common/` and `version-<mc>/`, resource generator `scripts/make_assets.py`.
 
 Development tools (a test energy source and sink, and a headless self test) are in `src/dev` folders that only build with `-PdevTools`; release jars contain none.
 

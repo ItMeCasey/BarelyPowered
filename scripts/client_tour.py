@@ -17,7 +17,6 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
 ISOLATED = r"C:\Users\casey\.claude\tools\launch-isolated.ps1"
-ISOLATED_LOG = Path(os.environ.get("LOCALAPPDATA", "")) / "launch-isolated" / "MCTest.log"
 TIMEOUT = 300
 OPTIONS = (
     "soundCategory_master:0.0\nmusic:0.0\npauseOnLostFocus:false\nonboardAccessibility:false\n"
@@ -25,26 +24,49 @@ OPTIONS = (
 )
 
 
-def run_isolated(folder, gradle_args, extra_env, done_marker, timeout=TIMEOUT):
+DESKTOP = "BNPTest"
+STATE = Path(os.environ.get("LOCALAPPDATA", "")) / "launch-isolated"
+GAME_LOG = STATE / f"{DESKTOP}.log"
+PRIORITY = STATE / "priority.txt"
+
+
+def ensure_priority():
+    """Puts this project's one-run entry at the head of the launcher's queue file (other lines stay)."""
+    entry = f"{ROOT}|once"
+    lines = PRIORITY.read_text(encoding="utf-8").splitlines() if PRIORITY.exists() else []
+    if not lines or lines[0].strip().lower() != entry.lower():
+        PRIORITY.write_text("\n".join([entry] + lines) + "\n", encoding="utf-8")
+
+
+def run_isolated(folder, gradle_args, extra_env, done_marker, timeout=TIMEOUT, wait_minutes=60):
     """Runs `gradlew <gradle_args>` in folder on the hidden desktop; returns (output lines, timed_out).
 
-    extra_env is set in the command itself (the launcher runs it with cmd.exe /c), the marker ends the wait, and the launcher's
+    The launcher is started with the project root as its work folder (the queue entry in priority.txt names it), waits for a client
+    slot inside the launcher for up to wait_minutes, and the run itself is limited to `timeout` seconds from the moment it starts.
+    extra_env is set in the command itself (the launcher runs it with cmd.exe /c), the marker ends the wait, and the launcher's scoped
     -Kill removes whatever is still running afterwards.
     """
-    start = ISOLATED_LOG.stat().st_size if ISOLATED_LOG.exists() else 0
+    ensure_priority()
+    state_file = STATE / f"{DESKTOP}.json"
+    if state_file.exists():
+        state_file.unlink()
+    start = GAME_LOG.stat().st_size if GAME_LOG.exists() else 0
     sets = "".join(f'set "{k}={v}"&& ' for k, v in extra_env.items())
-    command = f".\\gradlew.bat {gradle_args}"
-    command = sets + command
-    subprocess.run(["powershell", "-NoProfile", "-File", ISOLATED, "-Run", "-WorkDir", str(folder), "-Command", command],
-                   check=True, capture_output=True)
+    command = f'cd /d "{folder}" && {sets}.\\gradlew.bat {gradle_args}'
+    launcher = subprocess.Popen(["powershell", "-NoProfile", "-File", ISOLATED, "-Run", "-Desktop", DESKTOP, "-WorkDir", str(ROOT),
+                                 "-RunDir", str(Path(folder) / "run"), "-Command", command, "-WaitMinutes", str(wait_minutes)],
+                                stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
 
     def lines():
-        if not ISOLATED_LOG.exists():
+        if not GAME_LOG.exists():
             return []
-        data = ISOLATED_LOG.read_bytes()
+        data = GAME_LOG.read_bytes()
         offset = start if len(data) >= start else 0
         return data[offset:].decode("utf-8", errors="replace").splitlines()
 
+    waited = time.time()
+    while not state_file.exists() and launcher.poll() is None and time.time() - waited < wait_minutes * 60 + 60:
+        time.sleep(5)
     began = time.time()
     done = False
     while time.time() - began < timeout:
@@ -55,7 +77,9 @@ def run_isolated(folder, gradle_args, extra_env, done_marker, timeout=TIMEOUT):
     if done:
         time.sleep(15)  # the tour quits the game itself; give it a moment before anything is stopped
     out = lines()
-    subprocess.run(["powershell", "-NoProfile", "-File", ISOLATED, "-Kill"], capture_output=True)
+    subprocess.run(["powershell", "-NoProfile", "-File", ISOLATED, "-Kill", "-Desktop", DESKTOP, "-WorkDir", str(ROOT)], capture_output=True)
+    if launcher.poll() is None:
+        launcher.kill()
     return out, not done
 
 

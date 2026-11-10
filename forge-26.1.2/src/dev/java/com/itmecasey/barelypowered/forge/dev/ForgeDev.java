@@ -24,7 +24,7 @@ public final class ForgeDev {
 
     public static void install(Object context) {
         AttachCapabilitiesEvent.BlockEntities.BUS.addListener(ForgeDev::attach);
-        if (SelfTest.requested()) {
+        {
             SelfTest.probe = new SelfTest.Probe() {
                 @Override
                 public int items(net.minecraft.server.level.ServerLevel level, net.minecraft.core.BlockPos pos, net.minecraft.world.item.ItemStack stack) {
@@ -43,6 +43,8 @@ public final class ForgeDev {
                             net.minecraftforge.fluids.capability.IFluidHandler.FluidAction.EXECUTE);
                 }
             };
+        }
+        if (SelfTest.requested()) {
             ServerStartedEvent.BUS.addListener((ServerStartedEvent e) -> SelfTest.run(e.getServer()));
         }
         if (FMLEnvironment.dist.isClient() && System.getenv("BARELYPOWERED_SHOTS") != null) {

@@ -34,7 +34,7 @@ REI needs Architectury API and Cloth Config. Cloth Config for 26.3 on NeoForge i
 
 ## Not covered
 
-- Another mod's pipes feeding the generators: AeroFlux's item pipe (chest of coal to a combustion generator) and fluid pipe (tank of lava to a lava generator) were seen in a client on NeoForge 1.21.1 (frames in `docs/frames/automation`). On Forge and on 26.x only the server self test and the vanilla hopper check cover it.
+- Another mod's pipes feeding the generators: AeroFlux's item pipe (chest of coal to a combustion generator) and fluid pipe (tank of lava to a lava generator) were seen in a client on NeoForge and Forge 1.21.1 and 26.1.2; Barely Pipes' item pipe was seen feeding the combustion generator on NeoForge and Forge 26.2 and 26.3 (AeroFlux has no build for 26.2 and 26.3, and Barely Pipes has no tank, so fluids through a third-party pipe were not seen there). Frames are in `docs/frames/automation`.
 - Click-through lookups (uses, catalysts) and bookmarks were not exercised; only search, item list and one crafting recipe were.
 - Fuel values (what the combustion generator burns) are not shown in any viewer; they are in the Jade and Show Me What This Is lines and on the wiki. Adding a fuel category would need a plugin for each viewer.
 - Each check ran in a fresh superflat world with only BarelyPowered, BarelyCables and the viewer (plus the viewer's required mods) loaded.
