@@ -232,6 +232,13 @@ public final class ShotTour {
                 break;
             }
         }
+        // BarelyStorage (when its jar is in run/mods): a rack with a drive of coal, a bus cable and an export node feeding a generator
+        try {
+            Class.forName("com.itmecasey.barelystorage.ModContent");
+            storageFeedScene(x += 12);
+        } catch (ClassNotFoundException e) {
+            // the mod is not installed in this run
+        }
         batteryScene(x += 8);
         if (haveCables()) {
             cableScene(x += 8);
@@ -373,6 +380,62 @@ public final class ShotTour {
             stack.useOn(ctx);
             p.setItemInHand(InteractionHand.MAIN_HAND, ItemStack.EMPTY);
         }));
+    }
+
+    /** A BarelyStorage network (set up by reflection, so this build needs no BarelyStorage classes) exporting coal into a generator. */
+    @SuppressWarnings("unchecked")
+    private static void storageFeedScene(int x) {
+        BlockPos rack = new BlockPos(x, ground, 0);
+        BlockPos node = rack.east(2);
+        BlockPos gen = rack.east(3);
+        then(4, () -> onServer(srv -> {
+            try {
+                net.minecraft.server.level.ServerLevel level = srv.overworld();
+                Class<?> storage = Class.forName("com.itmecasey.barelystorage.ModContent");
+                java.util.Map<String, net.minecraft.world.level.block.Block> blocks =
+                        (java.util.Map<String, net.minecraft.world.level.block.Block>) storage.getMethod("blocks").invoke(null);
+                Item cartridge = (Item) storage.getMethod("item", String.class).invoke(null, "cartridge_gold");
+                net.minecraft.world.level.block.state.properties.EnumProperty<Direction> facing =
+                        (net.minecraft.world.level.block.state.properties.EnumProperty<Direction>)
+                                Class.forName("com.itmecasey.barelystorage.block.NodeBlock").getField("FACING").get(null);
+                level.setBlock(rack, blocks.get("server_rack").defaultBlockState(), 3);
+                level.setBlock(rack.east(), blocks.get("rack_bus_cable").defaultBlockState(), 3);
+                level.setBlock(node, blocks.get("export_node").defaultBlockState().setValue(facing, Direction.EAST), 3);
+                level.setBlock(gen, com.itmecasey.barelypowered.ModContent.blocks().get("combustion_generator_iron").defaultBlockState(), 3);
+                BlockEntity rackBe = level.getBlockEntity(rack);
+                ((net.minecraft.world.Container) rackBe.getClass().getField("drives").get(rackBe)).setItem(0, new ItemStack(cartridge));
+                int max = (Integer) rackBe.getClass().getMethod("maxEnergy").invoke(rackBe);
+                rackBe.getClass().getMethod("setEnergy", int.class).invoke(rackBe, max);
+                BlockEntity exportBe = level.getBlockEntity(node);
+                ((net.minecraft.world.Container) exportBe.getClass().getField("filter").get(exportBe)).setItem(0, new ItemStack(Items.COAL));
+                LOGGER.info("BARELYPOWERED-SHOTS storage: rack, bus cable, export node (filter coal) and combustion generator placed");
+            } catch (ReflectiveOperationException e) {
+                LOGGER.warn("BARELYPOWERED-SHOTS storage setup failed", e);
+            }
+        }));
+        then(30, () -> onServer(srv -> {
+            try {
+                net.minecraft.server.level.ServerLevel level = srv.overworld();
+                Object network = Class.forName("com.itmecasey.barelystorage.StorageNetwork")
+                        .getMethod("find", net.minecraft.world.level.Level.class, BlockPos.class).invoke(null, level, rack);
+                Object rest = network.getClass().getMethod("insert", ItemStack.class).invoke(network, new ItemStack(Items.COAL, 32));
+                LOGGER.info("BARELYPOWERED-SHOTS storage: 32 coal put into the network, left over {}", rest);
+            } catch (ReflectiveOperationException e) {
+                LOGGER.warn("BARELYPOWERED-SHOTS storage insert failed", e);
+            }
+        }));
+        then(2, () -> moveTo(new Vec3(x + 2.0, ground + 1.6, -3.6), new Vec3(x + 2.0, ground + 0.4, 0.5)));
+        shoot("storage_feed_a", 20);
+        then(2, () -> moveTo(new Vec3(x + 2.0, ground + 1.6, -3.6), new Vec3(x + 2.0, ground + 0.4, 0.5)));
+        shoot("storage_feed_b", 160);
+        then(2, () -> onServer(srv -> {
+            ServerPlayer p = srv.getPlayerList().getPlayers().get(0);
+            if (srv.overworld().getBlockEntity(gen) instanceof GeneratorBlockEntity be) {
+                LOGGER.info("BARELYPOWERED-SHOTS storage: combustion generator via BarelyStorage export node: {}", be.statusLine().getString());
+                p.sendOverlayMessage(net.minecraft.network.chat.Component.literal("Via BarelyStorage export node: ").append(be.statusLine()));
+            }
+        }));
+        shoot("storage_feed_status", 8);
     }
 
     private static void batteryScene(int x) {
