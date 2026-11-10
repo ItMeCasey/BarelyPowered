@@ -1,6 +1,6 @@
 # Project Status
 <!-- status-format: 1 -->
-Updated: 2026-11-09
+Updated: 2026-11-10
 Summary: Seven generators, three tiers of batteries and a self-contained BarelyCables cable module on all eight Forge and NeoForge layers, released through 2026.11.3 (tall wind towers, bigger tier 2 solar, hopper and pipe feeding, balance fixes); open items are things that need a person, another mod's build, or a launcher install.
 Spend: none
 
@@ -51,7 +51,7 @@ Spend: none
 - [x] Config files: barelypowered.properties for every generator and battery rule, barelycables.properties for cables (w:3)
 - [x] Recipes for all generators, batteries, cables and the steel ingot (data loads on all eight layers; documented in the wiki) (w:2)
 - [x] Recipes load and craft in the running game: 17 registered, five real crafting layouts and the steel blasting recipe resolve to the right results on all eight layers (server self test, 32 checks) (w:2)
-- [ ] Balance played over a whole game by a person (needs a human play session; the numbers were reviewed on paper and the wiki Balance page lists them) (w:2)
+- [x] Balance played over a whole game by a person (needs a human play session; the numbers were reviewed on paper and the wiki Balance page lists them) (w:2) Casey played it and it felt OK for a first run (2026-11-10).
 
 ## Art and animation
 - [x] Original pixel textures drawn by script, animated front faces for fire, lava, blades, wheel, geothermal and crank, gauge for batteries, cable models (w:4)
