@@ -240,6 +240,14 @@ public final class ShotTour {
         } catch (ClassNotFoundException e) {
             // the mod is not installed in this run
         }
+        // AeroFlux energy pipes with a battery, and with BarelyCables (when the AeroFlux jar is in run/mods)
+        Identifier energyPipeId = Identifier.fromNamespaceAndPath("aeroflux", "copper_energy_pipe");
+        if (BuiltInRegistries.ITEM.containsKey(energyPipeId)) {
+            energyPipeScene(x += 10, BuiltInRegistries.ITEM.getValue(energyPipeId), false);
+            if (haveCables()) {
+                energyPipeScene(x += 10, BuiltInRegistries.ITEM.getValue(energyPipeId), true);
+            }
+        }
         batteryScene(x += 8);
         if (haveCables()) {
             cableScene(x += 8);
@@ -437,6 +445,48 @@ public final class ShotTour {
             }
         }));
         shoot("storage_feed_status", 8);
+    }
+
+    /**
+     * A steel combustion generator feeding a test sink through AeroFlux energy pipes: with an iron battery in the line (cables false) or
+     * through two BarelyCables first (cables true). The sink counts the energy that arrives.
+     */
+    private static void energyPipeScene(int x, Item pipe, boolean cables) {
+        BlockPos gen = new BlockPos(x, ground, 0);
+        String tag = cables ? "aeroflux_cables" : "aeroflux_pipe";
+        then(4, () -> {
+            if (cables) {
+                server(String.format(Locale.ROOT, "setblock %d %d %d barelypowered:combustion_generator_steel[facing=north]", x, ground, 0),
+                        String.format(Locale.ROOT, "setblock %d %d %d barelycables:energy_cable_iron", x + 1, ground, 0),
+                        String.format(Locale.ROOT, "setblock %d %d %d barelycables:energy_cable_iron", x + 2, ground, 0),
+                        String.format(Locale.ROOT, "setblock %d %d %d barelypowered:test_energy_sink", x + 5, ground, 0));
+            } else {
+                server(String.format(Locale.ROOT, "setblock %d %d %d barelypowered:combustion_generator_steel[facing=north]", x, ground, 0),
+                        String.format(Locale.ROOT, "setblock %d %d %d barelypowered:battery_iron", x + 3, ground, 0),
+                        String.format(Locale.ROOT, "setblock %d %d %d barelypowered:test_energy_sink", x + 5, ground, 0));
+            }
+            onServer(srv -> {
+                if (srv.overworld().getBlockEntity(gen) instanceof GeneratorBlockEntity be) {
+                    be.debugSet(new ItemStack(Items.CHARCOAL, 8), 0);
+                }
+            });
+        });
+        for (int i : cables ? new int[] {3, 4} : new int[] {1, 2, 4}) {
+            placePipe(new BlockPos(x + i, ground, 0), pipe);
+        }
+        then(2, () -> moveTo(new Vec3(x + 2.5, ground + 1.4, -3.6), new Vec3(x + 2.5, ground + 0.4, 0.5)));
+        shoot(tag + "_a", 100);
+        shoot(tag + "_b", 40);
+        then(2, () -> onServer(srv -> {
+            ServerPlayer p = srv.getPlayerList().getPlayers().get(0);
+            BlockEntity sink = srv.overworld().getBlockEntity(gen.offset(5, 0, 0));
+            long got = sink instanceof SinkBlockEntity sb ? sb.received() : -1;
+            LOGGER.info("BARELYPOWERED-SHOTS {} sink received={}", tag, got);
+            p.sendOverlayMessage(net.minecraft.network.chat.Component.literal(cables
+                    ? "Generator, cables, AeroFlux pipes, sink: " + got + " FE received"
+                    : "Generator, AeroFlux pipes, battery, pipe, sink: " + got + " FE received"));
+        }));
+        shoot(tag + "_sink", 8);
     }
 
     private static void batteryScene(int x) {

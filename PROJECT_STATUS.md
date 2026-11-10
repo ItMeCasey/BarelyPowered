@@ -45,7 +45,7 @@ Spend: none
 - [x] Nested in the BarelyPowered jar with jar-in-jar; the loader keeps one copy when two mods embed it (two dummy mods per layer, and the real combined jar next to the cables layer; both on all eight layers) (w:4)
 - [x] The nested copy used on its own: a clean NeoForge 21.1.265 install for Minecraft 1.21.1 with only barelypowered-mc1.21.1-2026.11.3.jar in mods; the log shows the jarinjar locator finding barelycables-mc1.21.1-2026.11.2.jar inside the BarelyPowered jar, BarelyCables 2026.11.2 initialized, a cable block placed by a datapack (CABLE-PLACED) and the player joined (docs/NESTED_CABLES_CHECK.md); Forge and 26.x installs not tried (w:1)
 - [x] Generator to cable to battery to consumer seen in a client on all eight layers (w:2)
-- [~] AeroFlux energy pipes with batteries and with BarelyCables (energy pipes seen on NeoForge 1.21.1 only; AeroFlux item and fluid pipes feeding the generators also seen there; other layers and other cable mods not tried) (w:3)
+- [x] AeroFlux energy pipes with an iron battery and with BarelyCables seen in real clients on every build where AeroFlux exists: sink received about 15,400 to 17,000 FE in each scene on NeoForge 1.21.1, Forge 1.21.1 (16992 and 16320 FE), NeoForge 26.1.2 (15840 and 15456 FE) and Forge 26.1.2 (15744 and 15360 FE, frames docs/frames/automation); n/a: no AeroFlux build for 26.2 and 26.3; other cable mods not tried (w:3)
 
 ## Config and balance
 - [x] Config files: barelypowered.properties for every generator and battery rule, barelycables.properties for cables (w:3)
@@ -85,4 +85,4 @@ Spend: none
 - [x] Wiki pages written for itmecasey.com (18 pages including Balance numbers, images wind.png and solar.png for 2026.11.2) (w:2)
 - [x] Wiki deployed and checked live: on 2026-11-09 all 18 pages, mod.json and the images were byte-identical to the local draft before the audit fixes (w:1)
 - [x] Wiki audit fixes of 2026-11-09 deployed: checked on 2026-11-09 that every page and mod.json on itmecasey.com is identical to the local draft except known-gaps (w:1)
-- [ ] Wiki known-gaps sentence about the BarelyStorage run deployed (local draft only, the Project Manager deploys) (w:1)
+- [x] Wiki known-gaps sentence about the BarelyStorage run deployed (the Project Manager deployed it, 2026-11-09) (w:1)
