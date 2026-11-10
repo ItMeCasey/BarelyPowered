@@ -27,7 +27,7 @@ Every output rate, tier multiplier and the weather, height and flow rules are in
 ![Compatibility](https://raw.githubusercontent.com/ItMeCasey/BarelyPowered/main/branding/banners/h_compat.png)
 
 - Outputs plain Forge Energy through the loader's energy interface on Forge and NeoForge.
-- Works against any block that accepts FE. A generator feeding AeroFlux energy pipes (with a battery, and with BarelyCables) into a test block was checked on NeoForge and Forge 1.21.1 and 26.1.2.
+- Works against any block that accepts FE. A generator feeding AeroFlux energy pipes (with a battery, and with BarelyCables) into a test block was checked on NeoForge and Forge on 1.21.1, 26.1.2, 26.2 and 26.3.
 - BarelyCables is its own mod inside the jar. If another mod carries the same cables, only one copy loads.
 - Optional info plugins: Show Me What This Is and Jade (NeoForge) show a generator's output, fuel and the reason for a low output, a battery's rate and face settings, and a cable network's rate and size. Nothing else is required.
 - Shows up in the item viewers BEI, JEI, REI and EMI wherever they have a build for your version and loader (items and crafting recipes; no extra recipe categories).

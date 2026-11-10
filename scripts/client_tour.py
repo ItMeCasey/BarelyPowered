@@ -67,6 +67,7 @@ def run_isolated(folder, gradle_args, extra_env, done_marker, timeout=TIMEOUT, w
     waited = time.time()
     while not state_file.exists() and launcher.poll() is None and time.time() - waited < wait_minutes * 60 + 60:
         time.sleep(5)
+    start = 0  # the launcher truncates the desktop's log when the run starts
     began = time.time()
     done = False
     while time.time() - began < timeout:
