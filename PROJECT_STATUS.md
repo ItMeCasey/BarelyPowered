@@ -1,7 +1,7 @@
 # Project Status
 <!-- status-format: 1 -->
 Updated: 2026-11-13
-Summary: Seven generators, three tiers of batteries and a self-contained BarelyCables cable module on all eight Forge and NeoForge layers, released through 2026.11.3 (tall wind towers, bigger tier 2 solar, hopper and pipe feeding, balance fixes); open items are things that need a person, another mod's build, or a launcher install.
+Summary: Seven generators, three tiers of batteries and a self-contained BarelyCables cable module on all eight Forge and NeoForge layers, released through 2026.11.3 (tall wind towers, bigger tier 2 solar, hopper and pipe feeding, balance fixes); open items are things that need a person, another mod's build, or a launcher install; 2026.11.4 (ModJS scripting, no hint text) is built and committed locally, not yet released.
 Spend: none
 
 ## Foundation
@@ -78,6 +78,15 @@ Spend: none
 - [x] Release 2026.11.2 tagged and uploaded (GitHub pre-release with four jars; CurseForge file ids 9466790 to 9466793 in the run log) (w:2)
 - [x] BarelyPowered mod_version bumped to 2026.11.3 in its eight builds (BarelyCables stays at 2026.11.2), own commit b4bffac (w:1)
 - [x] Release 2026.11.3 tagged and uploaded, CI green on the tag (run 42175560957; GitHub pre-release with four jars; CurseForge file ids 9469707 to 9469710 in the run log; CurseForge review status not checked) (w:2)
+
+## Scripting and hint removal (2026.11.4)
+- [x] Hint text removed from BarelyPowered and BarelyCables: usage and description lines on generator, battery and cable tooltips (keys tooltip.barelypowered.hand_crank, combustion_generator, lava_generator, solar_panel, wind_turbine, water_wheel, geothermal_generator, battery and tooltip.barelycables.cable) and "build higher" in the low-altitude note; frames of the generator, battery, cable and wind turbine tooltips on NeoForge 26.2 and Forge 26.2 in docs/frames/tooltips (w:2)
+- [x] Optional ModJS bridge: global BarelyPowered with events generatorStarted, generatorStopped and fuelBurned, generatorAt and batteryAt reads, and settings (read, session-only change); a failing listener is logged and ignored; 7 unit tests with Rhino (w:3)
+- [x] Script API self test on every version module: events, reads, a broken listener, settings and no ModJS (36 checks; passed on NeoForge 26.2, Forge 26.2 and Forge 26.3, failures=0 on NeoForge 1.21.1 and Forge 26.1.2); all eight layers compile (w:2)
+- [x] docs/scripting.md, wiki page scripting.md and nav entry (local draft, not deployed), one CurseForge feature line, CHANGELOG (w:1)
+- [x] mod_version 2026.11.4 in the eight BarelyPowered builds and 2026.11.3 in the eight BarelyCables builds (w:1)
+- [ ] Release 2026.11.4 tagged and uploaded, wiki scripting page deployed (the Project Manager does both) (w:2)
+- [x] n/a, not built: custom fuels and custom generator kinds from scripts (they would need a rewrite of the fuel and kind enums) (w:1)
 
 ## Documentation and branding
 - [x] Icon, banners and section headers drawn in the SMWTI style (w:2)

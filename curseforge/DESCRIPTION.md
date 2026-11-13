@@ -16,7 +16,7 @@ BarelyPowered adds power sources, batteries and energy cables, and no machines. 
 - **Batteries:** basic, iron and steel, from 100,000 to 1,600,000 FE. Each face can take in, give out, do both or be off. A broken battery keeps its charge, shows a gauge on the block and drives a comparator.
 - **Energy cables:** three tiers from 400 to 6,400 FE per tick, with a switch for every side. They come from BarelyCables, a separate module carried inside the jar, and work with any mod that speaks Forge Energy.
 
-Right-click any generator with an empty hand to see its output, the energy stored, the fuel left and why the output is what it is ("Low altitude, build higher", "Weather dims the sun").
+Right-click any generator with an empty hand to see its output, the energy stored, the fuel left and why the output is what it is ("Low altitude", "Weather dims the sun").
 
 ![How output is worked out](https://raw.githubusercontent.com/ItMeCasey/BarelyPowered/main/branding/banners/output.png)
 
@@ -27,7 +27,8 @@ Every output rate, tier multiplier and the weather, height and flow rules are in
 ![Compatibility](https://raw.githubusercontent.com/ItMeCasey/BarelyPowered/main/branding/banners/h_compat.png)
 
 - Outputs plain Forge Energy through the loader's energy interface on Forge and NeoForge.
-- Works against any block that accepts FE. A generator feeding AeroFlux energy pipes (with a battery, and with BarelyCables) into a test block was checked on NeoForge and Forge on 1.21.1, 26.1.2, 26.2 and 26.3.
+- Works against any block that accepts FE, including other mods' energy pipes.
+- Optional ModJS scripting: scripts can listen to generators starting, stopping and taking fuel, read a generator or battery at a position, and change settings.
 - BarelyCables is its own mod inside the jar. If another mod carries the same cables, only one copy loads.
 - Optional info plugins: Show Me What This Is and Jade (NeoForge) show a generator's output, fuel and the reason for a low output, a battery's rate and face settings, and a cable network's rate and size. Nothing else is required.
 - Shows up in the item viewers BEI, JEI, REI and EMI wherever they have a build for your version and loader (items and crafting recipes; no extra recipe categories).

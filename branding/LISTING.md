@@ -41,12 +41,11 @@ The panels and charts in these images are illustrations drawn for the branding; 
 
 ### Description
 
-The CurseForge description is in [`curseforge/DESCRIPTION.md`](../curseforge/DESCRIPTION.md). Paste it with the description type set to **Markdown**. Its images load from GitHub, so `branding/` has to be pushed first. It has no Install section on purpose, and its Tested line says only what was run.
+The CurseForge description is in [`curseforge/DESCRIPTION.md`](../curseforge/DESCRIPTION.md). Paste it with the description type set to **Markdown**. Its images load from GitHub, so `branding/` has to be pushed first. It has no Install section and no testing notes on purpose.
 
 ## Checklist
 
 1. Push `branding/` to GitHub so the description images load.
 2. Create the CurseForge project with `icon_512.png` as the logo, then record the project id above and in the upload script, and add the `CURSEFORGE_TOKEN` repository secret.
 3. Set `banners/social.png` as the GitHub social preview.
-4. Update the Tested line in the description at release.
-5. `icon/barelypowered_logo.png` is the jar's mod list logo (already in the jar as `barelypowered_logo.png`).
+4. `icon/barelypowered_logo.png` is the jar's mod list logo (already in the jar as `barelypowered_logo.png`).

@@ -1,5 +1,11 @@
 # Changelog
 
+## 2026.11.4
+
+- Optional ModJS scripting: a `BarelyPowered` global with generator events (`generatorStarted`, `generatorStopped`, `fuelBurned`), reads of the generator or battery at a position, and session settings. Without ModJS nothing changes. See `docs/scripting.md`.
+- Hint text is gone: the usage and description lines on generator, battery and cable tooltips are removed (the output, charge and rate lines stay), and the low-altitude note no longer says "build higher".
+- BarelyCables is at 2026.11.3 for the same tooltip change.
+
 ## 2026.11.3
 
 - Hoppers, item pipes and other mods' item transfer can feed the combustion generator: coal, charcoal, logs and planks go in from any side, one kind at a time up to a stack, and nothing comes out.
