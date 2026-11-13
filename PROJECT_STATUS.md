@@ -1,6 +1,6 @@
 # Project Status
 <!-- status-format: 1 -->
-Updated: 2026-11-10
+Updated: 2026-11-13
 Summary: Seven generators, three tiers of batteries and a self-contained BarelyCables cable module on all eight Forge and NeoForge layers, released through 2026.11.3 (tall wind towers, bigger tier 2 solar, hopper and pipe feeding, balance fixes); open items are things that need a person, another mod's build, or a launcher install.
 Spend: none
 
@@ -68,6 +68,7 @@ Spend: none
 ## Testing and release
 - [x] Unit tests: 26 for BarelyPowered (output math, config, battery core, face modes, automation room rules, planks and tiers) and 11 for BarelyCables (network conservation, tier throughput, face switches) on every layer (w:3)
 - [x] Unit tests run in CI (build.yml green on main at 9b241dd, run 42174560866: version check, tests, 16 layer builds, combine and nest, no dev files in release jars) (w:1)
+- [~] CI builds and releases only the modules a change affects (.github/scripts/plan_matrix.py with unit tests; committed locally, not yet run on GitHub) (w:2)
 - [x] Headless server load check with the self tests (32 checks per BarelyPowered layer, 9 per BarelyCables layer, ports 8960 to 8967 and 8970 to 8977; passed on all eight layers on 2026-11-09) (w:3)
 - [x] Client check with screenshots on every layer (scripts/client_tour.py, frames in docs/frames) (w:4)
 - [x] build.yml and release.yml with dry_run input, upload only builds whose mod_version equals the tag (release.yml green on tags v2026.11.1, v2026.11.2 and v2026.11.3 and on three manual dry runs, checked with gh run list) (w:2)

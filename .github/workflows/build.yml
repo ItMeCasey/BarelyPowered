@@ -6,29 +6,54 @@ on:
   pull_request:
 
 jobs:
+  plan:
+    # Picks the modules whose code changed in this push or pull request, so unchanged builds are never run.
+    # Docs, status, branding and workflow-only changes pick nothing. See .github/scripts/plan_matrix.py.
+    runs-on: ubuntu-latest
+    outputs:
+      matrix: ${{ steps.plan.outputs.matrix }}
+      any: ${{ steps.plan.outputs.any }}
+      test_matrix: ${{ steps.plan.outputs.test_matrix }}
+      test_any: ${{ steps.plan.outputs.test_any }}
+      combine: ${{ steps.plan.outputs.combine }}
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
+      - id: plan
+        run: python3 .github/scripts/plan_matrix.py build --before "${{ github.event.pull_request.base.sha || github.event.before }}" --sha "${{ github.sha }}"
+
   versions:
-    # Every BarelyPowered module must carry the same mod_version (releases are tagged v<mod_version>), and every BarelyCables
-    # module the same cables version. The two numbers are independent.
+    # Releases are tagged v<mod_version> and publish the Minecraft versions whose Forge and NeoForge BarelyPowered modules
+    # carry that number, so the two loaders of one Minecraft version must agree; the same goes for BarelyCables. The
+    # BarelyPowered and BarelyCables numbers are independent, and so are different Minecraft versions, because only the
+    # modules that changed are bumped.
+    needs: plan
+    if: needs.plan.outputs.any == 'true'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v5
-      - name: All BarelyPowered modules agree on mod_version
+      - name: Both BarelyPowered loaders of each Minecraft version agree on mod_version
         run: |
-          versions=$(grep -h '^mod_version=' */gradle.properties | sort -u)
-          echo "$versions"
-          test "$(echo "$versions" | wc -l)" -eq 1
-      - name: All BarelyCables modules agree on mod_version
+          for mc in 1.21.1 26.1.2 26.2 26.3; do
+            versions=$(grep -h '^mod_version=' *-$mc/gradle.properties | sort -u)
+            echo "$mc: $versions"
+            test "$(echo "$versions" | wc -l)" -eq 1
+          done
+      - name: Both BarelyCables loaders of each Minecraft version agree on mod_version
         run: |
-          versions=$(grep -h '^mod_version=' barelycables/*/gradle.properties | sort -u)
-          echo "$versions"
-          test "$(echo "$versions" | wc -l)" -eq 1
+          for mc in 1.21.1 26.1.2 26.2 26.3; do
+            versions=$(grep -h '^mod_version=' barelycables/*-$mc/gradle.properties | sort -u)
+            echo "$mc: $versions"
+            test "$(echo "$versions" | wc -l)" -eq 1
+          done
 
   test:
     # Unit tests for the shared logic that does not need a running game.
-    needs: versions
+    needs: [plan, versions]
+    if: needs.plan.outputs.test_any == 'true'
     strategy:
-      matrix:
-        dir: [neoforge-1.21.1, barelycables/neoforge-1.21.1]
+      matrix: ${{ fromJson(needs.plan.outputs.test_matrix) }}
     runs-on: ubuntu-latest
     defaults:
       run:
@@ -43,35 +68,36 @@ jobs:
       - run: ./gradlew test --no-daemon
 
   build:
-    needs: versions
+    needs: [plan, versions]
+    if: needs.plan.outputs.any == 'true'
     strategy:
       fail-fast: false
-      matrix:
-        project: [barelypowered, barelycables]
-        layer: [neoforge-1.21.1, forge-1.21.1, neoforge-26.1.2, forge-26.1.2, neoforge-26.2, forge-26.2, neoforge-26.3, forge-26.3]
+      matrix: ${{ fromJson(needs.plan.outputs.matrix) }}
     runs-on: ubuntu-latest
     defaults:
       run:
-        working-directory: ${{ matrix.project == 'barelycables' && format('barelycables/{0}', matrix.layer) || matrix.layer }}
+        working-directory: ${{ matrix.dir }}
     steps:
       - uses: actions/checkout@v5
       - uses: actions/setup-java@v5
         with:
           distribution: temurin
-          java-version: ${{ endsWith(matrix.layer, '1.21.1') && 21 || 25 }}
+          java-version: ${{ matrix.java }}
       - run: chmod +x gradlew
       - run: ./gradlew build --no-daemon
       - uses: actions/upload-artifact@v5
         with:
           name: ${{ matrix.project }}-${{ matrix.layer }}
           path: |
-            ${{ matrix.project == 'barelycables' && format('barelycables/{0}', matrix.layer) || matrix.layer }}/build/libs/*.jar
-            !${{ matrix.project == 'barelycables' && format('barelycables/{0}', matrix.layer) || matrix.layer }}/build/libs/*-sources.jar
-            !${{ matrix.project == 'barelycables' && format('barelycables/{0}', matrix.layer) || matrix.layer }}/build/libs/*-dev.jar
+            ${{ matrix.dir }}/build/libs/*.jar
+            !${{ matrix.dir }}/build/libs/*-sources.jar
+            !${{ matrix.dir }}/build/libs/*-dev.jar
 
   combine:
-    # One combined jar per Minecraft version, holding both loaders; BarelyCables is nested inside it with jar-in-jar.
-    needs: build
+    # One combined jar per Minecraft version, holding both loaders; BarelyCables is nested inside it with jar-in-jar. Only
+    # for Minecraft versions whose four layers (BarelyPowered and BarelyCables, both loaders) were all built in this run.
+    needs: [plan, build]
+    if: needs.plan.outputs.combine != ''
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v5
@@ -82,7 +108,7 @@ jobs:
         run: |
           mkdir -p dist cables
           cabver=$(grep -h '^mod_version=' barelycables/neoforge-1.21.1/gradle.properties | cut -d= -f2)
-          for mc in 1.21.1 26.1.2 26.2 26.3; do
+          for mc in ${{ needs.plan.outputs.combine }}; do
             python3 scripts/combine_jars.py "cables/barelycables-mc$mc-$cabver.jar" layers/barelycables-*-$mc/*.jar
             version=$(grep -h '^mod_version=' forge-$mc/gradle.properties | cut -d= -f2)
             python3 scripts/combine_jars.py "dist/barelypowered-mc$mc-$version.jar" layers/barelypowered-*-$mc/*.jar
