@@ -130,7 +130,6 @@ def models(root):
     lang.update({
         f"itemGroup.{MODID}": "BarelyCables",
         "tag.item.c.ingots.steel": "Steel Ingots",
-        f"tooltip.{MODID}.cable": "Joins generators, batteries and machines. Right-click an arm with an empty hand to switch that side off or on.",
         f"tooltip.{MODID}.rate": "A network of these moves up to %s FE per tick",
         f"message.{MODID}.face_off": "%s side: switched off",
         f"message.{MODID}.face_on": "%s side: switched on",

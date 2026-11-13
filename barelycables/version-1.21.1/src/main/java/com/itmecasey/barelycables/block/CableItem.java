@@ -20,7 +20,6 @@ public class CableItem extends BlockItem {
 
     @Override
     public void appendHoverText(ItemStack stack, Item.TooltipContext context, List<Component> tooltip, TooltipFlag flag) {
-        tooltip.add(Component.translatable("tooltip.barelycables.cable").withStyle(ChatFormatting.GRAY));
         tooltip.add(Component.translatable("tooltip.barelycables.rate", CableSettings.rate(tier)).withStyle(ChatFormatting.GOLD));
     }
 }

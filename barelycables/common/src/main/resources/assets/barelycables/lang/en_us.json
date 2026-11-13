@@ -4,7 +4,6 @@
   "block.barelycables.energy_cable_steel": "Steel Energy Cable",
   "itemGroup.barelycables": "BarelyCables",
   "tag.item.c.ingots.steel": "Steel Ingots",
-  "tooltip.barelycables.cable": "Joins generators, batteries and machines. Right-click an arm with an empty hand to switch that side off or on.",
   "tooltip.barelycables.rate": "A network of these moves up to %s FE per tick",
   "message.barelycables.face_off": "%s side: switched off",
   "message.barelycables.face_on": "%s side: switched on",

@@ -70,15 +70,7 @@ def lang():
     d["tag.item.c.ingots.steel"] = "Steel Ingots"
     d[f"itemGroup.{MODID}"] = "BarelyPowered"
     d.update({
-        f"tooltip.{MODID}.hand_crank": "Right-click to crank. Free power for the first machines.",
-        f"tooltip.{MODID}.combustion_generator": "Burns coal, charcoal, logs or planks. Right-click with fuel, or feed it from a hopper or pipe.",
-        f"tooltip.{MODID}.lava_generator": "Burns lava. Right-click with a lava bucket, or pipe lava in.",
-        f"tooltip.{MODID}.solar_panel": "Needs open sky. Strongest at noon, weaker in rain.",
-        f"tooltip.{MODID}.wind_turbine": "Builds a tower: needs 2 free blocks above (4 for the Advanced). Needs open sky; stronger higher up, weaker with blocks or turbines nearby.",
-        f"tooltip.{MODID}.water_wheel": "Needs flowing water beside or above it.",
-        f"tooltip.{MODID}.geothermal_generator": "Place next to lava or magma. Steady, no fuel.",
         f"tooltip.{MODID}.output": "Output: %s",
-        f"tooltip.{MODID}.battery": "Stores energy. Right-click a face with an empty hand to set it to input, output, both or off.",
         f"tooltip.{MODID}.charge": "Charge: %s / %s FE",
         f"tooltip.{MODID}.battery_rate": "Takes in and gives out up to %s FE per tick",
         f"message.{MODID}.battery": "%s: %s | Charge %s / %s FE",
@@ -94,7 +86,7 @@ def lang():
         "no_fuel": " | No fuel", "no_lava": " | No lava", "full": " | Buffer full, waiting",
         "no_sky": " | No open sky", "night": " | Night", "weather": " | Weather dims the sun",
         "blocked": " | Blocks around the blades", "crowded": " | Other turbines take wind",
-        "low": " | Low altitude, build higher", "no_flow": " | No flowing water", "no_heat": " | No lava or magma nearby",
+        "low": " | Low altitude", "no_flow": " | No flowing water", "no_heat": " | No lava or magma nearby",
     }
     for k, v in notes.items():
         d[f"message.{MODID}.note.{k}"] = v

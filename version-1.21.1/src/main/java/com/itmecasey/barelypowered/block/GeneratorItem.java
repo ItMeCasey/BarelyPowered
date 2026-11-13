@@ -25,7 +25,6 @@ public class GeneratorItem extends BlockItem {
     public void appendHoverText(ItemStack stack, Item.TooltipContext context, List<Component> tooltip, TooltipFlag flag) {
         Kind kind = generator.kind();
         int tier = generator.tier();
-        tooltip.add(Component.translatable("tooltip.barelypowered." + kind.id()).withStyle(ChatFormatting.GRAY));
         String top = switch (kind) {
             case COMBUSTION -> PowerMath.combustionOutput(Fuel.COAL, tier) + " FE/t on coal";
             case LAVA -> PowerMath.lavaOutput(tier) + " FE/t";

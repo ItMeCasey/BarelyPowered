@@ -29,7 +29,6 @@ public class BatteryItem extends BlockItem {
 
     @Override
     public void appendHoverText(ItemStack stack, Item.TooltipContext context, List<Component> tooltip, TooltipFlag flag) {
-        tooltip.add(Component.translatable("tooltip.barelypowered.battery").withStyle(ChatFormatting.GRAY));
         tooltip.add(Component.translatable("tooltip.barelypowered.charge", charge(stack), BatteryCore.capacity(tier)).withStyle(ChatFormatting.GOLD));
         tooltip.add(Component.translatable("tooltip.barelypowered.battery_rate", BatteryCore.rate(tier)).withStyle(ChatFormatting.DARK_GRAY));
     }
