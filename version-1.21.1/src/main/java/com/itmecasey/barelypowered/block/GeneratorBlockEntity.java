@@ -246,12 +246,25 @@ public class GeneratorBlockEntity extends BlockEntity {
 
     // ---- Ticking ----
 
+    /** Tells script listeners (ModJS) about a generator event; does nothing when no script listens. */
+    private void script(String name, String fuelKey) {
+        Level level = getLevel();
+        if (level == null || level.isClientSide() || !com.itmecasey.barelypowered.script.ScriptEvents.hasListeners(name)) {
+            return;
+        }
+        BlockPos pos = getBlockPos();
+        com.itmecasey.barelypowered.script.ScriptEvents.fire(new com.itmecasey.barelypowered.script.ScriptEvents.Event(name, kind.id(), tier,
+                net.minecraft.core.registries.BuiltInRegistries.BLOCK.getKey(getBlockState().getBlock()).toString(),
+                com.itmecasey.barelypowered.ScriptWorld.dimensionId(level), pos.getX(), pos.getY(), pos.getZ(), rate, note, fuelKey));
+    }
+
     public static void serverTick(Level level, BlockPos pos, BlockState state, GeneratorBlockEntity be) {
         be.tick(level, pos, state);
     }
 
     private void tick(Level level, BlockPos pos, BlockState state) {
         age++;
+        com.itmecasey.barelypowered.ScriptWorld.touch(level);
         boolean producing;
         switch (kind) {
             case HAND_CRANK -> {
@@ -270,6 +283,7 @@ public class GeneratorBlockEntity extends BlockEntity {
         }
         if (state.getValue(GeneratorBlock.LIT) != producing) {
             level.setBlock(pos, state.setValue(GeneratorBlock.LIT, producing), 3);
+            script(producing ? "generatorStarted" : "generatorStopped", "");
             if (kind == Kind.WIND) {
                 WindTowerBlock.syncLit(level, pos, tier, producing);
             }
@@ -294,6 +308,7 @@ public class GeneratorBlockEntity extends BlockEntity {
                 burnLeft = burnTotal;
                 burnRate = out;
                 setChanged();
+                script("fuelBurned", f.key());
             }
         }
         if (burnLeft > 0 && buffer.space() >= burnRate) {
@@ -318,6 +333,7 @@ public class GeneratorBlockEntity extends BlockEntity {
                 burnLeft = burnTotal;
                 burnRate = out;
                 setChanged();
+                script("fuelBurned", "lava");
             }
         }
         if (burnLeft > 0 && buffer.space() >= burnRate) {

@@ -98,6 +98,8 @@ final class ViewerTour {
             switch (parts[0]) {
                 case "inv" -> mc.setScreenAndShow(new InventoryScreen(mc.player));
                 case "esc" -> mc.setScreenAndShow(null);
+                case "give" -> ShotTour.server("give @p " + arg);
+                case "hover" -> hoverHotbar(mc, Integer.parseInt(arg));
                 case "move" -> move(mc, arg);
                 case "down" -> button(mc, arg, true);
                 case "up" -> button(mc, arg, false);
@@ -110,6 +112,25 @@ final class ViewerTour {
             LOGGER.warn("BARELYPOWERED-SHOTS viewer step '{}' failed", step, e);
         }
         LOGGER.info("BARELYPOWERED-SHOTS viewer step {}", step);
+    }
+
+    /** Moves the mouse over hotbar slot {@code index} (0 to 8) of the open inventory screen, so its item tooltip shows. */
+    private static void hoverHotbar(Minecraft mc, int index) throws ReflectiveOperationException {
+        if (!(mc.gui.screen() instanceof net.minecraft.client.gui.screens.inventory.AbstractContainerScreen<?> screen)) {
+            return;
+        }
+        java.lang.reflect.Field left = net.minecraft.client.gui.screens.inventory.AbstractContainerScreen.class.getDeclaredField("leftPos");
+        java.lang.reflect.Field top = net.minecraft.client.gui.screens.inventory.AbstractContainerScreen.class.getDeclaredField("topPos");
+        left.setAccessible(true);
+        top.setAccessible(true);
+        // Creative players get the creative screen, whose hotbar slots are the last nine; the survival screen has them at 36 to 44.
+        int first = screen instanceof net.minecraft.client.gui.screens.inventory.CreativeModeInventoryScreen
+                ? screen.getMenu().slots.size() - 9 : 36;
+        net.minecraft.world.inventory.Slot slot = screen.getMenu().getSlot(first + index);
+        double scale = mc.getWindow().getGuiScale();
+        double x = (left.getInt(screen) + slot.x + 8) * scale;
+        double y = (top.getInt(screen) + slot.y + 8) * scale;
+        method(mc.mouseHandler.getClass(), "onMove").invoke(mc.mouseHandler, mc.getWindow().handle(), x, y);
     }
 
     private static Method method(Class<?> type, String name) {

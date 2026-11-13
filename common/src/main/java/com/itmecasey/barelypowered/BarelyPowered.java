@@ -12,5 +12,6 @@ public final class BarelyPowered {
 
     public static void init(Supplier<Path> configDir) {
         Settings.loadFile(configDir.get().resolve(MODID + ".properties"));
+        com.itmecasey.barelypowered.script.ModJsBridge.install(com.itmecasey.barelypowered.script.PowerApi.INSTANCE);
     }
 }

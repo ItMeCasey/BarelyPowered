@@ -94,6 +94,27 @@ public final class Settings {
     private Settings() {
     }
 
+    /** Every setting key, in file order. */
+    public static synchronized java.util.List<String> keys() {
+        return new java.util.ArrayList<>(DEFS.keySet());
+    }
+
+    public static boolean has(String key) {
+        return DEFS.containsKey(key);
+    }
+
+    /** The current value as text. */
+    public static synchronized String get(String key) {
+        return raw(key);
+    }
+
+    /** Changes a value in memory (scripts use this); the file is not touched. Unknown keys are ignored. */
+    public static synchronized void set(String key, String value) {
+        if (DEFS.containsKey(key)) {
+            VALUES.put(key, value);
+        }
+    }
+
     /** Restores every default. */
     public static synchronized void reset() {
         VALUES.clear();

@@ -52,7 +52,9 @@ def run_isolated(folder, gradle_args, extra_env, done_marker, timeout=TIMEOUT, w
         state_file.unlink()
     start = GAME_LOG.stat().st_size if GAME_LOG.exists() else 0
     sets = "".join(f'set "{k}={v}"&& ' for k, v in extra_env.items())
-    command = f'cd /d "{folder}" && {sets}.\\gradlew.bat {gradle_args}'
+    # One Gradle build at a time on this PC: the slot wrapper (Git bash, not WSL bash) waits for its turn before the client builds.
+    gradle = '"C:\\Program Files\\Git\\usr\\bin\\bash.exe" /c/Users/casey/.claude/tools/gradle-slot.sh ./gradlew'
+    command = f'cd /d "{folder}" && {sets}{gradle} {gradle_args}'
     launcher = subprocess.Popen(["powershell", "-NoProfile", "-File", ISOLATED, "-Run", "-Desktop", DESKTOP, "-WorkDir", str(ROOT),
                                  "-RunDir", str(Path(folder) / "run"), "-Command", command, "-WaitMinutes", str(wait_minutes)],
                                 stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)

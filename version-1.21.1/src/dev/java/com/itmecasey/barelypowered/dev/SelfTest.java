@@ -111,6 +111,7 @@ public final class SelfTest {
                 }, (be, sink) -> Math.abs(be.output() - 32.0) < 1e-6 && sink.received() >= 32 * TICKS - 64);
         failures += recipes(server);
         failures += automation(ground, x, z);
+        failures += scripting(ground, x, z);
         failures += batteryChain(ground, x, z);
         LOGGER.info("SELFTEST DONE failures={}", failures);
         return failures;
@@ -178,6 +179,55 @@ public final class SelfTest {
         } catch (RuntimeException e) {
             LOGGER.error("SELFTEST error in battery chain", e);
             failures += verdict("battery_chain_ran_without_error", false, e.toString());
+        }
+        return failures;
+    }
+
+    /** The script API: events from a generator, reads through the attached world, a failing listener, settings, and no ModJS needed. */
+    private static int scripting(int ground, int x, int z) {
+        int failures = 0;
+        com.itmecasey.barelypowered.script.ScriptEvents.clear();
+        try {
+            BlockPos pos = new BlockPos(x + 24, ground, z);
+            BlockPos sinkPos = pos.east();
+            clear(pos);
+            level.setBlock(pos, ModContent.blocks().get(Tiers.blockId(Kind.COMBUSTION, 1)).defaultBlockState(), 3);
+            level.setBlock(sinkPos, DevContent.SINK.defaultBlockState(), 3);
+            GeneratorBlockEntity be = (GeneratorBlockEntity) level.getBlockEntity(pos);
+            SinkBlockEntity sink = (SinkBlockEntity) level.getBlockEntity(sinkPos);
+            java.util.List<String> seen = new java.util.ArrayList<>();
+            com.itmecasey.barelypowered.script.ScriptEvents.on("generatorStarted", e -> {
+                throw new IllegalStateException("a broken script");
+            });
+            com.itmecasey.barelypowered.script.ScriptEvents.on("generatorStarted", e -> seen.add("started " + e.kind + " " + e.tier + " " + e.x));
+            com.itmecasey.barelypowered.script.ScriptEvents.on("fuelBurned", e -> seen.add("burned " + e.fuel));
+            com.itmecasey.barelypowered.script.ScriptEvents.on("generatorStopped", e -> seen.add("stopped " + e.note));
+            be.insertFuel(new ItemStack(Items.COAL, 1), false);
+            for (int i = 0; i < 40; i++) {
+                GeneratorBlockEntity.serverTick(level, pos, level.getBlockState(pos), be);
+            }
+            String dim = com.itmecasey.barelypowered.ScriptWorld.dimensionId(level);
+            com.itmecasey.barelypowered.script.PowerApi.Generator g = com.itmecasey.barelypowered.script.PowerApi.INSTANCE.generatorAt(dim, pos.getX(), pos.getY(), pos.getZ());
+            failures += verdict("script_events_fire_and_a_broken_listener_changes_nothing",
+                    seen.contains("burned coal") && seen.contains("started combustion_generator 1 " + pos.getX()) && sink.received() > 0, seen + " received=" + sink.received());
+            failures += verdict("script_read_sees_the_generator", g != null && g.kind.equals("combustion_generator") && g.tier == 1 && g.lit && g.output == 30.0,
+                    g == null ? "null" : g.kind + " lit=" + g.lit + " output=" + g.output);
+            failures += verdict("script_read_of_empty_ground_is_null",
+                    com.itmecasey.barelypowered.script.PowerApi.INSTANCE.generatorAt(dim, pos.getX(), pos.getY() + 5, pos.getZ()) == null
+                            && com.itmecasey.barelypowered.script.PowerApi.INSTANCE.batteryAt(dim, pos.getX(), pos.getY(), pos.getZ()) == null, "");
+            com.itmecasey.barelypowered.script.PowerApi.INSTANCE.setSetting("combustion.coal.fe_per_tick", 31.0);
+            failures += verdict("script_setting_changes_output", com.itmecasey.barelypowered.PowerMath.combustionOutput(com.itmecasey.barelypowered.Fuel.COAL, 1) == 31,
+                    "output=" + com.itmecasey.barelypowered.PowerMath.combustionOutput(com.itmecasey.barelypowered.Fuel.COAL, 1));
+            Settings.reset();
+            boolean modjs = com.itmecasey.barelypowered.script.ModJsBridge.install(com.itmecasey.barelypowered.script.PowerApi.INSTANCE);
+            LOGGER.info("SELFTEST scripting: ModJS present={}", modjs);
+            clear(pos);
+        } catch (RuntimeException e) {
+            LOGGER.error("SELFTEST error in scripting", e);
+            failures += fail("scripting", e.toString());
+        } finally {
+            com.itmecasey.barelypowered.script.ScriptEvents.clear();
+            Settings.reset();
         }
         return failures;
     }

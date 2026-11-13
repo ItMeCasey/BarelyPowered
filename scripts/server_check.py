@@ -27,6 +27,10 @@ ERROR_WORDS = re.compile(r"(ModLoadingException|Failed to load mod|Encountered a
 OWN_ERROR = re.compile(r"barelypowered.*(Exception|Error)|(Exception|Error).*com\.itmecasey\.barelypowered", re.IGNORECASE)
 
 
+GIT_BASH = r"C:\Program Files\Git\usr\bin\bash.exe"
+SLOT = "/c/Users/casey/.claude/tools/gradle-slot.sh"
+
+
 def check(layer):
     folder = ROOT / layer
     run = folder / "run"
@@ -37,7 +41,8 @@ def check(layer):
         "motd=BarelyPowered server check\nmax-tick-time=-1\n")
     log = []
     env = dict(os.environ, BARELYPOWERED_SELFTEST="1")
-    proc = subprocess.Popen(["cmd", "/c", str(folder / "gradlew.bat"), "runServer", "--no-daemon", "-q", "-PdevTools"], cwd=folder, env=env,
+    # One Gradle build at a time on this PC: the slot wrapper waits for its turn, and the timeout below only counts once it has one.
+    proc = subprocess.Popen([GIT_BASH, SLOT, "./gradlew", "runServer", "--no-daemon", "-q", "-PdevTools"], cwd=folder, env=env,
                             stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True, errors="replace")
 
     def pump():
@@ -49,6 +54,8 @@ def check(layer):
     start = time.time()
     done = False
     while time.time() - start < TIMEOUT and proc.poll() is None:
+        if all(l.startswith("gradle-slot") for l in log):
+            start = time.time()
         if any(re.search(r"Done \(|For help, type", l) for l in log):
             done = True
             break
@@ -59,11 +66,15 @@ def check(layer):
         time.sleep(1)
     time.sleep(2)
     subprocess.run(["taskkill", "/T", "/F", "/PID", str(proc.pid)], capture_output=True)
+    # The slot wrapper runs under Git bash, which breaks the process tree: stop this layer's leftover Java processes by folder.
+    subprocess.run(["powershell", "-NoProfile", "-Command",
+                    "Get-CimInstance Win32_Process -Filter \"Name='java.exe'\" | Where-Object { $_.CommandLine -like '*"
+                    + str(folder).replace("'", "''") + "*' } | ForEach-Object { Stop-Process -Id $_.ProcessId -Force }"], capture_output=True)
     t.join(timeout=5)
     out = "\n".join(log)
     (run / "server_check.log").write_text(out, encoding="utf-8")
     mod_seen = bool(re.search(r"mod:barelypowered|\(barelypowered\)|Loading mod barelypowered|\[BarelyPowered/\]", out))
-    errors = [l for l in log if ERROR_WORDS.search(l) or OWN_ERROR.search(l)]
+    errors = [l for l in log if (ERROR_WORDS.search(l) or OWN_ERROR.search(l)) and "a broken script" not in l]
     if not done:
         return f"SERVER FAIL {layer}: server never reported Done (see {run / 'server_check.log'})"
     if not mod_seen:
