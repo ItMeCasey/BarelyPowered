@@ -27,8 +27,9 @@ import net.neoforged.neoforge.transfer.transaction.TransactionContext;
 /** NeoForge entry point for Minecraft 26.x. Registers the content and exposes each generator's energy. */
 @Mod(BarelyPowered.MODID)
 public final class NeoForgeBarelyPowered {
-    public NeoForgeBarelyPowered(IEventBus modBus) {
+    public NeoForgeBarelyPowered(IEventBus modBus, net.neoforged.fml.ModContainer container) {
         BarelyPowered.init(FMLPaths.CONFIGDIR::get);
+        NeoForgeConfig.register(modBus, container);
         modBus.addListener(NeoForgeBarelyPowered::register);
         modBus.addListener(NeoForgeBarelyPowered::capabilities);
         Dev.call("com.itmecasey.barelypowered.neoforge.dev.NeoForgeDev", "install", modBus);

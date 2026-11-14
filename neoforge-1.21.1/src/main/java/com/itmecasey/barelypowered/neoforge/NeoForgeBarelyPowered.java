@@ -22,8 +22,9 @@ import net.neoforged.neoforge.registries.RegisterEvent;
 /** NeoForge entry point for Minecraft 1.21.1. Registers the content and exposes each generator's energy. */
 @Mod(BarelyPowered.MODID)
 public final class NeoForgeBarelyPowered {
-    public NeoForgeBarelyPowered(IEventBus modBus) {
+    public NeoForgeBarelyPowered(IEventBus modBus, net.neoforged.fml.ModContainer container) {
         BarelyPowered.init(FMLPaths.CONFIGDIR::get);
+        NeoForgeConfig.register(modBus, container);
         modBus.addListener(NeoForgeBarelyPowered::register);
         modBus.addListener(NeoForgeBarelyPowered::capabilities);
         Dev.call("com.itmecasey.barelypowered.neoforge.dev.NeoForgeDev", "install", modBus);

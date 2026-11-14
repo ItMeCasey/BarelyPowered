@@ -21,8 +21,9 @@ import net.neoforged.neoforge.registries.RegisterEvent;
 /** NeoForge entry point for Minecraft 26.x. */
 @Mod(BarelyCables.MODID)
 public final class NeoForgeBarelyCables {
-    public NeoForgeBarelyCables(IEventBus modBus) {
+    public NeoForgeBarelyCables(IEventBus modBus, net.neoforged.fml.ModContainer container) {
         BarelyCables.init(FMLPaths.CONFIGDIR::get);
+        NeoForgeConfig.register(modBus, container);
         org.slf4j.LoggerFactory.getLogger("BarelyCables").info("BarelyCables module initialized");
         modBus.addListener(NeoForgeBarelyCables::register);
         modBus.addListener(NeoForgeBarelyCables::capabilities);

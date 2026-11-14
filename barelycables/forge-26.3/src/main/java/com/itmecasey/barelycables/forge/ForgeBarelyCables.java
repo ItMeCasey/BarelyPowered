@@ -26,6 +26,7 @@ import org.jetbrains.annotations.Nullable;
 public final class ForgeBarelyCables {
     public ForgeBarelyCables(FMLJavaModLoadingContext context) {
         BarelyCables.init(FMLPaths.CONFIGDIR::get);
+        ForgeConfig.register(context);
         org.slf4j.LoggerFactory.getLogger("BarelyCables").info("BarelyCables module initialized");
         RegisterEvent.getBus(context.getModBusGroup()).addListener(ForgeBarelyCables::register);
         AttachCapabilitiesEvent.BlockEntities.BUS.addListener(ForgeBarelyCables::attach);

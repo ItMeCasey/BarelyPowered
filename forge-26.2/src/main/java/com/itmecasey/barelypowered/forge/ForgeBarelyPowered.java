@@ -32,6 +32,7 @@ import org.jetbrains.annotations.Nullable;
 public final class ForgeBarelyPowered {
     public ForgeBarelyPowered(FMLJavaModLoadingContext context) {
         BarelyPowered.init(FMLPaths.CONFIGDIR::get);
+        ForgeConfig.register(context);
         RegisterEvent.getBus(context.getModBusGroup()).addListener(ForgeBarelyPowered::register);
         AttachCapabilitiesEvent.BlockEntities.BUS.addListener(ForgeBarelyPowered::attach);
         ForgeClient.install();

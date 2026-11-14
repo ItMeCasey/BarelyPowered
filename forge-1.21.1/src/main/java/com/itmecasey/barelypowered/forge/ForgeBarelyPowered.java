@@ -33,6 +33,7 @@ import org.jetbrains.annotations.Nullable;
 public final class ForgeBarelyPowered {
     public ForgeBarelyPowered(FMLJavaModLoadingContext context) {
         BarelyPowered.init(FMLPaths.CONFIGDIR::get);
+        ForgeConfig.register(context);
         context.getModEventBus().addListener(ForgeBarelyPowered::register);
         MinecraftForge.EVENT_BUS.addGenericListener(BlockEntity.class, ForgeBarelyPowered::attach);
         Dev.call("com.itmecasey.barelypowered.forge.dev.ForgeDev", "install", context);

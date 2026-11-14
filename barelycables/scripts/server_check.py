@@ -37,7 +37,9 @@ def check(layer):
         "motd=BarelyCables server check\nmax-tick-time=-1\n")
     log = []
     env = dict(os.environ, BARELYCABLES_SELFTEST="1")
-    proc = subprocess.Popen(["cmd", "/c", str(folder / "gradlew.bat"), "runServer", "--no-daemon", "-q", "-PdevTools"], cwd=folder, env=env,
+    # One Gradle build at a time on this PC: the slot wrapper (Git bash, not WSL bash) waits for its turn; the timeout restarts once it has one.
+    proc = subprocess.Popen([r"C:\Program Files\Git\usr\bin\bash.exe", "/c/Users/casey/.claude/tools/gradle-slot.sh", "./gradlew", "runServer",
+                             "--no-daemon", "-q", "-PdevTools"], cwd=folder, env=env,
                             stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True, errors="replace")
 
     def pump():
@@ -49,6 +51,8 @@ def check(layer):
     start = time.time()
     done = False
     while time.time() - start < TIMEOUT and proc.poll() is None:
+        if all(l.startswith("gradle-slot") for l in log):
+            start = time.time()
         if any(re.search(r"Done \(|For help, type", l) for l in log):
             done = True
             break
@@ -59,6 +63,10 @@ def check(layer):
         time.sleep(1)
     time.sleep(2)
     subprocess.run(["taskkill", "/T", "/F", "/PID", str(proc.pid)], capture_output=True)
+    # Git bash breaks the process tree: stop this layer's leftover Java processes by folder.
+    subprocess.run(["powershell", "-NoProfile", "-Command",
+                    "Get-CimInstance Win32_Process -Filter \"Name='java.exe'\" | Where-Object { $_.CommandLine -like '*"
+                    + str(folder).replace("'", "''") + "*' } | ForEach-Object { Stop-Process -Id $_.ProcessId -Force }"], capture_output=True)
     t.join(timeout=5)
     out = "\n".join(log)
     (run / "server_check.log").write_text(out, encoding="utf-8")
