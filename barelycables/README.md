@@ -2,7 +2,7 @@
 
 Energy cables for Forge Energy (FE), for Forge and NeoForge on Minecraft 1.21.1, 26.1.2, 26.2 and 26.3.
 
-- Three tiers: basic (400 FE per tick), iron (1,600) and steel (6,400), set in `config/barelycables.properties`.
+- Three tiers: basic (400 FE per tick), iron (1,600) and steel (6,400), set in `config/barelycables-common.toml`.
 - Cables join each other and any block that offers Forge Energy on that side: generators, batteries, machines, other mods' pipes.
 - Right-click an arm with an empty hand to switch that side off or on.
 - All cables that touch form one network. One cable (the lowest position) moves the energy for the whole network, a quiet network checks less often, and energy is never created or lost (see `common/src/test`).

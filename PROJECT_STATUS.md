@@ -1,7 +1,7 @@
 # Project Status
 <!-- status-format: 1 -->
-Updated: 2026-11-13
-Summary: Seven generators, three tiers of batteries and a self-contained BarelyCables cable module on all eight Forge and NeoForge layers, released through 2026.11.3 (tall wind towers, bigger tier 2 solar, hopper and pipe feeding, balance fixes); open items are things that need a person, another mod's build, or a launcher install; 2026.11.4 (ModJS scripting, no hint text) is built and committed locally, not yet released.
+Updated: 2026-11-14
+Summary: Seven generators, three tiers of batteries and a self-contained BarelyCables cable module on all eight Forge and NeoForge layers, released through 2026.11.3 (tall wind towers, bigger tier 2 solar, hopper and pipe feeding, balance fixes); open items are things that need a person, another mod's build, or a launcher install; 2026.11.4 (ModJS scripting, no hint text) is built and committed locally, not yet released; 2026.11.5 (standard .toml config with migration) is built and committed locally, not yet released.
 Spend: none
 
 ## Foundation
@@ -48,7 +48,7 @@ Spend: none
 - [x] AeroFlux energy pipes with an iron battery and with BarelyCables seen in real clients on all eight builds: sink received about 15,400 to 17,000 FE in each scene (Forge 1.21.1 16992 and 16320 FE, NeoForge 26.1.2 15840 and 15456, Forge 26.1.2 15744 and 15360, NeoForge and Forge 26.2 and NeoForge 26.3 15840 and 15456, Forge 26.3 15840 and 15360; frames docs/frames/automation); other cable mods not tried (w:3)
 
 ## Config and balance
-- [x] Config files: barelypowered.properties for every generator and battery rule, barelycables.properties for cables (w:3)
+- [x] Config files: config/barelypowered-common.toml for every generator and battery rule and config/barelycables-common.toml for cables, built from one list of settings with ranges (NeoForge ModConfigSpec, Forge ForgeConfigSpec; NeoForge config screen; Forge has none in these versions) (w:3)
 - [x] Recipes for all generators, batteries, cables and the steel ingot (data loads on all eight layers; documented in the wiki) (w:2)
 - [x] Recipes load and craft in the running game: 17 registered, five real crafting layouts and the steel blasting recipe resolve to the right results on all eight layers (server self test, 32 checks) (w:2)
 - [x] Balance played over a whole game by a person (needs a human play session; the numbers were reviewed on paper and the wiki Balance page lists them) (w:2) Casey played it and it felt OK for a first run (2026-11-10).
@@ -66,7 +66,7 @@ Spend: none
 - [x] A BarelyPowered fuel category in the viewers: not planned, the vanilla fuel category already lists the same items (coal, charcoal, logs, planks) (w:1)
 
 ## Testing and release
-- [x] Unit tests: 26 for BarelyPowered (output math, config, battery core, face modes, automation room rules, planks and tiers) and 11 for BarelyCables (network conservation, tier throughput, face switches) on every layer (w:3)
+- [x] Unit tests: 48 for BarelyPowered (output math, config and its migration, script bridge, battery core, face modes, automation room rules, planks and tiers) and 20 for BarelyCables (config migration, network conservation, tier throughput, face switches) on every layer (w:3)
 - [x] Unit tests run in CI (build.yml green on main at 9b241dd, run 42174560866: version check, tests, 16 layer builds, combine and nest, no dev files in release jars) (w:1)
 - [~] CI builds and releases only the modules a change affects (.github/scripts/plan_matrix.py with unit tests; committed locally, not yet run on GitHub) (w:2)
 - [x] Headless server load check with the self tests (32 checks per BarelyPowered layer, 9 per BarelyCables layer, ports 8960 to 8967 and 8970 to 8977; passed on all eight layers on 2026-11-09) (w:3)
@@ -87,6 +87,12 @@ Spend: none
 - [x] mod_version 2026.11.4 in the eight BarelyPowered builds and 2026.11.3 in the eight BarelyCables builds (w:1)
 - [ ] Release 2026.11.4 tagged and uploaded, wiki scripting page deployed (the Project Manager does both) (w:2)
 - [x] n/a, not built: custom fuels and custom generator kinds from scripts (they would need a rewrite of the fuel and kind enums) (w:1)
+
+## Standard config and migration (2026.11.5)
+- [x] Loader config: NeoForge ModConfigSpec and Forge ForgeConfigSpec built from one list of keys, defaults, ranges and comments in common code; values pushed into the settings on load and reload; NeoForge 26.3 uses the renamed LOCAL type; compiled on all sixteen builds (w:4)
+- [x] Migration from the old .properties files of every released version (2026.11.1 to 2026.11.4; keys never changed, only added), with real old files from each tag as test fixtures: success leaves the toml and a .back with a header line and the exact original, a corrupt or partly unreadable file stays, an existing .back is never overwritten, a second launch does nothing; 15 tests for BarelyPowered and 9 for BarelyCables (w:4)
+- [x] Migration seen on real dev servers: the dev run folders' real old files were migrated and moved to .back on NeoForge 26.2 and Forge 26.2 for both mods, and the self tests passed on top of the new config (w:2)
+- [ ] Release 2026.11.5 (BarelyCables 2026.11.4) tagged and uploaded, wiki config page deployed (the Project Manager does both) (w:2)
 
 ## Documentation and branding
 - [x] Icon, banners and section headers drawn in the SMWTI style (w:2)

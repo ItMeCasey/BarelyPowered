@@ -1,5 +1,12 @@
 # Changelog
 
+## 2026.11.5
+
+- Settings now live in the loader's standard config file, `config/barelypowered-common.toml`, with a comment, the default and the allowed range above every entry, and an in-game config screen on NeoForge (Mods, BarelyPowered, Config). The tier multipliers are one entry per tier (stone, iron, steel) instead of a comma list.
+- Your old settings carry over. The first start after the update copies the values from `config/barelypowered.properties` into the new file (the exact values you set; a `water_wheel.fe_per_flow` of 28.0, the old default, becomes the new default of 20.0). After the new file is written and checked, the old file is moved to `barelypowered.properties.back` with a line at the top saying where and why it migrated; the rest is exactly as it was. An existing `.back` is never overwritten (`.back2`, `.back3`), and a corrupt old file or one with unreadable values stays where it is.
+- BarelyCables is at 2026.11.4 with the same change (`config/barelycables-common.toml`, migrating `config/barelycables.properties`).
+- Scripts: the per-tier settings are now one key each, for example `combustion.tier.output_multiplier.iron`.
+
 ## 2026.11.4
 
 - Optional ModJS scripting: a `BarelyPowered` global with generator events (`generatorStarted`, `generatorStopped`, `fuelBurned`), reads of the generator or battery at a position, and session settings. Without ModJS nothing changes. See `docs/scripting.md`.

@@ -28,10 +28,10 @@ Reads return `null` for an unloaded position, a block of another kind, or before
 
 | Call | Does |
 |---|---|
-| `settingKeys()` | Every key of `config/barelypowered.properties`. |
+| `settingKeys()` | Every key of `config/barelypowered-common.toml`. |
 | `setting(key)` | The current value as text, or `null`. |
 | `settingNumber(key)` | The current value as a number. |
-| `setSetting(key, value)` | Changes a value for this session (the file is not written). Returns `false` for an unknown key. Use it from a startup script. |
+| `setSetting(key, value)` | Changes a value in memory (the file is not written; reloading the config file replaces it). Returns `false` for an unknown key. Per-tier settings have one key per tier, such as `combustion.tier.output_multiplier.iron`. |
 
 ## Example
 

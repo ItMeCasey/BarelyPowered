@@ -33,7 +33,7 @@ Fabric is out of scope. Install: put the jar for your Minecraft version in `mods
 
 ## BarelyCables: a module inside BarelyPowered
 
-The energy cables are not part of BarelyPowered's code. They live in [`barelycables/`](barelycables/): their own mod id (`barelycables`), Java package (`com.itmecasey.barelycables`), config file (`barelycables.properties`), language keys, textures, Gradle layers, tests and version number. The module imports nothing from BarelyPowered or AeroFlux, and BarelyPowered's generators and batteries talk to it only through Forge Energy, like any other mod would.
+The energy cables are not part of BarelyPowered's code. They live in [`barelycables/`](barelycables/): their own mod id (`barelycables`), Java package (`com.itmecasey.barelycables`), config file (`barelycables-common.toml`), language keys, textures, Gradle layers, tests and version number. The module imports nothing from BarelyPowered or AeroFlux, and BarelyPowered's generators and batteries talk to it only through Forge Energy, like any other mod would.
 
 Each BarelyPowered jar carries the combined BarelyCables jar for the same Minecraft version inside `META-INF/jarjar` (the loader's jar-in-jar). When two mods carry the same BarelyCables, the loader keeps one copy, so there is only one set of cable blocks, recipes and config. BarelyCables stays part of BarelyPowered; moving items and fluids is the job of Barely Pipes.
 

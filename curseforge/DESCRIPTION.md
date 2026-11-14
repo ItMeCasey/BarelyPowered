@@ -22,7 +22,7 @@ Right-click any generator with an empty hand to see its output, the energy store
 
 ![Config](https://raw.githubusercontent.com/ItMeCasey/BarelyPowered/main/branding/banners/h_config.png)
 
-Every output rate, tier multiplier and the weather, height and flow rules are in one file, `config/barelypowered.properties`. Recipes and the numbers behind them are on the wiki.
+Every output rate, tier multiplier and the weather, height and flow rules are in one file, `config/barelypowered-common.toml`. Recipes and the numbers behind them are on the wiki.
 
 ![Compatibility](https://raw.githubusercontent.com/ItMeCasey/BarelyPowered/main/branding/banners/h_compat.png)
 
